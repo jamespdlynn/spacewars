@@ -1,12 +1,15 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "spacewars",
+  "version": "0.1.0",
   "private": true,
   "scripts": {
     "start": "node app.js"
   },
   "dependencies": {
     "express": "3.4.7",
-    "jade": "*"
+    "binaryjs" : "*",
+    "less-middleware" : "*",
+    "microjs" : "*",
+    "requirejs" : "*"
   }
 }

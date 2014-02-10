@@ -1,9 +1,9 @@
-@import "bootstrap/bootstrap";
+@assets: "http://dazx2ug0v9sfb.cloudfront.net";
 
-@font-face
-{
+@import "bootstrap/bootstrap";
+@font-face{
   font-family: SpaceRanger;
-  src: url('assets/spacerangerbold.ttf');
+  src: url('@{assets}/spacerangerbold.ttf');
 }
 
 html{
@@ -11,7 +11,7 @@ html{
   margin:0;
   overflow: hidden;
   text-align: center;
-  background: url('assets/space.svg') 100% #000;
+  background: url('@{assets}/space.svg') 100% #000;
   color: #ffffff;
   font-family: 'Helvetica';
 
@@ -131,7 +131,7 @@ html{
               font-size: 23px;
               text-align: left;
               padding-left: 30px;
-              background:  url('assets/target.png') transparent no-repeat left center;
+              background: url('@{assets}/target.png') transparent no-repeat left center;
               margin-right: 20px;
               display: inline-block;
               vertical-align: middle;
@@ -173,7 +173,7 @@ html{
 
             &.death{
               .label{
-                background-image: url('assets/skull.png');
+                background-image:url('@{assets}/skull.png');
               }
             }
         }
@@ -191,12 +191,9 @@ html{
     left: 15px;
     z-index: 3;
     font-weight: bold;
-
-    > *{
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 5px 0 0;
-    }
+    padding-right: 21px;
+    background-image: url('@{assets}/loader.gif');
+    background-position: right center;
   }
 
   #icons{
@@ -221,31 +218,31 @@ html{
   }
 
   #sound{
-    background-image: url('../assets/sound.png');
+    background-image: url('@{assets}/sound.png');
 
     &.active{
-      background-image: url('../assets/mute.png');
+      background-image: url('@{assets}/mute.png');
     }
   }
 
   #full-screen{
-    background-image: url('../assets/fullscreen.png');
+    background-image: url('@{assets}/fullscreen.png');
   }
 
   &:-webkit-full-screen #full-screen{
-    background-image: url('../assets/exit-fullscreen.png');
+    background-image: url('@{assets}/exit-fullscreen.png');
   }
 
   &:-moz-full-screen #full-screen{
-    background-image: url('../assets/exit-fullscreen.png');
+    background-image: url('@{assets}/exit-fullscreen.png');
   }
 
   &:-ms-fullscreen {
-    background-image: url('../assets/exit-fullscreen.png');
+    background-image: url('@{assets}/exit-fullscreen.png');
   }
 
   &:full-screen #full-screen{
-    background-image: url('../assets/exit-fullscreen.png');
+    background-image: url('@{assets}/exit-fullscreen.png');
   }
 
 }

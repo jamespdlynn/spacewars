@@ -1,10 +1,9 @@
 // Space Wars
 // (c) 2014 James Lynn <james.lynn@aristobotgames.com>, Aristobot LLC.
-
 var http = require("http"),
     express = require("express"),
-    less = require('less-middleware'),
-    requirejs = require('requirejs');
+    requirejs = require('requirejs'),
+    pkg = require('./package.json');
 
 global.extend = function(add){
     for (var i=0; i < arguments.length; i++){
@@ -18,61 +17,69 @@ global.extend = function(add){
     return this;
 };
 
-//Use require js from here on out to load our modules instead of node's require function.
-//This will allow us to share some of the same modules both client and server side.
-requirejs.config({
-    baseUrl : __dirname+"/lib",
-    nodeRequire : require
+var app = express(),
+    isProd = ('production' == app.get('env'));
+
+app.configure(function(){
+
+    var fs = require('fs');
+
+    var htmlPath = __dirname+'/public/index.html';
+    if (fs.existsSync(htmlPath)) fs.unlinkSync(htmlPath);
+
+    var cssPath = __dirname+'/public/css/style.css';
+    if (fs.existsSync(cssPath)) fs.unlinkSync(cssPath);
+
+    var mainPath = isProd ? '/js/main-'+pkg.version: 'main';
+    require('jade').renderFile(__dirname+'/views/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
+        fs.writeFile(htmlPath, html);
+    });
+
+    app.set('port', process.env.PORT || 80);
+    app.use(express.logger());
+    app.use(express.favicon());
+    app.use(app.router);
+
+    app.use(require('less-middleware')({
+        src: __dirname + '/less',
+        dest : __dirname + '/public/css',
+        prefix : '/css',
+        optimization: 2,
+        force : !isProd,
+        debug : !isProd,
+        compress: isProd, // compress when in production
+        once: isProd // check for changes only once in production
+    }));
+
+    app.use(express.static(__dirname+"/public"));
 });
 
-var app = express();
-var isDevelopment = false;
-
-app.configure('development', function(){
-
-    app.use(less({
-        src: __dirname + '/less',
-        dest : __dirname + '/public',
-        compress : false,
-        debug : true,
-        force : true
-    }));
-   // app.use(express.logger('dev'));
-    app.use(express.errorHandler());
+app.configure('development', function() {
     app.use(express.static(__dirname+"/lib"));
-    app.use(express.static(__dirname+"/public"));
-
-    isDevelopment = true;
-
+    app.use(express.errorHandler());
 });
 
 app.configure('production', function(){
-
-    console.log("prod");
-
-    app.use(less({
-        src: __dirname + '/less',
-        dest : __dirname + '/public',
-        compress : true,
-        once : true
-    }));
-    app.use(express.static(__dirname+"/public"));
-
     requirejs.optimize({
         baseUrl : __dirname+"/lib",
         name : 'main',
         mainConfigFile : __dirname+"/lib/main.js",
         findNestedDependencies : true,
-        out : __dirname+"/public/main.js",
+        out : __dirname+"/public/js/main-"+pkg.version+".js",
         preserveLicenseComments : false
     });
 });
 
-var port = process.argv[2] || process.env.PORT || 80;
-var httpServer = http.createServer(app).listen(port, function(){
-    console.log('Express server listening on port ' +port);
+var httpServer = http.createServer(app).listen(app.get('port'), function(){
+    console.log('Express server listening on port ' +app.get('port'));
+});
+
+requirejs.config({
+    baseUrl : __dirname+"/lib",
+    nodeRequire : require
 });
 
 requirejs(["socket/server"], function(server){
-    server.run(httpServer , isDevelopment);
+    server.run(httpServer , !isProd);
 });
+

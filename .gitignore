@@ -217,8 +217,9 @@ pip-log.txt
 *.iml
 .idea
 
+public/index.html
 node_modules/
 styles.css
 main-*
-index.html
+
 

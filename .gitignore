@@ -216,8 +216,9 @@ pip-log.txt
 
 *.iml
 .idea
-styles.css
+
 node_modules/
-.elasticbeanstalk
-
-.elasticbeanstalk/
+styles.css
+main-*
+index.html
+

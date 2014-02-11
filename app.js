@@ -38,7 +38,6 @@ app.configure(function(){
     app.set('port', process.env.PORT || 80);
     app.use(express.logger());
     app.use(express.favicon());
-    app.use(app.router);
 
     app.use(require('less-middleware')({
         src: __dirname + '/less',

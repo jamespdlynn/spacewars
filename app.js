@@ -65,7 +65,8 @@ app.configure('production', function(){
         mainConfigFile : __dirname+"/lib/main.js",
         findNestedDependencies : true,
         out : __dirname+"/public/js/main-"+pkg.version+".js",
-        preserveLicenseComments : false
+        preserveLicenseComments : false,
+        optimize : 'none'
     });
 });
 

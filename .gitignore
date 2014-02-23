@@ -1,7 +1,6 @@
 *.iml
 .idea
 index.html
-node_modules/*
 styles.css
 main-*
 

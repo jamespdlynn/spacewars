@@ -6,6 +6,11 @@
   src: url('../fonts/spacerangerbold.ttf');
 }
 
+@font-face{
+  font-family: Soldier;
+  src: url('../fonts/soldiercond.ttf');
+}
+
 html{
   padding:0;
   margin:0;
@@ -56,10 +61,12 @@ html{
     z-index: 1;
   }
 
-  #modal{
+  .modal{
     z-index:2;
     overflow: hidden;
     display: none;
+    background: none;
+    border: none;
 
     .modal-dialog{
       margin-top: 120px;
@@ -72,13 +79,12 @@ html{
         bac: 0.7;
 
         .modal-header{
+          border: none;
 
-          border-bottom: 1px #eaeaea double;
           .modal-title{
-            font-size: 25px;
-            font-weight: bold;
+            font-size: 28px;
             text-shadow: 1px 1px 1px #000;
-
+            font-family: 'SpaceRanger';
           }
         }
 
@@ -88,11 +94,11 @@ html{
       }
     }
 
-    #welcome-modal{
+    &#welcome-modal{
 
       #username-input{
-        font-family: 'SpaceRanger';
-        font-size: 30px;
+        font-family: 'Soldier';
+        font-size: 26px;
         letter-spacing: 4px;
         color: #ffffff;
         text-shadow: 1px 1px 1px #000;
@@ -101,12 +107,40 @@ html{
         outline: none;
         width: 100%;
         text-align: center;
-
       }
 
     }
 
-    #death-modal{
+    &#about-modal{
+      background-color: #1111111;
+      border: solid 2px #fffffff;
+
+      #close-button{
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 20px;
+        height: 20px;
+        text-align: center;
+        font-size: 20px;
+        font-weight: bold;
+        font-family: "Soldier";
+        cursor: pointer;
+
+        :after{
+          content: "X";
+        }
+      }
+
+
+      img{
+        margin-top: 10px;
+        width: 100%;
+        height: auto;
+      }
+    }
+
+    &#death-modal{
 
         line-height: 28px;
         font-size: 20px;
@@ -212,6 +246,10 @@ html{
       cursor: pointer;
     }
 
+  }
+
+  #about{
+    background-image: url('@{assets}/about.png');
   }
 
   #sound{

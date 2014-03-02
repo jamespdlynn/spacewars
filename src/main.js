@@ -49,8 +49,8 @@ require.config({
         return !!(document.fullscreenElement  || document.mozFullScreenElement  || document.webkitFullscreenElement);
     };
 
-    HTMLElement.prototype.show = function(){
-        this.setAttribute("style", "display:block");
+    HTMLElement.prototype.show = function(inline){
+        this.setAttribute("style",  inline ? "display:inline-block" : "display:block");
     };
 
     HTMLElement.prototype.hide = function(){

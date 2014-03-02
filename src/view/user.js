@@ -6,9 +6,9 @@ define(['createjs','view/gauge','model/constants','model/game'],function(createj
     var Container = createjs.Container;
 
     var UserContainer = function (){
-        this.usernameLabel = new createjs.Text("","22px Soldier", "#fff");
-        this.deathLabel = new createjs.Text("","20px Soldier", "#fff");
-        this.killLabel =  new createjs.Text("","20px Soldier", "#fff");
+        this.usernameLabel = new createjs.Text("","14px Arkitech", "#fff");
+        this.deathLabel = new createjs.Text("","bold 19px Helvetica", "#fff");
+        this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#fff");
 
         this.deathIcon = new createjs.Bitmap(preloader.getResult('deathIcon'));
         this.killIcon = new createjs.Bitmap(preloader.getResult('killIcon'));
@@ -43,7 +43,7 @@ define(['createjs','view/gauge','model/constants','model/game'],function(createj
 
             this.usernameLabel.text = data.username;
             this.usernameLabel.x = 0;
-            this.usernameLabel.y = 3;
+            this.usernameLabel.y = 1;
 
             this.deathLabel.text = data.deaths;
             this.deathLabel.x =  WIDTH - this.deathLabel.getMeasuredWidth();

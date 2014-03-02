@@ -18,7 +18,7 @@ define(['createjs', 'model/game'],function(createjs, gameData){
             this.image = preloader.getResult(this.model.data.key);
             this.regX = this.image.width/2;
             this.regY = this.image.height/2;
-            this.alpha = 0.2;
+            this.alpha = 0.3;
             this.tickEnabled = false;
         },
 

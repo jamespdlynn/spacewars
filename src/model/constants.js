@@ -10,8 +10,8 @@ define(function(){
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
 
        Zone : {
-           width : 2200,
-           height : 1444,
+           width : 1980,
+           height : 1300,
            padding : 10
        },
 
@@ -22,9 +22,9 @@ define(function(){
        },
 
        Player : {
-           width : 72,
-           height : 72,
-           acceleration : 320,
+           width : 65,
+           height : 65,
+           acceleration : 360,
            maxVelocity : 160,
            fireInterval : 1200,
            invulnerableTime : 2500,
@@ -33,8 +33,8 @@ define(function(){
        },
 
        Missile : {
-           width : 12,
-           height : 28,
+           width : 14,
+           height : 26,
            velocity : 280
        },
 

@@ -54,13 +54,13 @@ app.configure(function(){
 });
 
 app.configure('development', function() {
-    app.use(express.static(__dirname+"/lib"));
+    app.use(express.static(__dirname+"/src"));
     app.use(express.errorHandler());
 });
 
 app.configure('production', function(){
     requirejs.optimize({
-        baseUrl : __dirname+"/lib",
+        baseUrl : __dirname+"/src",
         name : 'main',
         mainConfigFile : __dirname+"/lib/main.js",
         findNestedDependencies : true,
@@ -75,7 +75,7 @@ var httpServer = http.createServer(app).listen(app.get('port'), function(){
 });
 
 requirejs.config({
-    baseUrl : __dirname+"/lib",
+    baseUrl : __dirname+"/src",
     nodeRequire : require
 });
 

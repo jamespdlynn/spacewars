@@ -259,7 +259,18 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 explosion.removeEventListener("animationend");
                 stage.removeChild(explosion);
 
-                if (!userShip && GameView.isRunning){
+                if (!userShip && GameView.isRunning && !gameEnding){
+
+                    var slayer;
+                    if (model1.type === 'Missile'){
+                        slayer = gameData.currentZone.players.get(model1.get("playerId"));
+                    }else if (model2.type === 'Missle'){
+                        slayer = gameData.currentZone.players.get(model2.get("playerId"));
+                    }
+
+                    gameData.slayer = slayer ?  slayer.get("username") : "";
+                    gameData.incrementDeaths();
+
                     endGame();
                 }
             });
@@ -270,11 +281,10 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         }
     }
 
-    function endGame(){
+    function endGame(missile){
         gameEnding = true;
         setTimeout(function(){
             if (GameView.isRunning){
-                gameData.incrementDeaths();
                 gameData.trigger(Constants.Events.GAME_END);
             }
         }, 1700);

@@ -21,6 +21,6 @@ define(function(){
         {id:"green", src:"/assets/green.png"},
         {id:"purple", src:"/assets/purple.png"},
 
-        {id:"SpaceRanger", src:"/fonts/spacerangerbold.ttf"}
+        {id:"css", src:"/css/style.css"}
     ];
 });

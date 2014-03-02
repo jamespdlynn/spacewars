@@ -1,16 +1,14 @@
 define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html', 'txt!tpl/death.html', 'txt!tpl/about.html'],
     function (Constants, gameData, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl){
 
-        var body = document.getElementsByTagName("body")[0];
-
+        var modal = document.getElementById("modal");
         var connecting = document.getElementById("connecting");
 
         var aboutIcon = document.getElementById("about");
-
         var soundIcon = document.getElementById("sound");
-        if (gameData.user.muted) soundIcon.className = "active";
-
         var fullScreenIcon = document.getElementById("full-screen");
+
+        if (gameData.user.muted) soundIcon.className = "active";
 
         var ModalsView = {
 
@@ -21,12 +19,11 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showWelcomeModal : function(){
 
-                 this.removeModals();
-
-                 body.innerHTML += welcomeTpl;
+                 modal.innerHTML= welcomeTpl;
+                 modal.show();
 
                  var usernameInput = document.getElementById("username-input");
-                 usernameInput.focus();
+                 var deployButton = document.getElementById("deploy-button");
 
                  var onSubmit = function(evt){
                      if (evt.type == "click" || evt.which == 13){
@@ -38,19 +35,27 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                              usernameInput.focus();
                          }
                      }
+
                  };
 
+                 var onKeyUp = function(){
+                     usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
+                 };
+
+
+                 usernameInput.focus();
+                 //deployButton.hide();
+                 deployButton.addEventListener("click", onSubmit);
                  document.onkeydown = onSubmit;
-                 document.getElementById("deploy-button").addEventListener("click", onSubmit);
+                 document.onkeyup =  onKeyUp;
 
                  return ModalsView;
              },
 
              showConnectionFailedModal : function(){
 
-                 this.removeModals();
-
-                 body.innerHTML += connectionFailedTpl;
+                 modal.innerHTML = connectionFailedTpl;
+                 modal.show();
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -62,7 +67,8 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  this.removeModals();
 
-                 body.innerHTML += disconnectedTpl;
+                 modal.innerHTML += disconnectedTpl;
+                 modal.show();
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -72,9 +78,12 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showDeathModal : function(){
 
-                 this.removeModals();
+                 modal.innerHTML = deathTpl;
+                 modal.show();
 
-                 body.innerHTML += deathTpl;
+                 if (gameData.slayer){
+                     document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer;
+                 }
 
                  document.getElementById("total-kills").innerHTML = gameData.user.kills;
                  document.getElementById("total-deaths").innerHTML = gameData.user.deaths;
@@ -92,28 +101,43 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
              },
 
              showAboutModal : function(){
-                 if (aboutIcon.className !== "active"){
-                     body.innerHTML += aboutTpl;
-                     aboutIcon.className = "active";
 
-                     document.getElementById("close-button").addEventListener("click", function(){
-                         body.removeChild(document.getElementById("about-modal"));
-                         aboutIcon.className = null;
-                     });
-                 }
+                 var existingDialog = document.getElementsByClassName('modal-dialog')[0];
+
+                 modal.innerHTML = aboutTpl;
+                 modal.show();
+
+                 document.getElementById("close-button").addEventListener("click", function(){
+
+                     modal.innerHTML = "";
+                     modal.hide();
+
+                     if (existingDialog){
+                         switch (existingDialog.id){
+                             case "welcome-modal":
+                                 ModalsView.showWelcomeModal();
+                                 break;
+                             case "connection-failed-modal":
+                                 ModalsView.showConnectionFailedModal();
+                                 break;
+                             case "disconnected-modal":
+                                 ModalsView.showDisconnectedModal();
+                                 break;
+                             case "death-modal":
+                                 ModalsView.showDeathModal();
+                         }
+                     }
+
+                 });
              },
 
              removeModals : function(){
 
-                 var modals = document.getElementsByClassName('.modal');
-                 for (var i=0; i < modals.length; i++){
-                     body.removeChild(modals[i]);
-                 }
+                 modal.innerHTML = "";
+                 modal.hide();
 
-                 if (document.onkeydown == onSubmit){
-                     document.onkeydown = null;
-                 }
-
+                 document.onkeydown = null;
+                 document.onkeyup = null;
                  aboutIcon.className = null;
 
                  return ModalsView;

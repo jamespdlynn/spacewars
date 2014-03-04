@@ -8,7 +8,7 @@
   "dependencies": {
     "express": "3.4.7",
     "binaryjs" : "*",
-    "less-middleware" : "*",
+    "less-middleware" : "0.1.15",
     "microjs" : "*",
     "requirejs" : "*",
     "jade" : "*"

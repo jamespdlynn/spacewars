@@ -19,8 +19,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showWelcomeModal : function(){
 
-                 modal.innerHTML= welcomeTpl;
-                 modal.show();
+                this.showModal(welcomeTpl);
 
                  var usernameInput = document.getElementById("username-input");
                  var deployButton = document.getElementById("deploy-button");
@@ -38,24 +37,20 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  };
 
-                 var onKeyUp = function(){
+                 usernameInput.focus();
+                 deployButton.addEventListener("click", onSubmit);
+
+                 document.onkeydown = onSubmit;
+                 document.onkeyup =  function(){
                      usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
                  };
-
-
-                 usernameInput.focus();
-                 //deployButton.hide();
-                 deployButton.addEventListener("click", onSubmit);
-                 document.onkeydown = onSubmit;
-                 document.onkeyup =  onKeyUp;
 
                  return ModalsView;
              },
 
              showConnectionFailedModal : function(){
 
-                 modal.innerHTML = connectionFailedTpl;
-                 modal.show();
+                 this.showModal(connectionFailedTpl);
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -65,10 +60,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showDisconnectedModal : function(){
 
-                 this.removeModals();
-
-                 modal.innerHTML += disconnectedTpl;
-                 modal.show();
+                 this.showModal(disconnectedTpl);
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -78,8 +70,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showDeathModal : function(){
 
-                 modal.innerHTML = deathTpl;
-                 modal.show();
+                 this.showModal(deathTpl);
 
                  if (gameData.slayer){
                      document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer;
@@ -103,9 +94,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
              showAboutModal : function(){
 
                  var existingDialog = document.getElementsByClassName('modal-dialog')[0];
-
-                 modal.innerHTML = aboutTpl;
-                 modal.show();
+                 this.showModal(aboutTpl);
 
                  document.getElementById("close-button").addEventListener("click", function(){
 
@@ -113,36 +102,51 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                      modal.hide();
 
                      if (existingDialog){
-                         switch (existingDialog.id){
-                             case "welcome-modal":
-                                 ModalsView.showWelcomeModal();
-                                 break;
-                             case "connection-failed-modal":
-                                 ModalsView.showConnectionFailedModal();
-                                 break;
-                             case "disconnected-modal":
-                                 ModalsView.showDisconnectedModal();
-                                 break;
-                             case "death-modal":
-                                 ModalsView.showDeathModal();
-                         }
+                         showModalById(existingDialog.id);
                      }
 
                  });
              },
 
-             removeModals : function(){
+             showModal : function(template){
+                 modal.innerHTML = template;
+
+                 var modalDialog = document.getElementsByClassName('modal-dialog')[0];
+                 var padding = Math.min((window.innerHeight - modalDialog.offsetHeight)/2, 0);
+                 modalDialog.setAttribute("style", "margin-top:"+padding+"px");
+             },
+
+             removeModal : function(){
 
                  modal.innerHTML = "";
                  modal.hide();
 
                  document.onkeydown = null;
                  document.onkeyup = null;
-                 aboutIcon.className = null;
 
                  return ModalsView;
              }
         };
+
+        function showModalById(id){
+            switch (id){
+                case "welcome-modal":
+                    ModalsView.showWelcomeModal();
+                    break;
+                case "connection-failed-modal":
+                    ModalsView.showConnectionFailedModal();
+                    break;
+                case "disconnected-modal":
+                    ModalsView.showDisconnectedModal();
+                    break;
+                case "death-modal":
+                    ModalsView.showDeathModal();
+                    break;
+                default:
+                    console.warn("Unknown modal id: "+id);
+                    break;
+            }
+        }
 
         function onSubmit(evt){
             if (evt.type == "click" || evt.which == 13){

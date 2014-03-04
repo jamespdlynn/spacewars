@@ -64,7 +64,7 @@ require(['view/modals','view/game','socket/client', 'model/constants','model/gam
     function( ModalsView, GameView, Client, Constants, gameData){
 
         gameData.on(Constants.Events.DEPLOY, function(){
-            ModalsView.setConnecting(true).removeModals();
+            ModalsView.setConnecting(true).removeModal();
             Client.run();
         });
 

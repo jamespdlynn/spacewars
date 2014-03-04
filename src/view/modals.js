@@ -19,7 +19,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showWelcomeModal : function(){
 
-                this.showModal(welcomeTpl);
+                 ModalsView.showModal(welcomeTpl);
 
                  var usernameInput = document.getElementById("username-input");
                  var deployButton = document.getElementById("deploy-button");
@@ -50,7 +50,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showConnectionFailedModal : function(){
 
-                 this.showModal(connectionFailedTpl);
+                 ModalsView.showModal(connectionFailedTpl);
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -60,7 +60,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showDisconnectedModal : function(){
 
-                 this.showModal(disconnectedTpl);
+                 ModalsView.showModal(disconnectedTpl);
 
                  document.onkeydown = onSubmit;
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
@@ -70,7 +70,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showDeathModal : function(){
 
-                 this.showModal(deathTpl);
+                 ModalsView.showModal(deathTpl);
 
                  if (gameData.slayer){
                      document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer;
@@ -94,7 +94,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
              showAboutModal : function(){
 
                  var existingDialog = document.getElementsByClassName('modal-dialog')[0];
-                 this.showModal(aboutTpl);
+                 ModalsView.showModal(aboutTpl);
 
                  document.getElementById("close-button").addEventListener("click", function(){
 
@@ -110,10 +110,16 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showModal : function(template){
                  modal.innerHTML = template;
+                 modal.show();
+
+
 
                  var modalDialog = document.getElementsByClassName('modal-dialog')[0];
-                 var padding = Math.min((window.innerHeight - modalDialog.offsetHeight)/2, 0);
+                 var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
                  modalDialog.setAttribute("style", "margin-top:"+padding+"px");
+
+                 console.log(window.innerHeight);
+                 console.log(modalDialog.children[0].clientHeight);
              },
 
              removeModal : function(){

@@ -54,9 +54,9 @@ app.configure(function(){
 });
 
 app.configure('development', function() {
-    app.use(express.static(__dirname+"/src"));
     app.use(express.logger());
     app.use(express.errorHandler());
+    app.use(express.static(__dirname+"/src"));
 });
 
 app.configure('production', function(){
@@ -72,6 +72,10 @@ app.configure('production', function(){
 
 var httpServer = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' +app.get('port'));
+
+    process.on('uncaughtException', function(error) {
+        console.error("Uncaught Exception: "+error);
+    });
 });
 
 requirejs.config({

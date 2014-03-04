@@ -12,8 +12,10 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
     var availableWorldSize;
     var wsServer;
     var connectionCount;
+    var maxConnectionCount;
     var addresses;
     var isDevelopment;
+
 
     //Register our schemas
     micro.register(schemas);
@@ -30,6 +32,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
             }
 
             connectionCount = 0;
+            maxConnectionCount = 0;
             addresses = {};
 
             //Create a new BinaryServer Instance
@@ -118,6 +121,11 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
             if (connectionCount > maxConnections && availableWorldSize < Constants.MAX_WORLD_SIZE){
                 availableWorldSize++;
             }
+
+            if (connectionCount > maxConnectionCount){
+                logServerStatus();
+                maxConnectionCount = connectionCount;
+            }
         };
 
         var onZoneChange = function(player, direction){
@@ -177,18 +185,11 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
             connection.in = stream;
             connection.in.writeable = false;
-            connection.in.on('data', function(buffer){
-                try{
-                    readData(buffer);
-                }catch(e){
-                   console.warn(e.message);
-                  connection.close();
-                }
-            });
+            connection.in.on('data', readData);
         });
 
         connection.on("error", function(error){
-            console.warn(error);
+            console.error("WebSocket Error: "+error);
             connection.close();
         });
 
@@ -249,6 +250,14 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
     function getZoneId(row, col){
        return (row*Constants.MAX_WORLD_SIZE) + col;
+    }
+
+    function logServerStatus(){
+        console.log("");
+        console.log(new Date().toUTCString());
+        console.log("World Size: "+availableWorldSize);
+        console.log("Connections: "+connectionCount);
+        console.log("");
     }
 
 

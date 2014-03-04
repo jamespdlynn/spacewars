@@ -36,7 +36,7 @@ app.configure(function(){
     });
 
     app.set('port', process.env.PORT || 80);
-    app.use(express.logger());
+
     app.use(express.favicon());
 
     app.use(require('less-middleware')({
@@ -55,6 +55,7 @@ app.configure(function(){
 
 app.configure('development', function() {
     app.use(express.static(__dirname+"/src"));
+    app.use(express.logger());
     app.use(express.errorHandler());
 });
 
@@ -62,11 +63,10 @@ app.configure('production', function(){
     requirejs.optimize({
         baseUrl : __dirname+"/src",
         name : 'main',
-        mainConfigFile : __dirname+"/lib/main.js",
+        mainConfigFile : __dirname+"/src/main.js",
         findNestedDependencies : true,
         out : __dirname+"/public/js/main-"+pkg.version+".js",
-        preserveLicenseComments : false,
-        optimize : 'none'
+        preserveLicenseComments : false
     });
 });
 

@@ -63,6 +63,16 @@ require.config({
 require(['view/modals','view/game','socket/client', 'model/constants','model/game'],
     function( ModalsView, GameView, Client, Constants, gameData){
 
+        if ('ontouchstart' in document.documentElement){
+            ModalsView.showUnsupportedDeviceModal();
+            return;
+        }
+
+        if (!!window.HTMLCanvasElement || navigator.appName.indexOf('Internet Explorer') >= 0){
+            ModalsView.showUnsupportedBrowserModal();
+            return;
+        }
+
         gameData.on(Constants.Events.DEPLOY, function(){
             ModalsView.setConnecting(true).removeModal();
             Client.run();

@@ -16,7 +16,13 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             this.currentZone = null;
             this.debug = true;
 
-            this.user = JSON.parse(localStorage.getItem("user")) || {
+            try{
+                this.user = JSON.parse(localStorage.getItem("user"));
+            }catch(e){
+                console.warn("Could not load user from local storage: "+e.msg);
+            }
+
+            this.user = this.user || {
                 username : "",
                 kills : 0,
                 deaths : 0,
@@ -24,7 +30,11 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             };
 
             this.on(Constants.Events.USER_CHANGED, function(){
-                localStorage.setItem("user", JSON.stringify(this.user));
+                try{
+                    localStorage.setItem("user", JSON.stringify(this.user));
+                }catch(e){
+                    console.warn("Could not save user to local storage: "+e.msg);
+                }
             });
 
             return this;

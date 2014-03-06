@@ -1,5 +1,6 @@
-define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html', 'txt!tpl/death.html', 'txt!tpl/about.html'],
-    function (Constants, gameData, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl){
+define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html',
+    'txt!tpl/disconnected.html', 'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
+    function (Constants, gameData, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
 
         var modal = document.getElementById("modal");
         var connecting = document.getElementById("connecting");
@@ -108,11 +109,17 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  });
              },
 
+             showUnsupportedBrowserModal : function(){
+                 ModalsView.showModal(unsupportedBrowserTpl);
+             },
+
+             showUnsupportedDeviceModal : function(){
+                 ModalsView.showModal(unsupportedDeviceTpl);
+             },
+
              showModal : function(template){
                  modal.innerHTML = template;
                  modal.show();
-
-
 
                  var modalDialog = document.getElementsByClassName('modal-dialog')[0];
                  var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);

@@ -68,7 +68,7 @@ require(['view/modals','view/game','socket/client', 'model/constants','model/gam
             return;
         }
 
-        if (!!window.HTMLCanvasElement || navigator.appName.indexOf('Internet Explorer') >= 0){
+        if (!window.HTMLCanvasElement || navigator.appName.indexOf('Internet Explorer') >= 0){
             ModalsView.showUnsupportedBrowserModal();
             return;
         }

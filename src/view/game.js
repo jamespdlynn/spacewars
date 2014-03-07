@@ -67,7 +67,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             createjs.Ticker.setFPS(Constants.FPS);
             createjs.Ticker.addEventListener("tick", onTick);
 
-            gameData.on(Constants.Events.ZONE_CHANGED);
+            gameData.on(Constants.Events.ZONE_CHANGED, renderZone);
             gameData.on(Constants.Events.COLLISION, onCollision);
 
             updateTimeout = setTimeout(triggerUpdate, Constants.CLIENT_UPDATE_INTERVAL);

@@ -105,13 +105,13 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
              },
 
              closeAboutModal : function(){
-
                  modal.innerHTML = "";
                  modal.hide();
                  aboutIcon.className = null;
 
                  if (existingDialog){
                      showModalById(existingDialog.id);
+                     existingDialog = undefined;
                  }
              },
 

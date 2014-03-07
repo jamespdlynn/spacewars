@@ -24,8 +24,8 @@ define(function(){
        Player : {
            width : 65,
            height : 65,
-           acceleration : 360,
-           maxVelocity : 160,
+           acceleration : 320,
+           maxVelocity : 155,
            fireInterval : 1200,
            invulnerableTime : 2500,
            fuelUseRate : 30,
@@ -35,7 +35,7 @@ define(function(){
        Missile : {
            width : 14,
            height : 26,
-           velocity : 280
+           velocity : 275
        },
 
        Events : {

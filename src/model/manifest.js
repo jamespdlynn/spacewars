@@ -20,7 +20,5 @@ define(function(){
         {id:"neptune", src:"/assets/neptune.png"},
         {id:"green", src:"/assets/green.png"},
         {id:"purple", src:"/assets/purple.png"},
-
-        {id:"css", src:"/css/style.css"}
     ];
 });

@@ -9,6 +9,8 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
 
+        var existingDialog;
+
         if (gameData.user.muted) soundIcon.className = "active";
 
         var ModalsView = {
@@ -94,19 +96,23 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
              showAboutModal : function(){
 
-                 var existingDialog = document.getElementsByClassName('modal-dialog')[0];
+                 existingDialog = document.getElementsByClassName('modal-dialog')[0];
                  ModalsView.showModal(aboutTpl);
 
-                 document.getElementById("close-button").addEventListener("click", function(){
+                 aboutIcon.className = "active";
 
-                     modal.innerHTML = "";
-                     modal.hide();
+                 document.getElementById("close-button").addEventListener("click", ModalsView.closeAboutModal);
+             },
 
-                     if (existingDialog){
-                         showModalById(existingDialog.id);
-                     }
+             closeAboutModal : function(){
 
-                 });
+                 modal.innerHTML = "";
+                 modal.hide();
+                 aboutIcon.className = null;
+
+                 if (existingDialog){
+                     showModalById(existingDialog.id);
+                 }
              },
 
              showUnsupportedBrowserModal : function(){
@@ -124,15 +130,13 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  var modalDialog = document.getElementsByClassName('modal-dialog')[0];
                  var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
                  modalDialog.setAttribute("style", "margin-top:"+padding+"px");
-
-                 console.log(window.innerHeight);
-                 console.log(modalDialog.children[0].clientHeight);
              },
 
              removeModal : function(){
 
                  modal.innerHTML = "";
                  modal.hide();
+                 aboutIcon.className = null;
 
                  document.onkeydown = null;
                  document.onkeyup = null;
@@ -167,7 +171,13 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
             }
         }
 
-        aboutIcon.addEventListener("click", ModalsView.showAboutModal);
+        aboutIcon.addEventListener("click", function(){
+            if (aboutIcon.className !== "active"){
+                ModalsView.showAboutModal();
+            }else{
+                ModalsView.closeAboutModal();
+            }
+        });
 
         soundIcon.addEventListener("click",function(){
             if (!gameData.user.muted){

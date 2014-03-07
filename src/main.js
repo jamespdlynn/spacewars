@@ -64,13 +64,11 @@ require(['view/modals','view/game','socket/client', 'model/constants','model/gam
     function( ModalsView, GameView, Client, Constants, gameData){
 
         if ('ontouchstart' in document.documentElement){
-            ModalsView.showUnsupportedDeviceModal();
-            return;
+            return ModalsView.setConnecting(false).showUnsupportedDeviceModal();
         }
 
-        if (!window.HTMLCanvasElement || navigator.appName.indexOf('Internet Explorer') >= 0){
-            ModalsView.showUnsupportedBrowserModal();
-            return;
+        if (!window.HTMLCanvasElement || typeof document.documentMode == "number" || eval("/*@cc_on!@*/!1")){
+            return ModalsView.setConnecting(false).showUnsupportedBrowserModal();
         }
 
         gameData.on(Constants.Events.DEPLOY, function(){
@@ -106,7 +104,6 @@ require(['view/modals','view/game','socket/client', 'model/constants','model/gam
             ModalsView.showDeathModal();
             gameData.reset();
         });
-
 
         GameView.initialize();
 

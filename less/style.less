@@ -48,11 +48,12 @@ html{
   }
 
   a{
-    color: #cf0000;
+    color: red;
+    text-decoration: none;
   }
 
   a:hover{
-    color: red;
+    color: #E20000;
   }
 
   p{
@@ -94,28 +95,33 @@ html{
         border: none;
         box-shadow: none;
         pointer-events:all;
+        margin-top: -20px;
 
 
         .modal-header{
-          padding: 10px 0;
+          padding: 0;
+          margin:0;
           border: none;
+          min-height: 0;
 
           .modal-title{
             font-size: 42px;
             text-shadow: 1px 1px 1px #000;
             font-family: 'SpaceRanger';
             font-weight: normal;
+            line-height: 42px;
           }
         }
 
         .modal-body{
-          padding: 0 30px;
+          padding: 20px;
         }
 
         .modal-footer{
           border: none;
           text-align: center;
-          padding: 20px 0;
+          padding: 0;
+          min-height: 48px;
         }
 
       }
@@ -124,7 +130,6 @@ html{
     #welcome-modal{
 
       #username-input{
-        margin-top: 15px;
         font-family: 'Arkitech';
         font-size: 28px;
         letter-spacing: 4px;
@@ -162,8 +167,8 @@ html{
 
           #close-button{
             position: absolute;
-            top: 8px;
-            right: 8px;
+            top: 0;
+            right: 0;
             width: 24px;
             height: 24px;
             text-align: center;
@@ -269,7 +274,7 @@ html{
     left: 15px;
     z-index: 3;
     font-weight: bold;
-    padding-right: 28px;
+    padding-right: 25px;
     background-image: url('@{assets}/loader.gif');
     background-position: right center;
     background-repeat: no-repeat;
@@ -278,7 +283,7 @@ html{
   #version{
     font-size: 10px;
     position: fixed;
-    bottom: 20px;
+    bottom: 15px;
     right: 15px;
     z-index: 0;
   }

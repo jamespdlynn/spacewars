@@ -50,11 +50,12 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
     function onConnection(connection){
 
+        console.log("Connection");
         //Make sure we haven't exceeded our maximum number of connections
 
         var remoteAddress = connection._socket._socket.remoteAddress;
 
-        if (wsServer._clientCounter >= MAX_CONNECTIONS || (addresses[remoteAddress] && !isDevelopment)){
+        if (connectionCount >= MAX_CONNECTIONS || (addresses[remoteAddress] && !isDevelopment)){
             connection.close();
             return;
         }
@@ -218,6 +219,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
             if (connectionCount < maxConnections && availableWorldSize > Constants.MIN_WORLD_SIZE){
                 availableWorldSize--;
             }
+
+            console.log("close");
 
         });
 

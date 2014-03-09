@@ -31,7 +31,7 @@ app.configure(function(){
     if (fs.existsSync(cssPath)) fs.unlinkSync(cssPath);
 
     var mainPath = isProd ? '/js/main-'+pkg.version: 'main';
-    require('jade').renderFile(__dirname+'/views/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
+    require('jade').renderFile(__dirname+'/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
         fs.writeFile(htmlPath, html);
     });
 

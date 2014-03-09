@@ -48,7 +48,7 @@ define(['model/constants'],function(Constants){
        },
 
        PlayerUpdate : {
-           angle :  {type:"float", byteLength:2, precision:2},
+           angle :  {type:"float", byteLength:2, precision:4},
            isAccelerating : "boolean",
            isFiring : "boolean",
            id : "uint8"

@@ -26,7 +26,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 });
 
                 wsClient.on('error', function(err){
-                    console.warn(err.message);
+                    console.warn("Websocket Error: "+err.message);
                     wsClient.close();
                 });
 

@@ -24,7 +24,7 @@ define(function(){
        Player : {
            width : 65,
            height : 65,
-           acceleration : 320,
+           acceleration : 340,
            maxVelocity : 155,
            fireInterval : 1200,
            invulnerableTime : 2500,

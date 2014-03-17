@@ -70,9 +70,10 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
                 }
             }
 
+            var isAccelerating = this.hasOwnProperty("isAccelerating") ? this.isAccelerating : data.isAccelerating;
             var volume = this.exhaustSound.getVolume();
 
-            if (data.isAccelerating){
+            if (isAccelerating){
                 this.flame1._tick(evt);
                 this.flame2._tick(evt);
 
@@ -84,8 +85,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
                 this.exhaustSound.setVolume(Math.max(volume-0.5,0));
             }
 
-            var isAccelerating = this.hasOwnProperty("isAccelerating") ? this.isAccelerating : data.isAccelerating;
-
             this.flame1.visible = this.flame2.visible = isAccelerating;
             this.alpha =  data.isInvulnerable ? 0.4 : 1;
         },
@@ -95,7 +94,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         },
 
         destroy : function(){
-            console.log("DESTROY");
             this.exhaustSound.stop();
         }
     });

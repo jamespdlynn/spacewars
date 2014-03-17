@@ -73,9 +73,11 @@ app.configure('production', function(){
 var httpServer = http.createServer(app).listen(app.get('port'), function(){
     console.log('Express server listening on port ' +app.get('port'));
 
-    process.on('uncaughtException', function(error) {
-        console.error("Uncaught Exception: "+error);
-    });
+    if (isProd){
+        process.on('uncaughtException', function(error) {
+            console.error("Uncaught Exception: "+error.stack);
+        });
+    }
 });
 
 requirejs.config({

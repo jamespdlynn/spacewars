@@ -1,4 +1,4 @@
-define(['model/constants'],function(Constants){
+define(['model/dispatcher','model/constants'],function( EventDispatcher, Constants){
 
     var Sprite = function(data, options){
          this.initialize(data, options);
@@ -8,7 +8,7 @@ define(['model/constants'],function(Constants){
         return Math.sqrt((x*x)+(y*y));
     };
 
-    extend.call(Sprite.prototype, {
+    extend.call(Sprite.prototype, EventDispatcher.prototype, {
 
         type : "Sprite",
 
@@ -106,6 +106,7 @@ define(['model/constants'],function(Constants){
                 }
 
                 this.lastUpdated = currentTime;
+                this.trigger(Constants.Events.UPDATE);
             }
 
             return this;

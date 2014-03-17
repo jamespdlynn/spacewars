@@ -3,8 +3,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
     var MAX_PLANETS = 20;
     var PARTIAL_PLAYER_SIZE = 12;
-    var LOOP_PLAYER_SIZE = 5;
-    var LOOP_MISSILE_SIZE = 5;
+    var PARTIAL_MISSILE_SIZE = 5;
 
     /**
      * @constructor
@@ -70,6 +69,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             data.isInvulnerable = true;
 
             var player = model.players.add(data);
+            player.on("update", onPlayerUpdate);
             //Send the new player to existing connections
             this._sendPlayer(player);
 
@@ -91,6 +91,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 currentZone:this.model.toJSON()
             },"GameData");
             conn.out.write(buffer);
+
+
         },
 
         /**
@@ -119,22 +121,27 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var player = this.model.players.get(dataObj.id);
 
-            if (player){
-                //Update player data
-                player.update().set(dataObj);
+            if (!player) return;
 
-                if (player.hasChanged()){
-                    if (player.get("isAccelerating") || player.hasChanged("isAccelerating")){
-                        this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
-                    }else{
-                        this._sendToAll("PlayerUpdate", dataObj);
-                    }
-                }
+            player.update();
 
-                if (dataObj.isFiring && player.canFire()){
-                    var missile = this.model.missiles.add(player.fireMissile());
-                    this._sendMissile(missile);
+            if (dataObj.isAccelerating && !player.canAccelerate()) dataObj.isAccelerating = false;
+            if (dataObj.isShielded && !player.canShield()) dataObj.isShielded = false;
+
+            //Update player data
+            player.set(dataObj);
+
+            if (player.hasChanged()){
+                if (player.get("isAccelerating") || player.hasChanged("isAccelerating")){
+                    this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
+                }else{
+                    this._sendToAll("PlayerUpdate", dataObj);
                 }
+            }
+
+            if (dataObj.isFiring && player.canFire()){
+                var missile = this.model.missiles.add(player.fireMissile());
+                this._sendMissile(missile);
             }
         },
 
@@ -182,12 +189,21 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         _sendPlayer : function(player, byteLength){
 
             this._clearTimeout(player);
-            this._sendToAll("Player", player.toJSON(), byteLength);
+
+            var buffer = micro.toBinary(player.toJSON(), "Player", byteLength);
+            var i = this.connections.length;
+            while (i--){
+                var connection = this.connections[i];
+                connection.out.write(buffer);
+                if (connection.id == player.id){
+                    connection.out.write(micro.toBinary(player.toJSON(), "PlayerInfo"));
+                }
+            }
 
             var self = this;
             this._setTimeout(player,function(){
                 if (!self.checkZoneChange(player)){
-                    self._sendPlayer(player, LOOP_PLAYER_SIZE);
+                    self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
                 }
             });
         },
@@ -201,7 +217,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this._setTimeout(missile,function(){
 
                 if (!missile.update().outOfBounds()){
-                    self._sendMissile(missile, LOOP_MISSILE_SIZE);
+                    self._sendMissile(missile, PARTIAL_MISSILE_SIZE);
                 }else{
                     self.model.missiles.remove(missile);
                 }
@@ -261,6 +277,16 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         }
 
     });
+
+    function onPlayerUpdate(){
+        if (this.get("isAccelerating") && !this.canAccelerate()){
+            this.set("isAccelerating", false);
+        }
+
+        if (this.get("isShielded") && !this.canShield()){
+            this.set("isShielded", false);
+        }
+    }
 
 
     return ServerZone;

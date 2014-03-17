@@ -291,16 +291,29 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     //Canvas Event Listeners
-    function onMouseDown(){
+    function onMouseDown(evt){
         if (userShip){
-            userShip.isAccelerating = true;
+
+            var which = evt.nativeEvent.which;
+            if (which == 1){
+                userShip.isAccelerating = true;
+            }else if (which == 3){
+                userShip.isShielded = true;
+            }
+
             triggerUpdate();
         }
     }
 
-    function onMouseUp(){
+    function onMouseUp(evt){
         if (userShip){
-            userShip.isAccelerating = false;
+            var which = evt.nativeEvent.which;
+            if (which == 1){
+                userShip.isAccelerating= false;
+            }else if (which == 3){
+                userShip.isShielded = false;
+            }
+
         }
     }
 
@@ -333,6 +346,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,
                 isAccelerating:userShip.isAccelerating,
+                isShielded:userShip.isShielded,
                 isFiring:userShip.isFiring
             });
         }

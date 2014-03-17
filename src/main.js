@@ -56,6 +56,10 @@ require.config({
     HTMLElement.prototype.hide = function(){
         this.setAttribute("style", "display:none");
     };
+
+    window.oncontextmenu = function(){
+        return false;
+    }
 })();
 
 

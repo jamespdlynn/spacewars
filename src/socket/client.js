@@ -115,6 +115,16 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                     break;
 
+                case "PlayerInfo":
+                    if (!userPlayer) return;
+                    userPlayer.set(dataObj);
+                    break;
+
+                case "PlayerUpdate":
+                    if (!currentZone) return;
+                    currentZone.players.get(dataObj.id).set(dataObj);  //No need to ease on player update, as it contains only partial player data
+                    break;
+
                 case "Missile":
                     if (!currentZone) return;
 
@@ -132,11 +142,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                         missile.set(dataObj, {easing:true});
                     }
 
-                    break;
-
-                case "PlayerUpdate":
-                    if (!currentZone) return;
-                    currentZone.players.get(dataObj.id).set(dataObj);  //No need to ease on player update, as it contains only partial player data
                     break;
 
                 case "Collision":
@@ -161,16 +166,12 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
             userPlayer.update();
 
-            if (data.isAccelerating && !userPlayer.canAccelerate()){
-                data.isAccelerating = false;
-            }
-
-            if (data.isFiring && !userPlayer.canFire()){
-                data.isFiring = false;
-            }
+            if (data.isAccelerating && !userPlayer.canAccelerate()) data.isAccelerating = false;
+            if (data.isShielded && !userPlayer.canShield()) data.isShielded = false;
+            if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
 
             var isAccelerating = userPlayer.get("isAccelerating");
-            var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating);
+            var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating) || (data.isShielded !== userPlayer.get("isShielded"));
             if (!sendUpdate){
                 var angleDiff = userPlayer.angleDifference(data.angle);
                 sendUpdate = (angleDiff >= Math.PI/2) || (isAccelerating && angleDiff >= 0.2);

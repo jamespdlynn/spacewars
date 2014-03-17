@@ -26,7 +26,10 @@ define(['model/constants'],function(Constants){
            velocityY : {type:"float", byteLength: 2, precision:1},
            angle : {type:"float", byteLength:2, precision:4},
            isAccelerating : "boolean",
+           isShielded : "boolean",
            isInvulnerable : "boolean",
+           fuel : "int8",
+           shields: "int8",
            username : "string"
        },
 
@@ -45,13 +48,19 @@ define(['model/constants'],function(Constants){
            posX : {type:"float", byteLength:2, precision:1},
            posY : {type:"float", byteLength:2, precision:1},
            scale : {type:"float", byteLength:1, precision:2}
-       },
+    },
 
        PlayerUpdate : {
            angle :  {type:"float", byteLength:2, precision:4},
            isAccelerating : "boolean",
+           isShielded : "boolean",
            isFiring : "boolean",
            id : "uint8"
+       },
+
+       PlayerInfo : {
+           fuel : "int8",
+           shields : "int8"
        },
 
        RemoveSprite : {

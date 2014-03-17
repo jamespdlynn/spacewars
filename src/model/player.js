@@ -18,6 +18,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             angle : 0,
             thrust : 0,
             fuel : 100,
+            shields : 100,
+            isShielded : false,
             isAccelerating : false,
             isInvulnerable : false,
             username : ""
@@ -54,15 +56,28 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
                 data.velocityX = newVelocityX;
                 data.velocityY = newVelocityY;
 
-                data.fuel -= this.fuelUseRate * deltaSeconds;
-                data.fuel = Math.max(data.fuel, 0);
+                if (data.fuel > 0){
+                    data.fuel -= this.fuelUseRate * deltaSeconds;
+                    data.fuel = Math.max(data.fuel, 0);
+                }
             }
             else{
                 data.posX += data.velocityX * deltaSeconds;
                 data.posY += data.velocityY * deltaSeconds;
 
-                data.fuel += (this.fuelRestoreRate * deltaSeconds);
-                data.fuel = Math.min(data.fuel, 100);
+                if (data.fuel < 100){
+                    data.fuel += (this.fuelRestoreRate * deltaSeconds);
+                    data.fuel = Math.min(data.fuel, 100);
+                }
+            }
+
+            if (data.shields > 0 && data.isShielded){
+                data.shields -=  (this.shieldUseRate * deltaSeconds);
+                data.shields = Math.max(data.shields, 0);
+            }
+            else if (data.shields < 100 && !data.isShielded){
+                data.shields += (this.shieldRestoreRate * deltaSeconds);
+                data.shields = Math.min(data.shields, 100);
             }
 
             return this;
@@ -94,8 +109,12 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             return this.data.fuel > 0;
         },
 
+        canShield : function(){
+            return this.data.shields > 0;
+        },
+
         canFire : function(){
-            return !this.data.isInvulnerable && (!this.lastFired || this.lastUpdated-this.lastFired >= this.fireInterval);
+            return !this.data.isInvulnerable && !this.data.isShielded && (!this.lastFired || this.lastUpdated-this.lastFired >= this.fireInterval);
         },
 
         fireMissile : function(){

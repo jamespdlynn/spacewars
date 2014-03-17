@@ -29,7 +29,9 @@ define(function(){
            fireInterval : 1200,
            invulnerableTime : 2500,
            fuelUseRate : 30,
-           fuelRestoreRate : 30
+           fuelRestoreRate : 30,
+           shieldUseRate : 10,
+           shieldRestoreRate : 2
        },
 
        Missile : {
@@ -47,7 +49,8 @@ define(function(){
            PLAYER_UPDATE : "playerUpdate",
            COLLISION : "collision",
            ZONE_CHANGED : "zoneChanged",
-           USER_CHANGED : "userChanged"
+           USER_CHANGED : "userChanged",
+           UPDATE : "update"
        }
     }
 

@@ -174,7 +174,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating) || (data.isShielded !== userPlayer.get("isShielded"));
             if (!sendUpdate){
                 var angleDiff = userPlayer.angleDifference(data.angle);
-                sendUpdate = (angleDiff >= Math.PI/2) || (isAccelerating && angleDiff >= 0.2);
+                sendUpdate = (angleDiff >= 0.6) || (isAccelerating && angleDiff >= 0.2);
             }
 
             if (sendUpdate){

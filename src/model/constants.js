@@ -30,8 +30,9 @@ define(function(){
            invulnerableTime : 2500,
            fuelUseRate : 30,
            fuelRestoreRate : 30,
-           shieldUseRate : 10,
-           shieldRestoreRate : 2
+           shieldUseRate : 15,
+           shieldRestoreRate : 3,
+           shieldPadding : 32
        },
 
        Missile : {

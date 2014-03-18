@@ -107,7 +107,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
             framerate : 15
         });
 
-        this.reloadBar = new Shape();
+        this.shieldColor = {r:0, g:154, b:0};
 
         this.initialize();
     };
@@ -121,6 +121,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
 
             var width = Constants.Player.width/2;
 
+            this.reloadBar = new Shape();
             this.reloadBar.graphics.beginFill("#fff").drawRect(0, 0, width, 4);
             this.reloadBar.x = -width/2;
             this.reloadBar.y = (Constants.Player.height/2) + 22;

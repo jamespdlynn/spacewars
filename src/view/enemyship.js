@@ -107,6 +107,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
             framerate : 15
         });
 
+        this.shieldColor = {r:200, g:0, b:0};
         this.nameLabel = new createjs.Text("", "7.5pt Arkitech", "#fff");
 
         this.initialize();
@@ -123,7 +124,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
 
             this.nameLabel.y = (this.model.height/2)+22;
             this.nameLabel.text = this.model.get("username");
-            this.nameLabel.alpha = 0.8;
+            this.nameLabel.alpha = 0.9;
 
             this.addChild(this.nameLabel);
         },
@@ -137,13 +138,9 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
             this.nameLabel.scaleY = 1/this.scaleY;
             this.nameLabel.x = -(this.labelWidth/2)  * this.nameLabel.scaleX;
 
-
             if (!this.nameLabel.cacheCanvas && this.labelWidth){
                 this.nameLabel.cache(0, 0, this.labelWidth, this.nameLabel.getMeasuredLineHeight());
             }
-
-
-
         }
     });
 

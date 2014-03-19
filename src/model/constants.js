@@ -32,12 +32,13 @@ define(function(){
            fuelRestoreRate : 30,
            shieldUseRate : 15,
            shieldRestoreRate : 3,
-           shieldPadding : 32
+           shieldPadding : 15,
+           shieldHitDiscount : 50
        },
 
        Missile : {
            width : 14,
-           height : 26,
+           height : 24,
            velocity : 275
        },
 

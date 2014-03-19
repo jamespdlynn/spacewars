@@ -70,14 +70,14 @@ define(['model/constants'],function(Constants){
 
        Collision : {
            sprite1 : {
-               type:"object", schema:{
+               type:"object", allowNull: true, schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8"
                }
 
            },
            sprite2 : {
-               type:"object", schema:{
+               type:"object", allowNull: true, schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8"
                }

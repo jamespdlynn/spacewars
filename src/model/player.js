@@ -83,12 +83,65 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             return this;
         },
 
+        detectCollision : function(sprite){
+            if (this.data.isShielded){
+                this.radius += this.shieldPadding;
+                var bool = Sprite.prototype.detectCollision.call(this,sprite);
+                this.radius -= this.shieldPadding;
+                return bool;
+            }
+
+            return Sprite.prototype.detectCollision.call(this,sprite);
+        },
+
+        collide : function(sprite){
+
+            if (!this.data.isShielded){
+                return true;
+            }
+
+            var cos = Math.cos;
+            var sin = Math.sin;
+            var pi = Math.PI;
+
+            //data objects
+            var d1 = this.data;
+            var d2 = sprite.data;
+
+            //masses
+            var m1 = this.mass;
+            var m2 = sprite.mass;
+
+            //combined velocities
+            var v1 = Sprite.getHypotenuse(d1.velocityX, d1.velocityY);
+            var v2 = Sprite.getHypotenuse(d2.velocityX, d2.velocityY);
+
+            //combined velocity angles
+            var a1 = Math.atan2(d1.velocityX, d1.velocityY);
+            var a2 = Math.atan2(d2.velocityX, d2.velocityY);
+
+            //collision angle
+            var a3 = Math.atan2(d2.posX - d1.posX, d2.posY - d1.posX);
+
+            //Calculate new velocities
+            var z1 = ((v1 * cos(a1-a3) * (m1-m2)) + (2 * m2 * v2 *cos(a2-a3))) / (m1+m2);
+            var z2 =  v1 *  sin(a1-a3);
+
+            this.data.velocityX = (z1 * cos(a3)) + (z2 * cos(a3+(pi/2)));
+            this.data.velocityY = (z1 * sin(a3)) + (z2 * sin(a3+(pi/2)));
+
+            this.data.shields -= this.shieldHitDiscount;
+            this.data.shields = Math.max(this.data.shields, 0);
+
+            return false;
+        },
+
         outOfBounds : function(){
             var rect = this.getRect();
-            var data = this.data;
             var zoneWidth = Constants.Zone.width;
             var zoneHeight = Constants.Zone.height;
             var padding = this.width/10;
+            var data = this.data;
 
             if (data.velocityX < 0 && rect.left < -padding && (Math.abs(data.angle) > Math.PI/2 || rect.right < padding))  return "left";
             if (data.velocityY < 0 && rect.top < -padding && (data.angle < 0|| rect.bottom < padding)) return "top";

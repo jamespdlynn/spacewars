@@ -150,13 +150,32 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var sprite2 = this.model.get(data.sprite2);
 
             if (sprite1 && sprite2 && sprite1.update().detectCollision(sprite2.update())){
-                this._clearTimeout(sprite1);
-                this.model.remove(sprite1);
 
-                this._clearTimeout(sprite2);
-                this.model.remove(sprite2);
+                if (sprite1.collide(sprite2)){
+                    this._clearTimeout(sprite1);
+                    this.model.remove(sprite1);
+                }
+                else{
+                    onPlayerUpdate.apply(sprite1);
+                    this._sendSprite(sprite1);
+                    data.sprite1 = null;
+                }
 
-                this._sendToAll("Collision", data);
+                if (sprite2.collide(sprite1)){
+                    this._clearTimeout(sprite2);
+                    this.model.remove(sprite2);
+                }
+                else{
+                    onPlayerUpdate.apply(sprite2);
+                    this._sendSprite(sprite2);
+                    data.sprite2 = null;
+                }
+
+
+                if (data.sprite1 || data.sprite2){
+                    this._sendToAll("Collision", data);
+                }
+
             }
         },
 
@@ -184,6 +203,15 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             while (i--){
                 this.connections[i].out.write(buffer);
             }
+        },
+
+        _sendSprite : function(sprite){
+             if (sprite.type === "Player"){
+                 this._sendPlayer(sprite, PARTIAL_PLAYER_SIZE);
+             }
+             else if (sprite.type === "Missile"){
+                 this._sendMissile(sprite, PARTIAL_MISSILE_SIZE);
+             }
         },
 
         _sendPlayer : function(player, byteLength){

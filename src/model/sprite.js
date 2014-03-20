@@ -31,6 +31,9 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
             this.id = this.data.id;
 
+            this.radius = Math.max(this.width,this.height)/2;
+            this.mass = this.width*this.height;
+
         },
 
         /** @param {string} key*/
@@ -129,9 +132,17 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
                 return false;
             }
 
-            var rect1 = this.getRect();
-            var rect2 = sprite.getRect();
-            return (rect1.bottom > rect2.top) && (rect1.top < rect2.bottom) && (rect1.left < rect2.right) && (rect1.right > rect2.left);
+            var dx = this.data.posX - sprite.data.posX;
+            var dy = this.data.posY - sprite.data.posY;
+            var radii = this.radius + sprite.radius;
+
+            return (( dx * dx )  + ( dy * dy ) < radii * radii);
+        },
+
+
+
+        collide : function(sprite){
+           return true;
         },
 
         getRect : function(){
@@ -158,6 +169,8 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
             return false;
         },
+
+
 
         averagePosition : function(sprite){
             var posX = this.data.posX;
@@ -209,13 +222,4 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
     return Sprite;
 });
 
-
-//Private helper functions
-function getDistance(vi, vf, t){
-    return ((vf+vi)/2) * t;
-}
-
-function getTime(vi, vf, a){
-    return Math.abs((vf-vi)/a);
-}
 

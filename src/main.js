@@ -9,12 +9,13 @@ require.config({
 
         'createjs' : 'vendor/easeljs-0.7.1.combined',
         'preloadjs' : 'vendor/preloadjs-0.4.1',
-        'soundjs' : 'vendor/soundjs-0.5.2'
+        'soundjs' : 'vendor/soundjs-0.5.2',
+        'tweenjs' : 'vendor/tweenjs-0.5.1'
     },
 
     shim : {
         'createjs' : {
-            deps : ['preloadjs','soundjs'],
+            deps : ['preloadjs','soundjs','tweenjs'],
             exports : 'createjs'
         },
         'browser-buffer' : {

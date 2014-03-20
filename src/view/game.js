@@ -164,7 +164,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             if (model.id === gameData.playerId){
                 userShip.model = model;
                 userShip.angle = model.get("angle");
-                userShip.exhaustSound.play({loop:-1, volume:0});
                 return;
             }
             sprite = new EnemyShip(model);

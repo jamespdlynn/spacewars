@@ -17,6 +17,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
             var width = Constants.Player.width;
             var height = Constants.Player.height;
+            var shieldPadding = Constants.Player.shieldPadding;
 
             this.shipBody.tickEnabled = false;
             this.shipBody.x = -width/2;
@@ -30,18 +31,30 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             this.flame2.x = -20;
             this.flame2.y = (height/2)-12.5;
 
+            this.flame1.visible = this.flame2.visible = false;
+
+
 
             this.shield = new createjs.Shape();
-            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, -1, 3);
+            this.shield.x = 0;
+            this.shield.y = -height/2;
+
+            this.shield.graphics.setStrokeStyle(6).beginLinearGradientStroke([getColorString(this.shieldColor, 0.2),getColorString(this.shieldColor, 1)], [0, 1], 0, shieldRadiusY, 0, -shieldRadiusY)
+                .drawEllipse (0, 0, width+(shieldPadding*2), height+(shieldPadding*2))
+                .endStroke();
+
+            this.shield.tween = createjs.Tween.get(this.shield, {loop:true})
+                                               .to({alpha: 0.5, scaleX:0.8, scaleY:0.8}, 300,createjs.Ease.linear)
+                                               .to({alpha: 0.9, scaleX:1, scaleY:1}, 300,createjs.Ease.linear)
+                                               .setPaused(true);
+
+            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, -1, 4);
             this.shield.visible = false;
-            this.shield.alpha = 0.8;
-            this.shield.stroke = 4;
-            this.shield.tick = 0;
-            this._drawShield();
 
             this.volume = 1;
             this.shotSound = createjs.Sound.createInstance("shotSound");
-            this.exhaustSound = createjs.Sound.play("exhaustSound", {loop:-1, volume:0});
+
+            this.shieldSound = createjs.Sound.play("shieldSound", {loop:-1, volume:1});
 
             this.rotationSet = false;
 
@@ -80,60 +93,44 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             }
 
             var isAccelerating = this.hasOwnProperty("isAccelerating") ? this.isAccelerating : data.isAccelerating;
-            var exhaustVolume = this.exhaustSound.getVolume();
 
             if (isAccelerating){
-                this.flame1.visible = this.flame2.visible = true;
+
+                if (!this.flame1.visible){
+                    this.flame1.visible = this.flame2.visible = true;
+                    this.exhaustSound = createjs.Sound.play("exhaustSound", {loop:-1, volume:0});
+                    createjs.Tween.get(this.exhaustSound, {override:true}).to({volume:1}, 200);
+                }
+
                 this.flame1._tick(evt);
                 this.flame2._tick(evt);
-
-                if (exhaustVolume < this.volume){
-                    this.exhaustSound.setVolume(Math.min(exhaustVolume+0.05, this.volume));
-                }
             }
-            else if (exhaustVolume > 0){
+            else if (this.flame1.visible){
                 this.flame1.visible = this.flame2.visible = false;
-                this.exhaustSound.setVolume(Math.max(exhaustVolume-0.5,0));
+                createjs.Tween.get(this.exhaustSound, {override:true}).to({volume:0}, 200).call(function(){
+                     this.stop();
+                });
             }
 
             var isShielded = this.hasOwnProperty("isShielded") ? this.isShielded : data.isShielded;
 
-            if (isShielded){
+            if (isShielded && !this.shield.visible){
                 this.shield.visible = true;
-
-                if (this.shield.tick >= Constants.FPS/15){
-                    if (Math.round(this.shield.stroke*10)%10 == 0){
-                        this.shield.stroke -= 1;
-                        this.shield.stroke = Math.max(this.shield.stroke, 1.5);
-                    }else{
-                        this.shield.stroke += 1;
-                        this.shield.stroke = Math.min(this.shield.stroke, 4);
-                    }
-
-                    this._drawShield();
-                    this.shield.tick = 0;
-                }
-                else{
-                    this.shield.tick++;
-                }
+                this.shield.tween.setPaused(false);
+                this.shieldSound = createjs.Sound.play("shieldSound", {loop:-1, volume:0});
+                createjs.Tween.get(this.shieldSound, {override:true}).to({volume:0.4}, 200);
             }
-            else{
+            else if (!isShielded && this.shield.visible){
                 this.shield.visible = false;
+                this.shield.tween.setPaused(true);
+                createjs.Tween.get(this.shieldSound, {override:true}).to({volume:0}, 200).call(function(){
+                    this.stop();
+                });
             }
 
             this.alpha =  data.isInvulnerable ? 0.4 : 1;
         },
 
-        _drawShield : function(){
-
-            var shieldRadiusX = (Constants.Player.width+Constants.Player.shieldPadding)/2;
-            var shieldRadiusY = (Constants.Player.height+Constants.Player.shieldPadding)/2;
-
-            this.shield.graphics.clear().moveTo(-shieldRadiusX, 0)
-                .setStrokeStyle(this.shield.stroke).beginLinearGradientStroke([getColorString(this.shieldColor, 0),getColorString(this.shieldColor, 1)], [0.9, 0.1], 0, -shieldRadiusY, 0, 0)
-                .curveTo(0, -shieldRadiusY*2, shieldRadiusX, 0)
-                .endStroke();
-        },
 
         fire : function(){
             this.shotSound.play({volume:this.volume});
@@ -141,6 +138,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
         destroy : function(){
             this.exhaustSound.stop();
+            this.shieldSound.stop();
         }
     });
 

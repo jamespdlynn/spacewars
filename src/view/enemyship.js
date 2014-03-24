@@ -95,7 +95,6 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
     })();
 
     var EnemyShip = function (model){
-        this.model = model;
 
         this.shipBody = new createjs.DisplayObject();
         this.shipBody.cacheCanvas =  enemyShipBody;
@@ -107,10 +106,18 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
             framerate : 15
         });
 
+        this.sparkSprites = new createjs.SpriteSheet({
+            images: [preloader.getResult("sparkSprites")],
+            frames: {width:64, height:64, count:12},
+            animations: {"play": [0, 11, "play"]},
+            framerate : 15
+        });
+
         this.shieldColor = {r:200, g:0, b:0};
         this.nameLabel = new createjs.Text("", "7.5pt Arkitech", "#fff");
 
         this.initialize();
+        this.setModel(model);
     };
 
     EnemyShip.prototype = new StarShip();
@@ -122,11 +129,15 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
 
             this.volume = 0.5;
 
-            this.nameLabel.y = (this.model.height/2)+22;
-            this.nameLabel.text = this.model.get("username");
+            this.nameLabel.y = (Constants.Player.height/2)+22;
             this.nameLabel.alpha = 0.9;
 
             this.addChild(this.nameLabel);
+        },
+
+        setModel : function(model){
+            StarShip.prototype.setModel.call(this, model);
+            this.nameLabel.text = model.get("username");
         },
 
         _tick : function(evt){

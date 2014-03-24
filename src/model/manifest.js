@@ -2,13 +2,15 @@ define(function(){
     return [
         {id:"redExhaustSprites", src:"/assets/red-exhaust.png"},
         {id:"blueExhaustSprites", src:"/assets/blue-exhaust.png"},
+        {id:"sparkSprites", src:"sparks.png"},
         {id:"explosionSprites", src:"/assets/explosion.png"},
 
         {id:"exhaustSound", src:"/assets/rockets.ogg"},
         {id:"shieldSound", src:"/assets/shield.mp3"},
         {id:"shotSound", src:"/assets/shot.ogg"},
+        {id:"collideSound", src:"/assets/collide.ogg"},
         {id:"explosionSound", src:"/assets/explosion.ogg"},
-        {id:"shieldBreakSound", src:"/assets/deflect.wav"},
+        {id:"shieldBreakSound", src:"/assets/deflect.ogg"},
 
         {id:"deathIcon", src:"/assets/skull.png"},
         {id:"killIcon", src:"/assets/target.png"},

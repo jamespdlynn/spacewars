@@ -159,19 +159,12 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 //Save off current sprite data values
                 var sprite1Clone = sprite1.clone();
 
-                //Collide the two sprites, if collision does not result in explosion set the associated data object to null
-                if (!this.collide(sprite1, sprite2)){
-                    data.sprite1 = null;
-                }
+                //Collide the two sprites
+                data.sprite1.explode = this.collide(sprite1, sprite2);
+                data.sprite2.explode = this.collide(sprite2, sprite1Clone);
 
-                if (!this.collide(sprite2, sprite1Clone)){
-                    data.sprite2 = null;
-                }
-
-                //If there is an explosion send the collision data objects to the clients
-                if (data.sprite1 || data.sprite2){
-                    this._sendToAll("Collision", data);
-                }
+                //send the collision data objects to the clients
+                this._sendToAll("Collision", data);
             }
         },
 

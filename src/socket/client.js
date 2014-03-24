@@ -158,7 +158,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     console.warn("Unknown schema type received: "+type);
                     break;
             }
-
         }
 
         //When a user player change event is caught, send a "PlayerUpdate" to the server
@@ -166,9 +165,9 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
             userPlayer.update();
 
-            if (data.isFiring && !userPlayer.canFire()){
-                data.isFiring = false;
-            }
+            if (data.isAccelerating && !userPlayer.canAccelerate()) userShip.isAccelerating = false;
+            if (data.isShielded && !userPlayer.canShield()) userShip.isShielded = false;
+            if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
 
             var isAccelerating = userPlayer.get("isAccelerating");
             var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating) || (data.isShielded !== userPlayer.get("isShielded"));

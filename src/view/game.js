@@ -1,5 +1,5 @@
 define(['createjs','view/overlay','view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest)–-----{
 
     var RADIUS = Constants.Player.width/2;
     var PADDING = 20;
@@ -13,31 +13,31 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         //Set up Game View
         initialize : function(){
 
-            initialized = false;
+                initialized = false;
 
-            background = new createjs.Stage("background");
-            background.enableDOMEvents(false);
-            background.tickEnabled = false;
-            background.tickOnUpdate = false;
-            background.mouseChildren = false;
-            
-            stage = new createjs.Stage("game");
-            stage.enableDOMEvents(false);
-            stage.mouseChildren = false;
+                background = new createjs.Stage("background");
+                background.enableDOMEvents(false);
+                background.tickEnabled = false;
+                background.tickOnUpdate = false;
+                background.mouseChildren = false;
 
-            window.preloader = new createjs.LoadQueue();
-            preloader.addEventListener("complete", function(){
-                initialized = true;
-                if (autorun) GameView.run();
-            });
+                stage = new createjs.Stage("game");
+                stage.enableDOMEvents(false);
+                stage.mouseChildren = false;
 
-            createjs.Sound.alternateExtensions = ["mp3"];
+                window.preloader = new createjs.LoadQueue();
+                preloader.addEventListener("complete", function(){
+                    initialized = true;
+                    if (autorun) GameView.run();
+                });
 
-            preloader.installPlugin(createjs.Sound);
-            preloader.loadManifest(manifest);
-        },
+                createjs.Sound.alternateExtensions = ["mp3"];
 
-        run : function(){
+                preloader.installPlugin(createjs.Sound);
+                preloader.loadManifest(manifest);
+            },
+
+            run : function(){
             if (GameView.isRunning) return;
 
             if (!initialized){
@@ -218,63 +218,72 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function onCollision(data){
 
-        var model1 = gameData.currentZone.remove(data.sprite1);
-        var model2 = gameData.currentZone.remove(data.sprite2);
+        var zone = gameData.currentZone;
+        var model1 = data.sprite1.explode ? zone.remove(data.sprite1) : zone.get(data.sprite1);
+        var model2 = data.sprite2.explode ? zone.remove(data.sprite2) : zone.get(data.sprite2);
 
         model1 = model1 || model2;
         model2 = model2 || model1;
 
         if (model1){
 
-            var size, position;
+            var size, position, volume;
 
-            if (model1.height > model2.height){
+            if (model1.height > model2.height && data.sprite1.explode)){
                 size = model1.height*2;
                 position = model1.data;
+                volume = model1.mass / 100;
             }
-            else if (model2.height > model1.height){
+            else if (model2.height > model1.height && data.sprite2.explode)){
                 size = model2.height*2;
                 position = model2.data;
+                volume = model2.mass / 100;
             }
-            else{
-                size = model1.height*2.5;
+            else if (data.sprite1.explode || data.sprite2.explode){
+                size = model1.height*2;
                 position = model1.averagePosition(model2);
+                volume = model1.mass / 100;
             }
 
-            var explosion = new Explosion(position.posX, position.posY, size);
-            var volume = (model1.type === 'Player' || model2.type === 'Player') ? 1 : 0.5;
+            if (size){
+                var explosion = new Explosion(position.posX, position.posY, size);
+                var volume = (model1.type === 'Player' || model2.type === 'Player') ? 1 : 0.5;
 
-            stage.addChildAt(explosion);
-            createjs.Sound.play("explosionSound").volume = volume;
+                stage.addChildAt(explosion);
+                createjs.Sound.play("explosionSound").volume = volume;
 
-            explosion.addEventListener("animationend", function(){
+                explosion.addEventListener("animationend", function(){
 
-                explosion.removeEventListener("animationend");
-                stage.removeChild(explosion);
+                    explosion.removeEventListener("animationend");
+                    stage.removeChild(explosion);
 
-                if (!userShip && GameView.isRunning && !gameEnding){
-
-                    var slayer;
-                    if (model1.type === 'Missile'){
-                        slayer = gameData.currentZone.players.get(model1.get("playerId"));
-                    }else if (model2.type === 'Missle'){
-                        slayer = gameData.currentZone.players.get(model2.get("playerId"));
+                    var slayerId;
+                    if (model1.type === 'Player' && model1.id === gameData.playerId){
+                        slayerId = (model2.type === 'Player') ? model2.id : model2.get("playerId");
+                        endGame(zone.players.get(slayerId));
                     }
+                    else if (model2.type === 'Player' && model2.id === gameData.playerId){
+                        slayerId = (model1.type === 'Player') ? model1.id : model1.get("playerId");
+                        endGame(zone.players.get(slayerId));
+                    }
+                });
 
-                    gameData.slayer = slayer ?  slayer.get("username") : "";
-                    gameData.incrementDeaths();
-
-                    endGame();
+                if ((model1.get("playerId") == gameData.playerId && model2.type == "Player") || (model2.get("playerId") == gameData.playerId && model1.type == "Player")){
+                    gameData.incrementKills();
                 }
-            });
-
-            if ((model1.get("playerId") == gameData.playerId && model2.type == "Player") || (model2.get("playerId") == gameData.playerId && model1.type == "Player")){
-                gameData.incrementKills();
             }
+            else if (model1.get("isShieldBroken") !== false && model2.get("isShieldBroken") !== false){
+                createjs.Sound.play("collideSound");
+            }
+
         }
     }
 
-    function endGame(missile){
+    function endGame(slayer){
+
+        gameData.slayer = slayer && slayer.id !== gameData.playerId ?  slayer.get("username") : "";
+        gameData.incrementDeaths();
+
         gameEnding = true;
         setTimeout(function(){
             if (GameView.isRunning){
@@ -286,15 +295,14 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     //Canvas Event Listeners
     function onMouseDown(evt){
         if (userShip){
-
             var which = evt.nativeEvent.which;
-            if (which == 1){
+            if (which == 1 && userShip.model.canAccelerate()){
                 userShip.isAccelerating = true;
-            }else if (which == 3){
+                triggerUpdate();
+            }else if (which == 3 && user.model.canShield()){
                 userShip.isShielded = true;
+                triggerUpdate();
             }
-
-            triggerUpdate();
         }
     }
 
@@ -336,9 +344,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function triggerUpdate(){
         if (userShip && !document.isHidden()){
-
-            if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
-            if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;
 
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,

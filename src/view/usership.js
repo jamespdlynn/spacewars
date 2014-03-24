@@ -86,7 +86,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         this.shape_19 = new Shape();
         this.shape_19.graphics.lf(["#323232","#4B4B4B","#646464","#4B4B4B","#323232"],[0,0.2,0.498,0.8,1],24.8,0,-24.7,0).s().p("AjgFHQgQgQgBg1QAChYAAhIIAAjuIDvigIDlgoQAABxAKFFQAABGADBVQAAA2gOAQQgQAQg1ABQhYgChHAAIibADQg2AAgPgOg");
         this.shape_19.setTransform(23.3,53.5,0.167,0.167);
-        
+
         this.container = new Container();
         this.container.addChild(this.shape_19,this.shape_18,this.shape_17,this.shape_16,this.shape_15,this.shape_14,this.shape_13,this.shape_12,this.shape_11,this.shape_10,this.shape_9,this.shape_8,this.shape_7,this.shape_6,this.shape_5,this.shape_4,this.shape_3,this.shape_2,this.shape_1,this.shape,this.instance_1,this.instance);
         this.container.cache(0,0,65,65);
@@ -101,8 +101,15 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
 
         this.exhaustSprites = new createjs.SpriteSheet({
             images: [preloader.getResult("blueExhaustSprites")],
-            frames: {width:22, height:25},
+            frames: {width:22, height:25, count:4},
             animations: {"play": [0, 1, 2, 3, 2, 1, "play"]},
+            framerate : 15
+        });
+
+        this.sparkSprites = new createjs.SpriteSheet({
+            images: [preloader.getResult("sparkSprites")],
+            frames: {width:64, height:64, count:12},
+            animations: {"play": [0, 11, "play"]},
             framerate : 15
         });
 
@@ -113,13 +120,6 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
     UserShip.prototype = new StarShip();
 
     extend.call(UserShip.prototype, {
-
-        setModel : function(model){
-            this.model = model;
-            this.angle = model.get("angle");
-            this.isAccelerating = model.get("isAccelerating");
-            this.isShielded = model.get("isShielded");
-        },
 
         initialize : function(){
             StarShip.prototype.initialize.call(this);
@@ -136,10 +136,12 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
             this.addChild(this.reloadBar);
         },
 
+        setModel : function(model){
+            StarShip.prototype.initialize.call(this, model);
+            this.angle = model.get("angle");
+        },
+
         _tick : function(evt){
-
-
-
             StarShip.prototype._tick.call(this, evt);
 
             this.reloadBar.scaleX = (this.model.lastUpdated - this.model.lastFired) / this.model.fireInterval;

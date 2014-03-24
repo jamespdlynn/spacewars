@@ -71,14 +71,16 @@ define(['model/constants'],function(Constants){
            sprite1 : {
                type:"object", allowNull: true, schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint8"
+                   id : "uint8",
+                   explode : "boolean"
                }
 
            },
            sprite2 : {
                type:"object", allowNull: true, schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint8"
+                   id : "uint8",
+                   explode : "boolean"
                }
 
            }

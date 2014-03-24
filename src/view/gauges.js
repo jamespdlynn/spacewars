@@ -18,8 +18,11 @@ define(['createjs','model/game'],function(createjs){
         this.shieldsBackground = new createjs.Shape();
         this.shieldsFill = new createjs.Shape();
 
-        this.fuelIcon = new createjs.Bitmap(preloader.getResult('fuelIcon'))
+        this.fuelIcon = new createjs.Bitmap(preloader.getResult('fuelIcon'));
         this.shieldsIcon = new createjs.Bitmap(preloader.getResult('shieldIcon'));
+
+        this.fuel = 100;
+        this.shields = 100;
 
         this.initialize();
     };
@@ -60,28 +63,36 @@ define(['createjs','model/game'],function(createjs){
 
             this.addChild(this.fuelBackground, this.fuelFill, this.shieldsBackground, this.shieldsFill, this.shieldsIcon, this.fuelIcon);
 
-
-
             this.setBounds(0, 0, GAUGE_WIDTH, ICON_SIZE);
         },
 
         _tick : function(){
-            var fuel, shields, width, radius;
 
+            if (this.userShip.model){
+                var fuel = Math.round(this.userShip.model.get("fuel"));
+                if (this.fuel < fuel){
+                    this.fuel++;
+                }else if (this.fuel > fuel){
+                    this.fuel--;
+                }
 
-            fuel = this.userShip.model ? this.userShip.model.get("fuel") : 0;
-            width = Math.max(0, GAUGE_WIDTH * (fuel/100));
-            radius = width < GAUGE_WIDTH-RADIUS ? 0 : RADIUS;
+                var shields = Math.round(this.userShip.model.get("shields"));
+                if (this.shields < shields){
+                    this.shields++;
+                }else if (this.shields > shields){
+                    this.shields--;
+                }
+            }
+
+            var width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
             this.fuelFill.graphics.clear()
-                                      .beginFill('#0252fd').drawRoundRectComplex(0, 0, width, GAUGE_HEIGHT, RADIUS, radius, radius, RADIUS)
-                                      .beginFill('rgba(255,255,255,0.3').drawRoundRectComplex(0, 0, width, GAUGE_HEIGHT/2, RADIUS, radius, 0, 0);
+                                      .beginFill('#0252fd').drawRect(0, 0, width, GAUGE_HEIGHT)
+                                      .beginFill('rgba(255,255,255,0.3').drawRect(0, 0, width, GAUGE_HEIGHT/2);
 
-            shields = this.userShip.model ? this.userShip.model.get("shields") : 0;
-            width = Math.max(0, GAUGE_WIDTH * (shields/100));
-            radius = width < GAUGE_WIDTH-RADIUS  ? 0 : RADIUS;
+            width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
             this.shieldsFill.graphics.clear()
-             .beginFill('#009a00').drawRoundRectComplex(0, 0, width, GAUGE_HEIGHT, RADIUS, radius, radius, RADIUS)
-             .beginFill('rgba(255,255,255,0.3').drawRoundRectComplex(0, 0, width, GAUGE_HEIGHT/2, RADIUS, radius, 0, 0);
+                                     .beginFill('#009a00').drawRect(0, 0, width, GAUGE_HEIGHT)
+                                     .beginFill('rgba(255,255,255,0.3').drawRect(0, 0, width, GAUGE_HEIGHT/2);
         }
     });
 

@@ -166,12 +166,13 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
             userPlayer.update();
 
-            if (data.isAccelerating && !userPlayer.canAccelerate()) data.isAccelerating = false;
-            if (data.isShielded && !userPlayer.canShield()) data.isShielded = false;
-            if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
+            if (data.isFiring && !userPlayer.canFire()){
+                data.isFiring = false;
+            }
 
             var isAccelerating = userPlayer.get("isAccelerating");
             var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating) || (data.isShielded !== userPlayer.get("isShielded"));
+
             if (!sendUpdate){
                 var angleDiff = userPlayer.angleDifference(data.angle);
                 sendUpdate = (angleDiff >= 0.6) || (isAccelerating && angleDiff >= 0.2);

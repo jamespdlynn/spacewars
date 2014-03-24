@@ -2,6 +2,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
 
     var Player = function(data, options){
         this.initialize(data, options);
+        this.mass = 100;
     };
 
     extend.call(Player.prototype, Sprite.prototype, Constants.Player, {
@@ -16,12 +17,12 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             velocityY : 0,
             acceleration : 0,
             angle : 0,
-            thrust : 0,
             fuel : 100,
             shields : 100,
-            isShielded : false,
+            isShielded : true,
             isAccelerating : false,
             isInvulnerable : false,
+            isShieldBroken : false,
             username : ""
         },
 
@@ -75,7 +76,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
                 data.shields -=  (this.shieldUseRate * deltaSeconds);
                 data.shields = Math.max(data.shields, 0);
             }
-            else if (data.shields < 100 && !data.isShielded){
+            else if (data.shields < 100 && !data.isShielded && !data.isShieldBroken){
                 data.shields += (this.shieldRestoreRate * deltaSeconds);
                 data.shields = Math.min(data.shields, 100);
             }
@@ -83,15 +84,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             return this;
         },
 
-        detectCollision : function(sprite){
-            if (this.data.isShielded){
-                this.radius += this.shieldPadding;
-                var bool = Sprite.prototype.detectCollision.call(this,sprite);
-                this.radius -= this.shieldPadding;
-                return bool;
-            }
-
-            return Sprite.prototype.detectCollision.call(this,sprite);
+        getRadius : function(){
+            return this.data.isShielded ? this.radius + this.shieldPadding : this.radius;
         },
 
         collide : function(sprite){
@@ -117,21 +111,26 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             var v2 = Sprite.getHypotenuse(d2.velocityX, d2.velocityY);
 
             //combined velocity angles
-            var a1 = Math.atan2(d1.velocityX, d1.velocityY);
-            var a2 = Math.atan2(d2.velocityX, d2.velocityY);
+            var a1 = Math.atan2(d1.velocityY, d1.velocityX);
+            var a2 = Math.atan2(d2.velocityY, d2.velocityX);
 
             //collision angle
-            var a3 = Math.atan2(d2.posX - d1.posX, d2.posY - d1.posX);
+            var a3 = Math.atan2(d2.posY - d1.posY, d2.posX - d1.posX);
 
             //Calculate new velocities
             var z1 = ((v1 * cos(a1-a3) * (m1-m2)) + (2 * m2 * v2 *cos(a2-a3))) / (m1+m2);
             var z2 =  v1 *  sin(a1-a3);
 
-            this.data.velocityX = (z1 * cos(a3)) + (z2 * cos(a3+(pi/2)));
-            this.data.velocityY = (z1 * sin(a3)) + (z2 * sin(a3+(pi/2)));
+            d1.velocityX = (z1 * cos(a3)) + (z2 * cos(a3+(pi/2)));
+            d1.velocityY = (z1 * sin(a3)) + (z2 * sin(a3+(pi/2)));
 
-            this.data.shields -= this.shieldHitDiscount;
-            this.data.shields = Math.max(this.data.shields, 0);
+            //Make sure velocities don't exceed max
+            d1.velocityX = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, d1.velocityX));
+            d1.velocityY = Math.max(-this.maxVelocity, Math.min(this.maxVelocity, d1.velocityY));
+
+            //Calculate new shield values
+            d1.shields -= this.shieldHitDiscount;
+            d1.shields = Math.max(this.data.shields, 0);
 
             return false;
         },
@@ -163,7 +162,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         },
 
         canShield : function(){
-            return this.data.shields > 0;
+            return !this.data.isShieldBroken;
         },
 
         canFire : function(){

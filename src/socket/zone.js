@@ -125,13 +125,18 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             player.update();
 
+            var shieldBroken = player.changed.isShieldBroken;
+
             if (dataObj.isAccelerating && !player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !player.canShield()) dataObj.isShielded = false;
 
             //Update player data
             player.set(dataObj);
 
-            if (player.hasChanged()){
+            if (shieldBroken){
+                this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
+            }
+            else if (player.hasChanged()){
                 if (player.get("isAccelerating") || player.hasChanged("isAccelerating")){
                     this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
                 }else{
@@ -149,34 +154,38 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var sprite1 = this.model.get(data.sprite1);
             var sprite2 = this.model.get(data.sprite2);
 
+            //Check if collision is valid
             if (sprite1 && sprite2 && sprite1.update().detectCollision(sprite2.update())){
+                //Save off current sprite data values
+                var sprite1Clone = sprite1.clone();
 
-                if (sprite1.collide(sprite2)){
-                    this._clearTimeout(sprite1);
-                    this.model.remove(sprite1);
-                }
-                else{
-                    onPlayerUpdate.apply(sprite1);
-                    this._sendSprite(sprite1);
+                //Collide the two sprites, if collision does not result in explosion set the associated data object to null
+                if (!this.collide(sprite1, sprite2)){
                     data.sprite1 = null;
                 }
 
-                if (sprite2.collide(sprite1)){
-                    this._clearTimeout(sprite2);
-                    this.model.remove(sprite2);
-                }
-                else{
-                    onPlayerUpdate.apply(sprite2);
-                    this._sendSprite(sprite2);
+                if (!this.collide(sprite2, sprite1Clone)){
                     data.sprite2 = null;
                 }
 
-
+                //If there is an explosion send the collision data objects to the clients
                 if (data.sprite1 || data.sprite2){
                     this._sendToAll("Collision", data);
                 }
-
             }
+        },
+
+        collide : function(sprite1, sprite2){
+            //If collision results in explosion, remove sprite
+            if (sprite1.collide(sprite2)){
+                this._clearTimeout(sprite1);
+                this.model.remove(sprite1);
+                return true;
+            }
+
+            //Otherwise Fast forward sprite location to avoid multiple collisions and send the update data values to clients
+            this._sendSprite(sprite1.update(100));
+            return false;
         },
 
         getNumPlayers : function(){
@@ -223,7 +232,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             while (i--){
                 var connection = this.connections[i];
                 connection.out.write(buffer);
-                if (connection.id == player.id){
+                if (connection.playerId === player.id){
                     connection.out.write(micro.toBinary(player.toJSON(), "PlayerInfo"));
                 }
             }
@@ -311,8 +320,12 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this.set("isAccelerating", false);
         }
 
-        if (this.get("isShielded") && !this.canShield()){
-            this.set("isShielded", false);
+        if (this.get("shields") == 0 && !this.get("isShieldBroken")){
+            var self = this;
+            self.set({isShielded:false, isShieldBroken:true});
+            setTimeout(function(){
+                self.set("isShieldBroken", false);
+            }, self.shieldDownTime);
         }
     }
 

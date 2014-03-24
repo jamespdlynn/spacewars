@@ -50,7 +50,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
     function onConnection(connection){
 
-        console.log("Connection");
         //Make sure we haven't exceeded our maximum number of connections
 
         var remoteAddress = connection._socket._socket.remoteAddress;
@@ -98,7 +97,10 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
                 case "OutOfBounds":
                     if (!currentZone) break;
                     var player = currentZone.getPlayer(connection.playerId);
-                    currentZone.checkZoneChange(player);
+                    if (player){
+                        currentZone.checkZoneChange(player);
+                    }
+
                     break;
 
                 default:

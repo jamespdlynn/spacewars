@@ -28,8 +28,7 @@ define(['model/constants'],function(Constants){
            isAccelerating : "boolean",
            isShielded : "boolean",
            isInvulnerable : "boolean",
-           fuel : "int8",
-           shields: "int8",
+           isShieldBroken : "boolean",
            username : "string"
        },
 
@@ -48,7 +47,7 @@ define(['model/constants'],function(Constants){
            posX : {type:"float", byteLength:2, precision:1},
            posY : {type:"float", byteLength:2, precision:1},
            scale : {type:"float", byteLength:1, precision:2}
-    },
+        },
 
        PlayerUpdate : {
            angle :  {type:"float", byteLength:2, precision:4},

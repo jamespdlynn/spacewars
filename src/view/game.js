@@ -45,8 +45,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 return;
             }
 
-
-
             createjs.Sound.setVolume(1);
             createjs.Sound.setMute(gameData.user.muted);
             gameData.on(Constants.Events.USER_CHANGED, function(){
@@ -162,8 +160,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         if (model.type == "Player"){
             if (model.id === gameData.playerId){
-                userShip.model = model;
-                userShip.angle = model.get("angle");
+                userShip.setModel(model);
                 return;
             }
             sprite = new EnemyShip(model);
@@ -203,9 +200,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             if (!stage.mouseInBounds){
                 userShip.isAccelerating = false;
                 userShip.isFiring = false;
-            }
-            else if (!userShip.model.canAccelerate()){
-                userShip.isAccelerating = false;
             }
 
         }
@@ -342,6 +336,10 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function triggerUpdate(){
         if (userShip && !document.isHidden()){
+
+            if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
+            if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;
+
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,
                 isAccelerating:userShip.isAccelerating,

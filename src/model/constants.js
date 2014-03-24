@@ -24,22 +24,25 @@ define(function(){
        Player : {
            width : 65,
            height : 65,
+           mass : 100,
            acceleration : 340,
            maxVelocity : 155,
-           fireInterval : 1200,
-           invulnerableTime : 2500,
+           fireInterval : 1000,
+           invulnerableTime : 1500,
            fuelUseRate : 30,
            fuelRestoreRate : 30,
-           shieldUseRate : 6,
+           shieldUseRate : 0,
            shieldRestoreRate : 3,
-           shieldPadding : 15,
-           shieldHitDiscount : 50
+           shieldPadding : 16,
+           shieldHitDiscount : 50,
+           shieldDownTime : 10000
        },
 
        Missile : {
            width : 14,
            height : 24,
-           velocity : 275
+           mass : 50,
+           velocity : 310
        },
 
        Events : {

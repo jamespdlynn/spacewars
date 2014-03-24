@@ -33,28 +33,25 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
             this.flame1.visible = this.flame2.visible = false;
 
-
-
             this.shield = new createjs.Shape();
-            this.shield.x = 0;
-            this.shield.y = -height/2;
-
-            this.shield.graphics.setStrokeStyle(6).beginLinearGradientStroke([getColorString(this.shieldColor, 0.2),getColorString(this.shieldColor, 1)], [0, 1], 0, shieldRadiusY, 0, -shieldRadiusY)
-                .drawEllipse (0, 0, width+(shieldPadding*2), height+(shieldPadding*2))
+            this.shield.graphics.setStrokeStyle(2).beginRadialGradientStroke(["rgba(255,255,255,0.8)", getColorString(this.shieldColor, 0.8)], [0, 1], 40, 40, 5, 40, 40, 75)
+                .beginRadialGradientFill(["rgba(255,255,255,0.3)", getColorString(this.shieldColor, 0.3)], [0, 1], 40, 40, 5, 40, 40, 75)
+                .drawEllipse(-width/2-shieldPadding, -height/2-shieldPadding+2, width+(shieldPadding*2), height+(shieldPadding*2))
                 .endStroke();
+            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, 0, 4);
+            this.shield.cache(-width/2-shieldPadding-5, -height/2-shieldPadding-3, width+(shieldPadding*2)+10, height+(shieldPadding*2)+10);
 
-            this.shield.tween = createjs.Tween.get(this.shield, {loop:true})
-                                               .to({alpha: 0.5, scaleX:0.8, scaleY:0.8}, 300,createjs.Ease.linear)
-                                               .to({alpha: 0.9, scaleX:1, scaleY:1}, 300,createjs.Ease.linear)
-                                               .setPaused(true);
 
-            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, -1, 4);
+            this.shield.alpha = 0;
+            this.shield.scaleX = 0;
+            this.shield.scaleY = 0;
             this.shield.visible = false;
 
             this.volume = 1;
-            this.shotSound = createjs.Sound.createInstance("shotSound");
 
-            this.shieldSound = createjs.Sound.play("shieldSound", {loop:-1, volume:1});
+            this.shieldSound = createjs.Sound.createInstance("shieldSound");
+            this.shotSound = createjs.Sound.createInstance("shotSound");
+            this.shieldBreakSound = createjs.Sound.createInstance("shieldBreakSound");
 
             this.rotationSet = false;
 
@@ -96,38 +93,42 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
             if (isAccelerating){
 
-                if (!this.flame1.visible){
-                    this.flame1.visible = this.flame2.visible = true;
-                    this.exhaustSound = createjs.Sound.play("exhaustSound", {loop:-1, volume:0});
-                    createjs.Tween.get(this.exhaustSound, {override:true}).to({volume:1}, 200);
-                }
-
+                this.flame1.visible = this.flame2.visible = true;
                 this.flame1._tick(evt);
                 this.flame2._tick(evt);
+
+                if (!this.exhaustSound){
+                    this.exhaustSound = createjs.Sound.play("exhaustSound", {volume:0, loop:-1});
+                    createjs.Tween.get(this.exhaustSound).to({volume:this.volume}, 200);
+                }
             }
-            else if (this.flame1.visible){
+            else{
                 this.flame1.visible = this.flame2.visible = false;
-                createjs.Tween.get(this.exhaustSound, {override:true}).to({volume:0}, 200).call(function(){
-                     this.stop();
-                });
+                if (this.exhaustSound){
+                    createjs.Tween.get(this.exhaustSound, {override:true}).to({volume:0}, 200).call(function(){
+                        this.stop();
+                    });
+                    this.exhaustSound = undefined;
+                }
             }
 
             var isShielded = this.hasOwnProperty("isShielded") ? this.isShielded : data.isShielded;
 
-            if (isShielded && !this.shield.visible){
+            if (isShielded && !this.shield.visible && !createjs.Tween.hasActiveTweens(this.shield)){
+                createjs.Tween.get(this.shield).to({alpha: 0.8, scaleX:1, scaleY:1}, 1000,createjs.Ease.backOut);
                 this.shield.visible = true;
-                this.shield.tween.setPaused(false);
-                this.shieldSound = createjs.Sound.play("shieldSound", {loop:-1, volume:0});
-                createjs.Tween.get(this.shieldSound, {override:true}).to({volume:0.4}, 200);
+                this.shieldSound.play({volume:this.volume});
             }
-            else if (!isShielded && this.shield.visible){
-                this.shield.visible = false;
-                this.shield.tween.setPaused(true);
-                createjs.Tween.get(this.shieldSound, {override:true}).to({volume:0}, 200).call(function(){
-                    this.stop();
+            else if (!isShielded && this.shield.visible && !createjs.Tween.hasActiveTweens(this.shield)){
+                if (data.isShieldBroken){
+                    this.shieldBreakSound.play({volume:this.volume});
+                }
+                createjs.Tween.get(this.shield).to({alpha: 0, scaleX:0, scaleY:0}, 200,createjs.Ease.linear).call(function(){
+                    this.visible = false;
                 });
             }
 
+            this.isShieldBroken = data.isShieldBroken;
             this.alpha =  data.isInvulnerable ? 0.4 : 1;
         },
 
@@ -137,8 +138,9 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         },
 
         destroy : function(){
-            this.exhaustSound.stop();
-            this.shieldSound.stop();
+            if (this.exhaustSound){
+                this.exhaustSound.stop();
+            }
         }
     });
 

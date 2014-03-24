@@ -89,13 +89,12 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         
         this.container = new Container();
         this.container.addChild(this.shape_19,this.shape_18,this.shape_17,this.shape_16,this.shape_15,this.shape_14,this.shape_13,this.shape_12,this.shape_11,this.shape_10,this.shape_9,this.shape_8,this.shape_7,this.shape_6,this.shape_5,this.shape_4,this.shape_3,this.shape_2,this.shape_1,this.shape,this.instance_1,this.instance);
-        this.container.cache(0,0,Constants.Player.width,Constants.Player.height);
+        this.container.cache(0,0,65,65);
 
         userShipBody = this.container.cacheCanvas;
     })();
 
-    var UserShip = function (model){
-        this.model = model;
+    var UserShip = function (){
 
         this.shipBody = new createjs.DisplayObject();
         this.shipBody.cacheCanvas = userShipBody;
@@ -108,13 +107,19 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         });
 
         this.shieldColor = {r:0, g:154, b:0};
-
         this.initialize();
     };
 
     UserShip.prototype = new StarShip();
 
     extend.call(UserShip.prototype, {
+
+        setModel : function(model){
+            this.model = model;
+            this.angle = model.get("angle");
+            this.isAccelerating = model.get("isAccelerating");
+            this.isShielded = model.get("isShielded");
+        },
 
         initialize : function(){
             StarShip.prototype.initialize.call(this);
@@ -132,6 +137,8 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         },
 
         _tick : function(evt){
+
+
 
             StarShip.prototype._tick.call(this, evt);
 

@@ -5,9 +5,10 @@ define(function(){
         {id:"explosionSprites", src:"/assets/explosion.png"},
 
         {id:"exhaustSound", src:"/assets/rockets.ogg"},
-        {id:"shieldSound", src:"/assets/forcefield.mp3"},
+        {id:"shieldSound", src:"/assets/shield.mp3"},
         {id:"shotSound", src:"/assets/shot.ogg"},
         {id:"explosionSound", src:"/assets/explosion.ogg"},
+        {id:"shieldBreakSound", src:"/assets/deflect.wav"},
 
         {id:"deathIcon", src:"/assets/skull.png"},
         {id:"killIcon", src:"/assets/target.png"},

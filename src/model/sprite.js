@@ -23,6 +23,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             this.data = {};
             this.changed = {};
             this.lastUpdated = Date.now();
+            this.radius = Math.max(this.width,this.height)/2;
 
             for (var key in this.defaults){
                 this.data[key] = this.defaults[key];
@@ -30,9 +31,6 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             this.set(data);
 
             this.id = this.data.id;
-
-            this.radius = Math.max(this.width,this.height)/2;
-            this.mass = this.width*this.height;
 
         },
 
@@ -134,15 +132,17 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
             var dx = this.data.posX - sprite.data.posX;
             var dy = this.data.posY - sprite.data.posY;
-            var radii = this.radius + sprite.radius;
+            var radii = this.getRadius() + sprite.getRadius();
 
             return (( dx * dx )  + ( dy * dy ) < radii * radii);
         },
 
+        getRadius : function(){
+            return this.radius;
+        },
 
-
-        collide : function(sprite){
-           return true;
+        collide : function(){
+            return true;
         },
 
         getRect : function(){

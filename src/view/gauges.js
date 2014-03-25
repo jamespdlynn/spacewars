@@ -17,8 +17,10 @@ define(['createjs','model/game'],function(createjs){
         this.shieldsFill = new createjs.Shape();
         this.shieldsWarning = new createjs.Shape();
 
-        this.fuelIcon = new createjs.Bitmap(preloader.getResult('fuelIcon'));
-        this.shieldsIcon = new createjs.Bitmap(preloader.getResult('shieldIcon'));
+        this.fuelIcon = new createjs.Bitmap('fuelIcon');
+        this.shieldsIcon = new createjs.Bitmap('shieldIcon');
+
+        this.alertSound = createjs.Sound.createInstance('alertSound');
 
         this.fuel = 100;
         this.shields = 100;
@@ -33,7 +35,6 @@ define(['createjs','model/game'],function(createjs){
         initialize : function(){
             Container.prototype.initialize.call(this);
 
-       
             this.fuelIcon.x = 0;
             this.fuelIcon.y = 0;
 
@@ -72,7 +73,12 @@ define(['createjs','model/game'],function(createjs){
 
         _tick : function(){
 
-            if (this.userShip.model){
+            if (this.userShip && this.userShip.model){
+
+                var fuelColor = '#0252fd';
+                var shieldColor = '#009a00';
+                var width;
+
                 var fuel = this.userShip.model.get("fuel");
 
                 if (Math.abs(this.fuel-fuel) > 1){
@@ -85,13 +91,13 @@ define(['createjs','model/game'],function(createjs){
                     this.fuel = fuel;
                 }
 
-
                 var shields = this.userShip.model.get("shields");
                 if (Math.abs(this.shields-shields) > 1){
                     if (this.shields < shields){
                         this.shields++;
                     }else if (this.shields > shields){
                         this.shields--;
+                        shieldColor = '#C00000';
                     }
                 }
                 else{
@@ -103,26 +109,32 @@ define(['createjs','model/game'],function(createjs){
                     this.shieldsWarning.visible = true;
                     this.shieldsWarning.alpha = 0;
                     createjs.Tween.get(this.shieldsWarning, {loop:true}).to({alpha:0.5},250).to({alpha:0},250);
+                    this.alertSound.play({loop:true});
                 }
                 else if (!isShieldBroken && this.shieldsWarning.visible){
                     this.shieldsWarning.visible = false;
                     createjs.Tween.removeTweens(this.shieldsWarning);
+                    this.alertSound.stop();
                 }
 
+                width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
+                this.fuelFill.graphics.clear()
+                    .beginFill(fuelColor).drawRect(0, 0, width, GAUGE_HEIGHT)
+                    .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
+
+                width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
+                this.shieldsFill.graphics.clear()
+                    .beginFill(shieldColor).drawRect(0, 0, width, GAUGE_HEIGHT)
+                    .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
+
+            }
+            else if (this.shieldsWarning.visible){
+                this.shieldsWarning.visible = false;
+                this.alertSound.stop();
             }
 
-            var width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
-            this.fuelFill.graphics.clear()
-                                      .beginFill('#0252fd').drawRect(0, 0, width, GAUGE_HEIGHT)
-                                      .beginFill('rgba(255,255,255,0.3').drawRect(0, 0, width, GAUGE_HEIGHT/2);
-
-            width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
-            this.shieldsFill.graphics.clear()
-                                     .beginFill('#009a00').drawRect(0, 0, width, GAUGE_HEIGHT)
-                                     .beginFill('rgba(255,255,255,0.3').drawRect(0, 0, width, GAUGE_HEIGHT/2);
-
-
         }
+
     });
 
     return Gauges;

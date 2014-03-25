@@ -107,7 +107,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         });
 
         this.sparkSprites = new createjs.SpriteSheet({
-            images: [preloader.getResult("sparkSprites")],
+            images: [preloader.getResult("blueSparkSprites")],
             frames: {width:64, height:64, count:12},
             animations: {"play": [0, 11, "play"]},
             framerate : 15

@@ -1,5 +1,5 @@
 define(['createjs','view/overlay','view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest)–-----{
+function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
 
     var RADIUS = Constants.Player.width/2;
     var PADDING = 20;
@@ -123,7 +123,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         stage.removeAllChildren();
         background.removeAllChildren();
-        createjs.Sound.stop();
         sprites = {};
 
         var planets = gameData.currentZone.planets;
@@ -195,13 +194,10 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     //Game Loop
     function onTick(evt){
 
-        if (userShip){
-
-            if (!stage.mouseInBounds){
-                userShip.isAccelerating = false;
-                userShip.isFiring = false;
-            }
-
+        if (userShip && !stage.mouseInBounds){
+            userShip.isAccelerating = false;
+            userShip.isShielded = false;
+            userShip.isFiring = false;
         }
 
         if (gameEnding){
@@ -227,25 +223,27 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         if (model1){
 
-            var size, position, volume;
+            var size=0, position={}, volume=1;
 
-            if (model1.height > model2.height && data.sprite1.explode)){
-                size = model1.height*2;
-                position = model1.data;
-                volume = model1.mass / 100;
-            }
-            else if (model2.height > model1.height && data.sprite2.explode)){
-                size = model2.height*2;
-                position = model2.data;
-                volume = model2.mass / 100;
-            }
-            else if (data.sprite1.explode || data.sprite2.explode){
-                size = model1.height*2;
-                position = model1.averagePosition(model2);
-                volume = model1.mass / 100;
-            }
+            if ((data.sprite1.explode && data.sprite1.type === "Player") || (data.sprite2.explode && data.sprite2.type === "Player"))
+            {
+                if (model1.height > model2.height){
+                    size = model1.height*2;
+                    position = model1.data;
+                    volume = model1.mass / 100;
+                }
+                else if (model2.height > model1.height){
+                    size = model2.height*2;
+                    position = model2.data;
+                    volume = model2.mass / 100;
+                }
+                else{
+                    size = model1.height*2;
+                    position = model1.averagePosition(model2);
+                    volume = model1.mass / 100;
+                }
 
-            if (size){
+
                 var explosion = new Explosion(position.posX, position.posY, size);
                 var volume = (model1.type === 'Player' || model2.type === 'Player') ? 1 : 0.5;
 
@@ -258,11 +256,11 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                     stage.removeChild(explosion);
 
                     var slayerId;
-                    if (model1.type === 'Player' && model1.id === gameData.playerId){
+                    if (data.sprite1.explode && model1.type === 'Player' && model1.id === gameData.playerId){
                         slayerId = (model2.type === 'Player') ? model2.id : model2.get("playerId");
                         endGame(zone.players.get(slayerId));
                     }
-                    else if (model2.type === 'Player' && model2.id === gameData.playerId){
+                    else if (data.sprite2.explode && model2.type === 'Player' && model2.id === gameData.playerId){
                         slayerId = (model1.type === 'Player') ? model1.id : model1.get("playerId");
                         endGame(zone.players.get(slayerId));
                     }
@@ -272,7 +270,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                     gameData.incrementKills();
                 }
             }
-            else if (model1.get("isShieldBroken") !== false && model2.get("isShieldBroken") !== false){
+            else if (!model1.get("isShieldBroken") && !model2.get("isShieldBroken")){
                 createjs.Sound.play("collideSound");
             }
 
@@ -299,7 +297,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             if (which == 1 && userShip.model.canAccelerate()){
                 userShip.isAccelerating = true;
                 triggerUpdate();
-            }else if (which == 3 && user.model.canShield()){
+            }else if (which == 3 && userShip.model.canShield()){
                 userShip.isShielded = true;
                 triggerUpdate();
             }

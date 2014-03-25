@@ -50,7 +50,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             this.shotSound = createjs.Sound.createInstance("shotSound");
             this.shieldBreakSound = createjs.Sound.createInstance("shieldBreakSound");
             this.exhaustSound = createjs.Sound.play("exhaustSound", {volume:0, loop:-1});
-            this.exhaustSound.pause();
 
             this.addChild(this.flame1, this.flame2, this.shipBody, this.shield, this.sparks);
             this.setBounds(-width/2, -height/2, width, height);
@@ -109,13 +108,12 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
                 if (!this.flame1.visible){
                     this.flame1.visible = this.flame2.visible = true;
                     this.exhaustSound.resume();
-                    createjs.Tween.get(this.exhaustSound).to({volume:this.volume}, 200);
+                    createjs.Tween.get(this.exhaustSound,{override:true}).to({volume:this.volume}, 200);
                 }
             }
             else if (this.flame1.visible){
                  this.flame1.visible = this.flame2.visible = false;
-                 this.exhaustSound.pause();
-                 this.exhaustSound.setVolume(0);
+                 createjs.Tween.get(this.exhaustSound,{override:true}).to({volume:0}, 200);
             }
 
 

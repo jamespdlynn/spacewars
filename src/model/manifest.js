@@ -2,11 +2,11 @@ define(function(){
     return [
         {id:"redExhaustSprites", src:"/assets/red-exhaust.png"},
         {id:"blueExhaustSprites", src:"/assets/blue-exhaust.png"},
-        {id:"sparkSprites", src:"sparks.png"},
+        {id:"sparkSprites", src:"/assets/sparks.png"},
         {id:"explosionSprites", src:"/assets/explosion.png"},
 
         {id:"exhaustSound", src:"/assets/rockets.ogg"},
-        {id:"shieldSound", src:"/assets/shield.mp3"},
+        {id:"shieldSound", src:"/assets/shield.ogg"},
         {id:"shotSound", src:"/assets/shot.ogg"},
         {id:"collideSound", src:"/assets/collide.ogg"},
         {id:"explosionSound", src:"/assets/explosion.ogg"},

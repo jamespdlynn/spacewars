@@ -165,8 +165,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
             userPlayer.update();
 
-            if (data.isAccelerating && !userPlayer.canAccelerate()) userShip.isAccelerating = false;
-            if (data.isShielded && !userPlayer.canShield()) userShip.isShielded = false;
+            if (data.isAccelerating && !userPlayer.canAccelerate()) data.isAccelerating = false;
+            if (data.isShielded && !userPlayer.canShield()) data.isShielded = false;
             if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
 
             var isAccelerating = userPlayer.get("isAccelerating");

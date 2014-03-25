@@ -19,9 +19,9 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             angle : 0,
             fuel : 100,
             shields : 100,
-            isShielded : true,
             isAccelerating : false,
             isInvulnerable : false,
+            isShielded : false,
             isShieldBroken : false,
             username : ""
         },

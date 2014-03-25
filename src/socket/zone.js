@@ -73,13 +73,15 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             //Send the new player to existing connections
             this._sendPlayer(player);
 
-            var self = this;
             setTimeout(function(){
-                if (self.timeouts[player.toString()]){
-                    player.update().set("isInvulnerable", false);
-                    self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
-                }
+               player.set("isInvulnerable", false);
             }, player.invulnerableTime);
+
+            if (player.get("isShieldBroken")){
+                setTimeout(function(){
+                    player.set({shields:20, isShieldBroken:false});
+                }, player.shieldDownTime/2);
+            }
 
             //Add connection to array
             conn.playerId = player.id;
@@ -178,6 +180,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             //Otherwise Fast forward sprite location to avoid multiple collisions and send the update data values to clients
             this._sendSprite(sprite1.update(100));
+
             return false;
         },
 
@@ -317,7 +320,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var self = this;
             self.set({isShielded:false, isShieldBroken:true});
             setTimeout(function(){
-                self.set("isShieldBroken", false);
+                self.set({isShieldBroken:false,shields:20});
             }, self.shieldDownTime);
         }
     }

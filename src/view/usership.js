@@ -137,7 +137,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         },
 
         setModel : function(model){
-            StarShip.prototype.initialize.call(this, model);
+            StarShip.prototype.setModel.call(this, model);
             this.angle = model.get("angle");
         },
 

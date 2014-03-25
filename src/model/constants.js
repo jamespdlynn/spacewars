@@ -31,8 +31,8 @@ define(function(){
            invulnerableTime : 1500,
            fuelUseRate : 30,
            fuelRestoreRate : 30,
-           shieldUseRate : 0,
-           shieldRestoreRate : 3,
+           shieldUseRate : 30,
+           shieldRestoreRate : 2,
            shieldPadding : 16,
            shieldHitDiscount : 50,
            shieldDownTime : 10000

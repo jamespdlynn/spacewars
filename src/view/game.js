@@ -341,6 +341,9 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     function triggerUpdate(){
         if (userShip && !document.isHidden()){
 
+            if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
+            if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;
+
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,
                 isAccelerating:userShip.isAccelerating,

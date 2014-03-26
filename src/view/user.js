@@ -9,8 +9,8 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
     var UserContainer = function (){
 
-        this.zoneLabel =  new createjs.Text("","14px Arkitech", "#fff");
-        this.usernameLabel = new createjs.Text("","16px Arkitech", "#fff");
+        this.zoneLabel =  new createjs.Text("","16px Arkitech", "#fff");
+        this.usernameLabel = new createjs.Text("","15px Arkitech", "#fff");
 
         this.deathLabel = new createjs.Text("","bold 19px Helvetica", "#fff");
         this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#fff");

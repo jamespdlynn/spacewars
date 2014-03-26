@@ -25,7 +25,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 stage.enableDOMEvents(false);
                 stage.mouseChildren = false;
 
-                window.preloader = new createjs.LoadQueue(false, "http://dazx2ug0v9sfb.cloudfront.net", true);
+                window.preloader = new createjs.LoadQueue(false, "http://dazx2ug0v9sfb.cloudfront.net/");
                 preloader.addEventListener("complete", function(){
                     initialized = true;
                     if (autorun) GameView.run();
@@ -201,9 +201,9 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         }
 
         if (gameEnding){
-            stage.alpha = Math.max(stage.alpha-0.01, 0);
-            background.alpha = Math.max(background.alpha-0.01, 0);
-            createjs.Sound.setVolume(Math.max(createjs.Sound.getVolume()-0.01, 0));
+            stage.alpha = Math.max(stage.alpha-0.005, 0);
+            background.alpha = Math.max(background.alpha-0.005, 0);
+            createjs.Sound.setVolume(Math.max(createjs.Sound.getVolume()-0.005, 0));
 
             background.update();
         }
@@ -251,22 +251,20 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 createjs.Sound.play("explosionSound").volume = volume;
 
                 explosion.addEventListener("animationend", function(){
-
                     explosion.removeEventListener("animationend");
                     stage.removeChild(explosion);
-
-                    var slayerId;
-                    if (data.sprite1.explode && model1.type === 'Player' && model1.id === gameData.playerId){
-                        slayerId = (model2.type === 'Player') ? model2.id : model2.get("playerId");
-                        endGame(zone.players.get(slayerId));
-                    }
-                    else if (data.sprite2.explode && model2.type === 'Player' && model2.id === gameData.playerId){
-                        slayerId = (model1.type === 'Player') ? model1.id : model1.get("playerId");
-                        endGame(zone.players.get(slayerId));
-                    }
                 });
 
-                if ((model1.get("playerId") == gameData.playerId && model2.type == "Player") || (model2.get("playerId") == gameData.playerId && model1.type == "Player")){
+                var slayerId;
+                if (data.sprite1.explode && model1.type === 'Player' && model1.id === gameData.playerId){
+                    slayerId = (model2.type === 'Player') ? model2.id : model2.get("playerId");
+                    endGame(zone.players.get(slayerId));
+                }
+                else if (data.sprite2.explode && model2.type === 'Player' && model2.id === gameData.playerId){
+                    slayerId = (model1.type === 'Player') ? model1.id : model1.get("playerId");
+                    endGame(zone.players.get(slayerId));
+                }
+                else if((model1.get("playerId") == gameData.playerId && model2.type == "Player") || (model2.get("playerId") == gameData.playerId && model1.type == "Player")){
                     gameData.incrementKills();
                 }
             }
@@ -287,7 +285,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             if (GameView.isRunning){
                 gameData.trigger(Constants.Events.GAME_END);
             }
-        }, 1700);
+        }, 3400);
     }
 
     //Canvas Event Listeners

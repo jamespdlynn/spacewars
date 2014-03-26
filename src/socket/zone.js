@@ -70,8 +70,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var player = model.players.add(data);
             player.on("update", onPlayerUpdate);
-            //Send the new player to existing connections
-            this._sendPlayer(player);
 
             setTimeout(function(){
                player.set("isInvulnerable", false);
@@ -83,17 +81,19 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 }, player.shieldDownTime/2);
             }
 
+            //Send the new player to existing connections
+            this._sendPlayer(player);
+
             //Add connection to array
             conn.playerId = player.id;
             this.connections.push(conn);
 
             //Send all the necessary game data to the new user, to get them started
             var buffer = micro.toBinary({
-                playerId:player.id,
-                currentZone:this.model.toJSON()
+                currentZone:this.model.toJSON(),
+                playerId: player.id
             },"GameData");
             conn.out.write(buffer);
-
 
         },
 

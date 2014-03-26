@@ -169,15 +169,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             if (data.isShielded && !userPlayer.canShield()) data.isShielded = false;
             if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
 
-            var isAccelerating = userPlayer.get("isAccelerating");
-            var sendUpdate =  data.isFiring || (data.isAccelerating !== isAccelerating) || (data.isShielded !== userPlayer.get("isShielded"));
-
-            if (!sendUpdate){
-                var angleDiff = userPlayer.angleDifference(data.angle);
-                sendUpdate = (angleDiff >= 0.6) || (isAccelerating && angleDiff >= 0.2);
-            }
-
-            if (sendUpdate){
+            if ( data.isFiring || (data.isAccelerating !==  userPlayer.get("isAccelerating")) || (data.isShielded !== userPlayer.get("isShielded")) || userPlayer.angleDifference(data.angle) >= 0.1){
                 var buffer = micro.toBinary(data, "PlayerUpdate",3);
                 wsClient.out.write(buffer);
             }

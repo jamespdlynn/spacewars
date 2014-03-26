@@ -29,7 +29,9 @@ define(['model/constants'],function(Constants){
            isShielded : "boolean",
            isInvulnerable : "boolean",
            isShieldBroken : "boolean",
-           username : "string"
+           username : "string",
+           fuel : "uint",
+           shields : "uint"
        },
 
        Missile : {

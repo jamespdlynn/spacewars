@@ -17,8 +17,8 @@ define(['createjs','model/game'],function(createjs){
         this.shieldsFill = new createjs.Shape();
         this.shieldsWarning = new createjs.Shape();
 
-        this.fuelIcon = new createjs.Bitmap('fuelIcon');
-        this.shieldsIcon = new createjs.Bitmap('shieldIcon');
+        this.fuelIcon = new createjs.Bitmap(preloader.getResult('fuelIcon'));
+        this.shieldsIcon = new createjs.Bitmap(preloader.getResult('shieldIcon'));
 
         this.alertSound = createjs.Sound.createInstance('alertSound');
 
@@ -91,13 +91,17 @@ define(['createjs','model/game'],function(createjs){
                     this.fuel = fuel;
                 }
 
-                var shields = this.userShip.model.get("shields");
-                if (Math.abs(this.shields-shields) > 1){
+                var shields = this.userShip.model.get("shields")
+                var diff = Math.abs(this.shields-shields);
+                if (diff> 1){
                     if (this.shields < shields){
                         this.shields++;
                     }else if (this.shields > shields){
                         this.shields--;
-                        shieldColor = '#C00000';
+
+                        if (diff >= 5){
+                            shieldColor = '#C00000';
+                        }
                     }
                 }
                 else{
@@ -109,7 +113,7 @@ define(['createjs','model/game'],function(createjs){
                     this.shieldsWarning.visible = true;
                     this.shieldsWarning.alpha = 0;
                     createjs.Tween.get(this.shieldsWarning, {loop:true}).to({alpha:0.5},250).to({alpha:0},250);
-                    this.alertSound.play({loop:true});
+                    this.alertSound.play({loop:true, delay:500});
                 }
                 else if (!isShieldBroken && this.shieldsWarning.visible){
                     this.shieldsWarning.visible = false;

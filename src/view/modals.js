@@ -1,6 +1,7 @@
 define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html',
     'txt!tpl/disconnected.html', 'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
     function (Constants, gameData, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
+        'use strict';
 
         var modal = document.getElementById("modal");
         var connecting = document.getElementById("connecting");

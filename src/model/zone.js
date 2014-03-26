@@ -1,4 +1,5 @@
 define(['model/collection','model/constants'], function(SpriteCollection, Constants){
+    'use strict';
 
     var Zone = function (data, options){
         this.id = data.id;

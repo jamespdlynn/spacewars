@@ -1,5 +1,7 @@
 define(function(){
 
+    'use strict';
+
     return {
        MIN_WORLD_SIZE : 1,
        MAX_WORLD_SIZE : 12,

@@ -1,4 +1,5 @@
 define(['model/sprite','model/constants'],function(Sprite,Constants){
+    'use strict';
 
     var Player = function(data, options){
         this.initialize(data, options);
@@ -85,7 +86,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         },
 
         getRadius : function(){
-            return this.data.isShielded ? this.radius + this.shieldPadding : this.radius;
+            return this.data.isShielded ? this.width/2 + this.shieldPadding : this.width/2;
         },
 
         collide : function(sprite){

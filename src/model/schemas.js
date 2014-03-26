@@ -1,4 +1,6 @@
 define(['model/constants'],function(Constants){
+   'use strict';
+
    return {
 
        Ping : {

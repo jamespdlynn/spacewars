@@ -1,3 +1,5 @@
+'use strict';
+
 require.config({
     paths : {
         'tpl' : 'templates',
@@ -67,6 +69,7 @@ require.config({
 //Main require function
 require(['view/modals','view/game','socket/client', 'model/constants','model/game'],
     function( ModalsView, GameView, Client, Constants, gameData){
+        'use strict';
 
         if ('ontouchstart' in document.documentElement){
             return ModalsView.setConnecting(false).showUnsupportedDeviceModal();

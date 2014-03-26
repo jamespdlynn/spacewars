@@ -1,4 +1,5 @@
 define(['model/sprite','model/constants'],function(Sprite,Constants){
+    'use strict';
 
     var Missile = function(data, options){
         this.initialize(data, options);

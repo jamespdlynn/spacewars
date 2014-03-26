@@ -1,4 +1,6 @@
 define(function(){
+    'use strict';
+
     return [
         {id:"redExhaustSprites", src:"red-exhaust.png"},
         {id:"blueExhaustSprites", src:"blue-exhaust.png"},

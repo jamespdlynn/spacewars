@@ -1,5 +1,6 @@
 define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'model/missile', 'model/constants', 'model/game'],
     function (binary, micro, schemas, Zone, Player, Missile, Constants, gameData){
+        'use strict';
 
         var wsClient, currentZone, userPlayer, collisionInterval, connected;
 

@@ -1,5 +1,7 @@
 define(['model/dispatcher','model/sprite','model/player','model/missile','model/planet'], function(EventDispatcher, Sprite, Player, Missile, Planet){
 
+    'use strict';
+
     var SpriteCollection = function(type, data, options){
         switch (type)
         {

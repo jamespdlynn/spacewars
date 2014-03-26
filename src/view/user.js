@@ -1,4 +1,5 @@
 define(['createjs','model/constants','model/game'],function(createjs, Constants,gameData){
+    'use strict';
 
     var WIDTH = 240;
     var HEIGHT = 55;

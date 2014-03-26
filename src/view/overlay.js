@@ -1,5 +1,6 @@
 define(['createjs','view/user','view/gauges','model/constants','model/game'],
     function(createjs, UserContainer, Gauges, Constants,gameData){
+        'use strict';
 
         var Container = createjs.Container;
 

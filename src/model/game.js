@@ -60,6 +60,10 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             return this.user.username.length > 0;
         },
 
+        isUserSprite : function(sprite){
+            return sprite.get("username") === this.user.username;
+        },
+
         setScale : function(scaleX, scaleY){
             this.scaleX = scaleX;
             this.scaleY = scaleY;

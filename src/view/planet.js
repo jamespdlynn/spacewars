@@ -1,4 +1,5 @@
 define(['createjs', 'model/game'],function(createjs, gameData){
+    'use strict';
 
     var Bitmap = createjs.Bitmap;
 

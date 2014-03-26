@@ -1,4 +1,5 @@
 define(['model/dispatcher','model/constants'],function( EventDispatcher, Constants){
+    'use strict';
 
     var Sprite = function(data, options){
          this.initialize(data, options);
@@ -19,19 +20,13 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
         },
 
         initialize : function(data){
-
+            this.id = data.id || this.defaults.id;
             this.data = {};
             this.changed = {};
             this.lastUpdated = Date.now();
-            this.radius = Math.max(this.width,this.height)/2;
 
-            for (var key in this.defaults){
-                this.data[key] = this.defaults[key];
-            }
+            extend.call(this.data, this.defaults);
             this.set(data);
-
-            this.id = this.data.id;
-
         },
 
         /** @param {string} key*/
@@ -50,41 +45,48 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
             options = options || {};
 
-            var data = this.data;
-            var changed = this.changed = {};
+            this.changed = {};
 
             //Loop through the new object and set new attributes on the player
             for (var key in attrs){
 
-                if (!data.hasOwnProperty(key)) continue;
+                if (!this.defaults.hasOwnProperty(key)) continue;
 
                 var value = attrs[key];
 
-                if (data[key] != value){
-                    changed[key] = value;
+                if (this.data[key] != value){
+                    this.changed[key] = value;
                 }
 
                 if (key == "posX"){
-                    this.easeX = options.easing ? value-data.posX : 0;
-                    if (options.easing) continue;
+                    if (options.easing){
+                       this.easeX = value-data.posX;
+                       continue;
+                    }else{
+                       this.easeX = 0;
+                    }
                 }
                 else if (key == "posY"){
-                   this.easeY = options.easing ? value-data.posY : 0;
-                   if (options.easing) continue;
+                    if (options.easing){
+                        this.easeY = value-data.posY;
+                        continue;
+                    }else{
+                        this.easeY = 0;
+                    }
                 }
 
-                data[key] = value;
+                this.data[key] = value;
             }
 
             if (this.easeX || this.easeY){
                 var combinedDelta = Sprite.getHypotenuse(this.easeX, this.easeY);
 
                 if (combinedDelta > (this.maxVelocity || this.velocity || 100)){
-                    if (attrs.hasOwnProperty("posX")) data.posX = attrs.posX;
-                    if (attrs.hasOwnProperty("posY")) data.posY = attrs.posY;
+                    if (attrs.hasOwnProperty("posX")) this.data.posX = attrs.posX;
+                    if (attrs.hasOwnProperty("posY")) this.data.posY = attrs.posY;
                     this.easeX = this.easeY = 0;
                 }
-             }
+            }
 
             return this;
         },
@@ -138,7 +140,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
         },
 
         getRadius : function(){
-            return this.radius;
+            return Math.max(this.width,this.height)/2;
         },
 
         collide : function(){
@@ -170,23 +172,30 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             return false;
         },
 
+        distance : function(sprite){
 
+            if (!sprite || this.equals(sprite)){
+                return 0;
+            }
+
+            var deltaX = sprite.data.posX - this.data.posX;
+            var deltaY = sprite.data.posY - this.data.posY;
+
+            return Sprite.getHypotenuse(deltaX, deltaY);
+        },
 
         averagePosition : function(sprite){
             var posX = this.data.posX;
             var posY = this.data.posY;
 
-             if (!sprite || this.equals(sprite)){
-                return {
-                    posX : posX,
-                    posY : posY
-                };
-             }
+            if (!sprite || this.equals(sprite)){
+               return {posX : posX,posY : posY};
+            }
 
             var deltaX = sprite.data.posX - posX;
             var deltaY = sprite.data.posY - posY;
 
-            var distance =  Math.sqrt((deltaX*deltaX)+(deltaY*deltaY))/2;
+            var distance =  Sprite.getHypotenuse(deltaX, deltaY)/2;
             var angle = Math.atan2(deltaY, deltaX);
 
             return {
@@ -203,6 +212,8 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             return this.data;
         },
 
+
+
         clone : function(){
             var clone = new (this.constructor)(this.data);
             for (var key in this){
@@ -212,11 +223,12 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             }
 
             return clone;
+        },
+
+        reset : function(){
+            extend.call(this.data, this.defaults);
         }
     });
-
-
-
 
 
     return Sprite;

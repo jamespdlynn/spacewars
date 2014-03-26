@@ -1,4 +1,5 @@
 define(['createjs','model/game'],function(createjs){
+    'use strict';
 
     var GAUGE_WIDTH = 200;
     var GAUGE_HEIGHT = 24;
@@ -43,7 +44,6 @@ define(['createjs','model/game'],function(createjs){
             this.fuelBackground.alpha = this.fuelFill.alpha = 0.8;
             this.fuelBackground.skewX = this.fuelFill.skewX = ICON_SIZE;
 
-
             this.fuelBackground.graphics.beginFill("rgba(255,255,255,0.7)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
                                             .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
             this.fuelBackground.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
@@ -73,69 +73,61 @@ define(['createjs','model/game'],function(createjs){
 
         _tick : function(){
 
-            if (this.userShip && this.userShip.model){
+            var fuelColor = '#0252fd';
+            var shieldColor = '#009a00';
+            var width;
 
-                var fuelColor = '#0252fd';
-                var shieldColor = '#009a00';
-                var width;
+            var fuel = this.userShip.model.get("fuel");
 
-                var fuel = this.userShip.model.get("fuel");
-
-                if (Math.abs(this.fuel-fuel) > 1){
-                    if (this.fuel < fuel){
-                        this.fuel++;
-                    }else if (this.fuel > fuel){
-                        this.fuel--;
-                    }
-                }else{
-                    this.fuel = fuel;
+            if (Math.abs(this.fuel-fuel) > 1){
+                if (this.fuel < fuel){
+                    this.fuel++;
+                }else if (this.fuel > fuel){
+                    this.fuel--;
                 }
-
-                var shields = this.userShip.model.get("shields")
-                var diff = Math.abs(this.shields-shields);
-                if (diff> 1){
-                    if (this.shields < shields){
-                        this.shields++;
-                    }else if (this.shields > shields){
-                        this.shields--;
-
-                        if (diff >= 5){
-                            shieldColor = '#C00000';
-                        }
-                    }
-                }
-                else{
-                    this.shields = shields;
-                }
-
-                var isShieldBroken = this.userShip.model.get("isShieldBroken");
-                if (isShieldBroken && !this.shieldsWarning.visible){
-                    this.shieldsWarning.visible = true;
-                    this.shieldsWarning.alpha = 0;
-                    createjs.Tween.get(this.shieldsWarning, {loop:true}).to({alpha:0.5},250).to({alpha:0},250);
-                    this.alertSound.play({loop:true, delay:500});
-                }
-                else if (!isShieldBroken && this.shieldsWarning.visible){
-                    this.shieldsWarning.visible = false;
-                    createjs.Tween.removeTweens(this.shieldsWarning);
-                    this.alertSound.stop();
-                }
-
-                width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
-                this.fuelFill.graphics.clear()
-                    .beginFill(fuelColor).drawRect(0, 0, width, GAUGE_HEIGHT)
-                    .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
-
-                width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
-                this.shieldsFill.graphics.clear()
-                    .beginFill(shieldColor).drawRect(0, 0, width, GAUGE_HEIGHT)
-                    .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
-
+            }else{
+                this.fuel = fuel;
             }
-            else if (this.shieldsWarning.visible){
+
+            var shields = this.userShip.model.get("shields");
+            var diff = Math.abs(this.shields-shields);
+            if (diff> 1){
+                if (this.shields < shields){
+                    this.shields++;
+                }else if (this.shields > shields){
+                    this.shields--;
+
+                    if (diff >= 5){
+                        shieldColor = '#C00000';
+                    }
+                }
+            }
+            else{
+                this.shields = shields;
+            }
+
+            var isShieldBroken = this.userShip.model.get("isShieldBroken");
+            if (isShieldBroken && !this.shieldsWarning.visible){
+                this.shieldsWarning.visible = true;
+                this.shieldsWarning.alpha = 0;
+                createjs.Tween.get(this.shieldsWarning, {loop:true}).to({alpha:0.5},250).to({alpha:0},250);
+                this.alertSound.play({loop:true, delay:500});
+            }
+            else if (!isShieldBroken && this.shieldsWarning.visible){
                 this.shieldsWarning.visible = false;
+                createjs.Tween.removeTweens(this.shieldsWarning);
                 this.alertSound.stop();
             }
+
+            width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
+            this.fuelFill.graphics.clear()
+                .beginFill(fuelColor).drawRect(0, 0, width, GAUGE_HEIGHT)
+                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
+
+            width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
+            this.shieldsFill.graphics.clear()
+                .beginFill(shieldColor).drawRect(0, 0, width, GAUGE_HEIGHT)
+                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
 
         }
 

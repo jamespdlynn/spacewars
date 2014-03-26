@@ -1,5 +1,5 @@
 define(["microjs","model/zone","model/constants","model/dispatcher"], function(micro, Zone, Constants, EventDispatcher){
-
+    'use strict';
 
     var MAX_PLANETS = 20;
     var PARTIAL_PLAYER_SIZE = 12;

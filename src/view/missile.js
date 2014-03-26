@@ -1,4 +1,5 @@
 define(['createjs','model/constants','model/game'],function(createjs, Constants, gameData){
+    'use strict';
 
     var Shape = createjs.Shape;
     var DisplayObject = createjs.DisplayObject;

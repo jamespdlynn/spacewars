@@ -1,4 +1,5 @@
 define(['createjs','view/starship','model/constants'],function(createjs,StarShip, Constants){
+    'use strict';
 
     var Container = createjs.Container,
         Shape = createjs.Shape;

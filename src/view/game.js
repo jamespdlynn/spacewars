@@ -1,10 +1,11 @@
-define(['createjs','view/overlay','view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+define(['createjs','view/overlay', 'view/sprite', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
+function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+    'use strict';
 
     var RADIUS = Constants.Player.width/2;
     var PADDING = 20;
 
-    var initialized, autorun, background, stage, updateTimeout, userShip, sprites, gameEnding;
+    var initialized, autorun, background, stage, updateTimeout, overlay, userShip, sprites, gameEnding;
 
     var GameView = {
 
@@ -35,9 +36,27 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
                 preloader.installPlugin(createjs.Sound);
                 preloader.loadManifest(manifest);
-            },
 
-            run : function(){
+                window.getRelativeVolume = function(sprite){
+                    return userShip ? Math.min(1-(userShip.distance(sprite)/2000), 0) : 0;
+                };
+
+                window.playRelativeSound = function(sound, sprite){
+                    if (typeof sound === 'string'){
+                        createjs.Sound.play(sound, {volume:getRelativeVolume(sprite)});
+                    }else{
+                        sound.play({volume:getRelativeVolume(sprite)});
+                    }
+                };
+
+                window.setRelativeVolume = function(sound, sprite){
+                    sound.setVolume(getRelativeVolume(sprite));
+                };
+
+
+        },
+
+        run : function(){
             if (GameView.isRunning) return;
 
             if (!initialized){
@@ -165,10 +184,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             sprite = new EnemyShip(model);
         }else if (model.type === "Missile"){
             sprite = new Missile(model);
-
-            var playerId = model.get("playerId");
-            var starShip = (playerId === gameData.playerId) ? userShip : sprites["Player"+playerId];
-            if (starShip) starShip.fire();
+            playRelativeSound('shotSound',sprite);
         }
 
         sprites[model.toString()] = sprite;
@@ -181,7 +197,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         if (userShip && model.equals(userShip.model)){
             stage.removeChild(userShip);
             userShip.destroy();
-            userShip = undefined;
         }else{
             var sprite = sprites[model.toString()];
             if (model.type == "Player") sprite.destroy();
@@ -206,86 +221,87 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             createjs.Sound.setVolume(Math.max(createjs.Sound.getVolume()-0.005, 0));
 
             background.update();
+
+            if (stage.alpha === 0 && GameView.isRunning){
+                gameData.trigger(Constants.Events.GAME_END);
+            }
         }
 
         stage.update(evt);
-
     }
 
     function onCollision(data){
 
         var zone = gameData.currentZone;
-        var model1 = data.sprite1.explode ? zone.remove(data.sprite1) : zone.get(data.sprite1);
-        var model2 = data.sprite2.explode ? zone.remove(data.sprite2) : zone.get(data.sprite2);
 
-        model1 = model1 || model2;
-        model2 = model2 || model1;
+        var explode1 = data.sprite1 && data.sprite1.explode;
+        var explode2 = data.sprite2 && data.sprite2.explode;
+
+        var model1 = explode1 ? zone.remove(data.sprite1) : zone.get(data.sprite1);
+        var model2 = explode2 ? zone.remove(data.sprite2) : zone.get(data.sprite2);
 
         if (model1){
 
-            var size=0, position={}, volume=1;
+            var size=0, position={};
 
-            if ((data.sprite1.explode && data.sprite1.type === "Player") || (data.sprite2.explode && data.sprite2.type === "Player"))
+            if ((explode1 && (explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
             {
-                if (model1.height > model2.height){
+                if (!model2 || model1.height > model2.height){
                     size = model1.height*2;
                     position = model1.data;
-                    volume = model1.mass / 100;
                 }
                 else if (model2.height > model1.height){
                     size = model2.height*2;
                     position = model2.data;
-                    volume = model2.mass / 100;
                 }
                 else{
                     size = model1.height*2;
                     position = model1.averagePosition(model2);
-                    volume = model1.mass / 100;
                 }
 
 
                 var explosion = new Explosion(position.posX, position.posY, size);
-                var volume = (model1.type === 'Player' || model2.type === 'Player') ? 1 : 0.5;
 
                 stage.addChildAt(explosion);
-                createjs.Sound.play("explosionSound").volume = volume;
+                playRelativeSound('explosionSound');
 
                 explosion.addEventListener("animationend", function(){
                     explosion.removeEventListener("animationend");
                     stage.removeChild(explosion);
                 });
 
-                var slayerId;
-                if (data.sprite1.explode && model1.type === 'Player' && model1.id === gameData.playerId){
-                    slayerId = (model2.type === 'Player') ? model2.id : model2.get("playerId");
-                    endGame(zone.players.get(slayerId));
+                var slayer;
+                if (explode1 && model1.type === 'Player'){
+                    if (userShip.model.equals(model1)){
+                        slayer = (model2.type === 'Player') ? zone.players.get(model2.id) : zone.players.get(model2.get("playerId"));
+                        endGame(slayer);
+                    }
+                    else if (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id){
+                        gameData.incrementKills();
+                    }
                 }
-                else if (data.sprite2.explode && model2.type === 'Player' && model2.id === gameData.playerId){
-                    slayerId = (model1.type === 'Player') ? model1.id : model1.get("playerId");
-                    endGame(zone.players.get(slayerId));
-                }
-                else if((model1.get("playerId") == gameData.playerId && model2.type == "Player") || (model2.get("playerId") == gameData.playerId && model1.type == "Player")){
-                    gameData.incrementKills();
+
+                if (explode2 && model2.type === 'Player'){
+                    if (userShip.model.equals(model2)){
+                        slayer = (model1.type === 'Player') ? zone.players.get(model1.id) : zone.players.get(model1.get("playerId"));
+                        endGame(slayer);
+                    }
+                    else if (userShip.model.equals(model1) || model1.get("playerId") === userShip.model.id){
+                        gameData.incrementKills();
+                    }
                 }
             }
             else if (!model1.get("isShieldBroken") && !model2.get("isShieldBroken")){
-                createjs.Sound.play("collideSound");
+                playRelativeSound("collideSound");
             }
 
         }
     }
 
     function endGame(slayer){
-
-        gameData.slayer = slayer && slayer.id !== gameData.playerId ?  slayer.get("username") : "";
+        gameData.slayer = slayer ? slayer.get("username") : "";
         gameData.incrementDeaths();
-
         gameEnding = true;
-        setTimeout(function(){
-            if (GameView.isRunning){
-                gameData.trigger(Constants.Events.GAME_END);
-            }
-        }, 3400);
     }
 
     //Canvas Event Listeners

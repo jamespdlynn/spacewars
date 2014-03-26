@@ -1,4 +1,5 @@
 define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], function(binary, micro, schemas,Constants,ServerZone){
+    'use strict';
 
     var BinaryServer = binary.BinaryServer;
 

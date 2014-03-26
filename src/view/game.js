@@ -273,7 +273,9 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
                 var slayer;
                 if (explode1 && model1.type === 'Player'){
                     if (userShip.model.equals(model1)){
-                        slayer = (model2.type === 'Player') ? zone.players.get(model2.id) : zone.players.get(model2.get("playerId"));
+                        if (model2){
+                            slayer = (model2.type === 'Player') ? zone.players.get(model2.id) : zone.players.get(model2.get("playerId"));
+                        }
                         endGame(slayer);
                     }
                     else if (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id){
@@ -291,7 +293,7 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
                     }
                 }
             }
-            else if (!model1.get("isShieldBroken") && !model2.get("isShieldBroken")){
+            else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
                 playRelativeSound("collideSound");
             }
 

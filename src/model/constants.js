@@ -29,7 +29,7 @@ define(function(){
            mass : 100,
            acceleration : 340,
            maxVelocity : 155,
-           fireInterval : 1000,
+           fireInterval : 750,
            invulnerableTime : 1500,
            fuelUseRate : 30,
            fuelRestoreRate : 30,

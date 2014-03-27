@@ -225,8 +225,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
                 availableWorldSize--;
             }
 
-            console.log("close");
-
         });
 
         //Get things going by creating an output stream and pinging the client

@@ -26,7 +26,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 stage.enableDOMEvents(false);
                 stage.mouseChildren = false;
 
-                window.preloader = new createjs.LoadQueue(false, "http://dazx2ug0v9sfb.cloudfront.net/");
+                window.preloader = new createjs.LoadQueue(true, "/assets/");
                 preloader.addEventListener("complete", function(){
                     initialized = true;
                     if (autorun) GameView.run();

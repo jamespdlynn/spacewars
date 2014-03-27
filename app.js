@@ -5,20 +5,12 @@ var http = require("http"),
     requirejs = require('requirejs'),
     pkg = require('./package.json');
 
-global.extend = function(add){
-    for (var i=0; i < arguments.length; i++){
-        var obj = arguments[i];
-        for (var key in obj){
-            if (obj.hasOwnProperty(key)){
-                this[key] = obj[key];
-            }
-        }
-    }
-    return this;
-};
 
-var app = express(),
-    isProd = ('production' == app.get('env'));
+var app = express();
+app.set('env', process.argv[2] || process.env.NODE_ENV || 'production');
+app.set('port', process.argv[3] || process.env.PORT || '80');
+
+var isProd = ('production' == app.get('env'));
 
 app.configure(function(){
 
@@ -34,8 +26,6 @@ app.configure(function(){
     require('jade').renderFile(__dirname+'/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
         fs.writeFile(htmlPath, html);
     });
-
-    app.set('port', process.env.PORT || 80);
 
     app.use(express.favicon());
 
@@ -71,7 +61,7 @@ app.configure('production', function(){
 });
 
 var httpServer = http.createServer(app).listen(app.get('port'), function(){
-    console.log('Express server listening on port ' +app.get('port'));
+    console.log("Express "+app.get('env')+" server listening on port "+app.get('port'));
 
     if (isProd){
         process.on('uncaughtException', function(error) {
@@ -79,6 +69,18 @@ var httpServer = http.createServer(app).listen(app.get('port'), function(){
         });
     }
 });
+
+global.extend = function(add){
+    for (var i=0; i < arguments.length; i++){
+        var obj = arguments[i];
+        for (var key in obj){
+            if (obj.hasOwnProperty(key)){
+                this[key] = obj[key];
+            }
+        }
+    }
+    return this;
+};
 
 requirejs.config({
     baseUrl : __dirname+"/src",
@@ -88,4 +90,3 @@ requirejs.config({
 requirejs(["socket/server"], function(server){
     server.run(httpServer , !isProd);
 });
-

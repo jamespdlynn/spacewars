@@ -44,7 +44,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             });
 
             self.updateZone();
-            gameData.on(Constants.Events.USER_CHANGED, function(){
+            gameData.on(Constants.Events.ZONE_CHANGED, function(){
                 self.updateZone();
             });
 

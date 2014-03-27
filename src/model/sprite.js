@@ -60,7 +60,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
                 if (key == "posX"){
                     if (options.easing){
-                       this.easeX = value-data.posX;
+                       this.easeX = value-this.data.posX;
                        continue;
                     }else{
                        this.easeX = 0;
@@ -68,7 +68,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
                 }
                 else if (key == "posY"){
                     if (options.easing){
-                        this.easeY = value-data.posY;
+                        this.easeY = value-this.data.posY;
                         continue;
                     }else{
                         this.easeY = 0;
@@ -172,7 +172,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             return false;
         },
 
-        distance : function(sprite){
+        getDistance : function(sprite){
 
             if (!sprite || this.equals(sprite)){
                 return 0;

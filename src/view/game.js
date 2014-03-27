@@ -1,5 +1,5 @@
-define(['createjs','view/overlay', 'view/sprite', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+define(['createjs','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
+function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
     'use strict';
 
     var RADIUS = Constants.Player.width/2;
@@ -38,7 +38,7 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
                 preloader.loadManifest(manifest);
 
                 window.getRelativeVolume = function(sprite){
-                    return userShip ? Math.min(1-(userShip.distance(sprite)/2000), 0) : 0;
+                    return userShip && userShip.model ? Math.max(1-(userShip.model.getDistance(sprite)/Constants.Zone.width), 0) : 0;
                 };
 
                 window.playRelativeSound = function(sound, sprite){
@@ -184,7 +184,7 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
             sprite = new EnemyShip(model);
         }else if (model.type === "Missile"){
             sprite = new Missile(model);
-            playRelativeSound('shotSound',sprite);
+            playRelativeSound('shotSound',model);
         }
 
         sprites[model.toString()] = sprite;
@@ -242,10 +242,13 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
 
         if (model1){
 
-            var size=0, position={};
+
 
             if ((explode1 && (explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
             {
+
+                var size, position;
+
                 if (!model2 || model1.height > model2.height){
                     size = model1.height*2;
                     position = model1.data;
@@ -259,11 +262,10 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
                     position = model1.averagePosition(model2);
                 }
 
-
                 var explosion = new Explosion(position.posX, position.posY, size);
 
                 stage.addChildAt(explosion);
-                playRelativeSound('explosionSound');
+                playRelativeSound('explosionSound', model1);
 
                 explosion.addEventListener("animationend", function(){
                     explosion.removeEventListener("animationend");
@@ -294,7 +296,7 @@ function(createjs, Overlay, Sprite, Planet, UserShip, EnemyShip, Missile, Explos
                 }
             }
             else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
-                playRelativeSound("collideSound");
+                playRelativeSound("collideSound", model1);
             }
 
         }

@@ -123,14 +123,17 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
 
             if (data.isShielded && !this.shieldVisible){
-                createjs.Tween.get(this.shield,{override:true}).to({alpha: 1, scaleX:1, scaleY:1, visible:true}, 1000,createjs.Ease.backOut);
-                playRelativeSound(this.shieldSound);
+                this.shield.visible = true;
+                createjs.Tween.get(this.shield,{override:true}).to({alpha: 1, scaleX:1, scaleY:1}, 1000,createjs.Ease.backOut);
+                playRelativeSound(this.shieldSound, this.model);
                 this.shieldVisible = true;
             }
             else if (!data.isShielded && this.shieldVisible){
-                createjs.Tween.get(this.shield,{override:true}).to({alpha: 0, scaleX:0, scaleY:0, visible:false}, 200).call();
+                createjs.Tween.get(this.shield,{override:true}).to({alpha: 0, scaleX:0, scaleY:0}, 500).call(function(){
+                    this.visible = false;
+                });
                 if (data.isShieldBroken){
-                    playRelativeSound(this.shieldBreakSound);
+                    playRelativeSound(this.shieldBreakSound, this.model);
                 }
                 this.shieldVisible = false;
             }
@@ -146,7 +149,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         },
 
         destroy : function(){
-            this.model.reset();
             this.tickEnabled = false;
             this.visible = false;
             this.exhaustSound.stop();

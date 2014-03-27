@@ -14,6 +14,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             run : function(){
                 if (Client.isRunning) return;
 
+                console.log("HOST: "+window.location.host);
+
                 //Connect websocket to server and begin listening for messages
                 wsClient = new BinaryClient("ws://"+window.location.host);
 

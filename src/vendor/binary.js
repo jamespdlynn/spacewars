@@ -31,7 +31,7 @@ binaryFeatures.useArrayBufferView = !binaryFeatures.useBlobBuilder && (function(
   }
 })();
 binaryFeatures.supportsBinaryWebsockets = (function(){
-  try {
+  /*try {
     var wstest = new WebSocket('ws://null');
     wstest.onerror = function(){};
     if (typeof(wstest.binaryType) !== "undefined") {
@@ -43,7 +43,8 @@ binaryFeatures.supportsBinaryWebsockets = (function(){
     wstest = null;
   } catch (e) {
     return false;
-  }
+  } */
+  return true;
 })();
 
 exports.binaryFeatures = binaryFeatures;

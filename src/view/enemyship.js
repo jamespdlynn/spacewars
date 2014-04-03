@@ -115,7 +115,6 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         });
 
         this.shieldColor = {r:200, g:0, b:0};
-        this.nameLabel = new createjs.Text("", "7.5pt Arkitech", "#fff");
 
         this.initialize();
         this.setModel(model);
@@ -128,8 +127,7 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         initialize : function(){
             StarShip.prototype.initialize.call(this);
 
-            this.volume = 0.5;
-
+            this.nameLabel = new createjs.Text("", "7.5pt Arkitech", "#fff");
             this.nameLabel.y = (Constants.Player.height/2)+22;
             this.nameLabel.alpha = 0.9;
 

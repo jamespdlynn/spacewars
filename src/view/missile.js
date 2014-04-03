@@ -1,8 +1,7 @@
-define(['createjs','model/constants','model/game'],function(createjs, Constants, gameData){
+define(['createjs','view/Sprite','model/constants','model/game'],function(createjs, Sprite, Constants, gameData){
     'use strict';
 
     var Shape = createjs.Shape;
-    var DisplayObject = createjs.DisplayObject;
     var userMissileBody, enemyMissieBody;
 
     (function(){
@@ -70,41 +69,19 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
     })();
 
     var Missile = function (model){
-        this.model = model;
-        this.cacheCanvas = (model.data.playerId == gameData.playerId) ? userMissileBody : enemyMissieBody;
-        this.mouseEnabled = false;
-
         this.initialize();
+        this.setModel(model);
+
+        this.mouseEnabled = false;
     };
 
-    Missile.prototype = new DisplayObject();
+    Missile.prototype = new createjs.DisplayObject();
 
-    extend.call(Missile.prototype, {
-
-        initialize : function(){
-
-            DisplayObject.prototype.initialize.call(this);
-
-            this.id = this.model.id;
-            this.rotation = toDegrees(this.model.get("angle"));
-            this.mouseEnabled = false;
-
-            this.regX = this.model.width/2;
-            this.regY = this.model.height/2;
-            this.setBounds(-this.regX, -this.regY, this.model.width, this.model.height);
-
-        },
-
-        _tick : function(){
-
-            var data = this.model.update().data;
-
-            this.scaleX = gameData.scaleX;
-            this.scaleY = gameData.scaleY;
-
-            this.x = data.posX * this.scaleX;
-            this.y = data.posY * this.scaleY;
-
+    extend.call(Missile.prototype, Sprite.prototype, {
+        setModel : function(model){
+            Sprite.prototype.setModel.call(this, model);
+            this.cacheCanvas = (model.get("playerId") === gameData.userPlayer.id) ? userMissileBody : enemyMissieBody;
+            this.rotation = toDegrees(model.get("angle"));
         }
     });
 

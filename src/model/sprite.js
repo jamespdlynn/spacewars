@@ -1,4 +1,4 @@
-define(['model/dispatcher','model/constants'],function( EventDispatcher, Constants){
+define(['model/dispatcher','model/constants'],function(EventDispatcher, Constants){
     'use strict';
 
     var Sprite = function(data, options){
@@ -15,15 +15,20 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
         defaults : {
             id : 0,
+            angle : 0,
             posX : 0,
-            posY : 0
+            posY : 0,
+            velocityX :0,
+            velocityY: 0,
+            zone : -1,
+            isInvulnerable : false
         },
 
         initialize : function(data){
             this.id = data.id || this.defaults.id;
             this.data = {};
             this.changed = {};
-            this.lastUpdated = Date.now();
+            this.created = this.lastUpdated = Date.now();
 
             extend.call(this.data, this.defaults);
             this.set(data);
@@ -54,38 +59,39 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
                 var value = attrs[key];
 
-                if (this.data[key] != value){
+                if (this.data[key] !== value){
                     this.changed[key] = value;
-                }
 
-                if (key == "posX"){
-                    if (options.easing){
-                       this.easeX = value-this.data.posX;
-                       continue;
-                    }else{
-                       this.easeX = 0;
+                    if (key === "zone" && this.data.zone >= 0){
+                        var adjustedPos = this.zoneAdjustedPosition(value);
+                        if (!attrs.hasOwnProperty("posX") || options.easing){
+                            this.data.posX = adjustedPos.posX;
+                        }
+                        if (!attrs.hasOwnProperty("posY") || options.easing){
+                            this.data.posY = adjustedPos.posY;
+                        }
+                        this.data.zone = value;
                     }
-                }
-                else if (key == "posY"){
-                    if (options.easing){
-                        this.easeY = value-this.data.posY;
-                        continue;
-                    }else{
-                        this.easeY = 0;
+                    else if (!options.easing || (key !== "posX" && key !== "posY")){
+                        this.data[key] = value;
                     }
                 }
 
-                this.data[key] = value;
             }
 
-            if (this.easeX || this.easeY){
-                var combinedDelta = Sprite.getHypotenuse(this.easeX, this.easeY);
+            if (options.easing){
+                this.easeX = attrs.posX - this.data.posX;
+                this.easeY = attrs.posY - this.data.posY;
 
-                if (combinedDelta > (this.maxVelocity || this.velocity || 100)){
-                    if (attrs.hasOwnProperty("posX")) this.data.posX = attrs.posX;
-                    if (attrs.hasOwnProperty("posY")) this.data.posY = attrs.posY;
+                if (Sprite.getHypotenuse(this.easeX, this.easeY) > (this.maxVelocity || this.velocity || 100)){
+                    this.data.posX = attrs.posX;
+                    this.data.posY = attrs.posY;
                     this.easeX = this.easeY = 0;
                 }
+            }
+            else{
+                if (this.easeX && attrs.hasOwnProperty("posX")) this.easeX = 0;
+                if (this.easeY && attrs.hasOwnProperty("posY")) this.easeY = 0;
             }
 
             return this;
@@ -128,7 +134,7 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
 
         detectCollision : function(sprite){
 
-            if (this.data.isInvulnerable || sprite.data.isInvulnerable){
+            if (this.data.isInvulnerable || sprite.data.isInvulnerable || this.equals(sprite) || this.data.zone !== sprite.data.zone){
                 return false;
             }
 
@@ -148,13 +154,15 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
         },
 
         getRect : function(){
-            var rect = {};
-            rect.left = this.data.posX - (this.width/2);
-            rect.right = rect.left + this.width;
-            rect.top = this.data.posY - (this.height/2);
-            rect.bottom = rect.top + this.height;
 
-            return rect;
+            var radius = this.height/2;
+
+            return {
+                left : data.posX - radius,
+                right : data.posX + radius,
+                top : data.posY - radius,
+                bottom: data.posY + radius
+            };
         },
 
         equals : function(sprite){
@@ -162,12 +170,13 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
         },
 
         outOfBounds : function(){
+            var data = this.data;
             var rect = this.getRect();
 
-            if (rect.right < 0) return "left";
-            if (rect.bottom < 0) return "top";
-            if (rect.left >= Constants.Zone.width) return "right";
-            if (rect.bottom >= Constants.Zone.height) return "bottom";
+            if (rect.top < 0 && (data.velocityY < 0 || rect.bottom < 0)) return "top";
+            if (rect.bottom >= Constants.Zone.height && (data.velocityY > 0 || rect.top >= Constants.Zone.height)) return "bottom";
+            if (rect.left < 0 && (data.velocityX < 0 || rect.right < 0)) return "left";
+            if (rect.right >= Constants.Zone.width && (data.velocityX > 0 || rect.left >= Constants.Zone.width)) return "right";
 
             return false;
         },
@@ -204,6 +213,32 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
             };
         },
 
+        zoneAdjustedPosition : function(zoneId){
+            var data = this.data;
+
+            if (data.zone === zoneId){
+                return {posX:data.posX,posY:data.posY};
+            }
+
+            var worldSize = Constants.WORLD_SIZE;
+
+            var rowDiff = Math.floor(data.zone/worldSize) - Math.floor(zoneId/worldSize);
+            if (Math.abs(rowDiff) > worldSize/2){
+                rowDiff = rowDiff < 0 ? worldSize+rowDiff : worldSize-rowDiff;
+            }
+
+            var colDiff = (data.zone%worldSize) - (zoneId%worldSize);
+            if (Math.abs(colDiff) > worldSize/2){
+                colDiff = colDiff < 0 ? worldSize+colDiff : worldSize-colDiff;
+            }
+
+            return {
+                posX : data.posX + (colDiff * Constants.Zone.width),
+                posY : data.posY + (rowDiff * Constants.Zone.height)
+            }
+
+        },
+
         toString : function(){
             return this.type + this.id;
         },
@@ -211,8 +246,6 @@ define(['model/dispatcher','model/constants'],function( EventDispatcher, Constan
         toJSON : function(){
             return this.data;
         },
-
-
 
         clone : function(){
             var clone = new (this.constructor)(this.data);

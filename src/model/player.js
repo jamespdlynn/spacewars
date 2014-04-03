@@ -1,9 +1,8 @@
-define(['model/sprite','model/constants'],function(Sprite,Constants){
+define(['model/sprite','model/missile','model/constants'],function(Sprite, Constants){
     'use strict';
 
     var Player = function(data, options){
         this.initialize(data, options);
-        this.mass = 100;
     };
 
     extend.call(Player.prototype, Sprite.prototype, Constants.Player, {
@@ -21,10 +20,11 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             fuel : 100,
             shields : 100,
             isAccelerating : false,
-            isInvulnerable : false,
+            isInvulnerable : true,
             isShielded : false,
             isShieldBroken : false,
-            username : ""
+            username : "",
+            zone : -1
         },
 
         updateData : function(deltaSeconds){
@@ -136,21 +136,6 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             return false;
         },
 
-        outOfBounds : function(){
-            var rect = this.getRect();
-            var zoneWidth = Constants.Zone.width;
-            var zoneHeight = Constants.Zone.height;
-            var padding = this.width/10;
-            var data = this.data;
-
-            if (data.velocityX < 0 && rect.left < -padding && (Math.abs(data.angle) > Math.PI/2 || rect.right < padding))  return "left";
-            if (data.velocityY < 0 && rect.top < -padding && (data.angle < 0|| rect.bottom < padding)) return "top";
-            if (data.velocityX > 0 && rect.right > zoneWidth+padding && (Math.abs(data.angle) < Math.PI/2  || rect.left > zoneWidth-padding)) return "right";
-            if (data.velocityY > 0 && rect.bottom > zoneHeight+padding && (data.angle > 0 || rect.top > zoneHeight-padding)) return "bottom";
-
-            return false;
-        },
-
         angleDifference : function(angle){
             var deltaAngle = this.data.angle-angle;
             while (deltaAngle < -Math.PI) deltaAngle += (Math.PI*2);
@@ -185,7 +170,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
                 velocityX : (data.velocityX/4) + (cos * velocity),
                 velocityY : (data.velocityY/4) + (sin * velocity),
                 angle : data.angle,
-                playerId : data.id
+                playerId : data.id,
+                zone : data.zone
             };
         }
 

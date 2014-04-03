@@ -3,17 +3,18 @@ define(function(){
     'use strict';
 
     return {
-       MIN_WORLD_SIZE : 1,
-       MAX_WORLD_SIZE : 12,
+       WORLD_SIZE : 16,
        FPS : 60,
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
+       PLAYER_ID_BYTES : 1,
+       MISSILE_ID_BYTES : 2,
 
        Zone : {
-           width : 1980,
-           height : 1300,
+           width : 1024,
+           height : 768,
            padding : 10
        },
 
@@ -34,7 +35,7 @@ define(function(){
            fuelUseRate : 30,
            fuelRestoreRate : 30,
            shieldUseRate : 8,
-           shieldRestoreRate : 2,
+           shieldRestoreRate : 4,
            shieldPadding : 16,
            shieldHitDiscount : 40,
            shieldDownTime : 10000

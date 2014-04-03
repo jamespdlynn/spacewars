@@ -4,7 +4,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
     var WIDTH = 240;
     var HEIGHT = 55;
     var ICON_SIZE = 20;
-    var PADDING = 10;
 
     var Container = createjs.Container;
 
@@ -47,7 +46,6 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             gameData.on(Constants.Events.ZONE_CHANGED, function(){
                 self.updateZone();
             });
-
         },
 
         updateUser : function(){
@@ -76,7 +74,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         },
 
         updateZone : function(){
-            this.zoneLabel.text = "Sector "+gameData.currentZone.toString();
+            this.zoneLabel.text = "Sector "+gameData.getZoneString();
             this.zoneLabel.x = 0;
             this.zoneLabel.y = ICON_SIZE + 12;
 

@@ -3,7 +3,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
     var MAX_PLANETS = 20;
     var PARTIAL_PLAYER_SIZE = 12;
-    var PARTIAL_MISSILE_SIZE = 5;
+    var PARTIAL_MISSILE_SIZE = 6;
 
     /**
      * @constructor
@@ -13,12 +13,12 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
     var ServerZone = function (id){
 
         this.id = id;
+
         //The attached model instance
         this.model = new Zone({id:id});
-        // Used to keep track of all of this instance's connected users
-        this.connections = [];
-        //Track sprite update timeouts
-        this.timeouts = {};
+
+        //Set by parent
+        this.adjacentZones = [];
 
         var numKeys = Constants.PLANET_KEYS.length;
 
@@ -28,7 +28,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         var i = MAX_PLANETS;
         while (i--){
-
             var data = {
                 key : Constants.PLANET_KEYS[Math.floor(Math.random()*numKeys)],
                 posX : (Math.random()*(this.model.width-planetWidth))+(planetWidth/2),
@@ -43,112 +42,121 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
     };
 
-    extend.call(ServerZone.prototype, EventDispatcher.prototype, {
+    extend.call(ServerZone.prototype, {
+
+        addSprite : function(sprite, place){
+            if (sprite.type === "Player"){
+                this.addPlayer(sprite, place);
+            }else if (sprite.type === "Missile"){
+                this.addMissile(sprite);
+            }
+        },
 
         /**
-         * Add a new connection to the Zone and create a new corresponding player
-         * @param {*} conn
-         * @param {*} data
+         * Add a new player zone
          */
-        add : function(conn, data){
+        addPlayer : function(player, place){
 
             var model = this.model;
-            delete data.id;
 
-            if (!data.hasOwnProperty("angle")){
+            var data = {
+                zone : this.id
+            };
+
+            if (place){
                 data.angle = (Math.random() * (Math.PI * 2)) - Math.PI;
-            }
-
-            if (!data.hasOwnProperty("posX") || !data.hasOwnProperty("posY")){
                 do{
                     data.posX = (Math.random()*model.width*0.8)+(model.width*0.1);
                     data.posY = (Math.random()*model.height*0.8)+(model.height*0.1);
                 }
                 while (!this._isValidPlayerPlacement(data));
             }
-            data.isInvulnerable = true;
 
-            var player = model.players.add(data);
-            player.on("update", onPlayerUpdate);
-
-            setTimeout(function(){
-               player.set("isInvulnerable", false);
-            }, player.invulnerableTime);
-
-            if (player.get("isShieldBroken")){
-                setTimeout(function(){
-                    player.set({shields:20, isShieldBroken:false});
-                }, player.shieldDownTime/2);
-            }
+            player.set(data);
 
             //Send the new player to existing connections
             this._sendPlayer(player);
 
-            //Add connection to array
-            conn.playerId = player.id;
-            this.connections.push(conn);
+            model.players.add(player);
 
             //Send all the necessary game data to the new user, to get them started
-            var buffer = micro.toBinary({
-                currentZone:this.model.toJSON(),
-                playerId: player.id
-            },"GameData");
-            conn.out.write(buffer);
+            var gameData = model.toJSON();
+            var i = this.adjacentZones.length;
+            while (i--){
+                this.adjacentZones[i].concat(gameData);
+            }
+            gameData.playerId = player.id;
+
+            var buffer = micro.toBinary(gameData,"GameData");
+            player.connection.out.write(buffer);
 
         },
 
+        addMissile : function(missile){
+            missile.set("zone", this.id);
+            this.model.missiles.add(missile);
+
+            this._sendMissile(missile);
+        },
+
+        removeSprite : function(sprite, send){
+            if (sprite.type === "Player"){
+                this.removePlayer(sprite, send);
+            }else if (sprite.type === "Missile"){
+                this.removeMissile(sprite, send);
+            }
+        },
+
         /**
-         * Removes the given connection and its corresponding player from the Zone
-         * @param {*} conn
+         * Removes the given player from the zone
+         * @param {*} player Player Model
+         * @param {boolean} send Flag that indicates whether send this remove to clients
          */
-        remove : function(conn){
-            var index = this.connections.indexOf(conn);
+        removePlayer : function(player, send){
+            if (this.model.players.remove(player.id)){
+                clearTimeout(player.timeout);
+                if (send){
+                    var self = this;
+                    var data = {type : player.type, id: player.id};
+                    setTimeout(function(){
+                        self._sendToAll("RemoveSprite", data);
+                    }, 2000);
+                }
+            }
+        },
 
-            if (index >= 0){
-                this.connections.splice(index, 1);
-                var player = this.model.players.remove(conn.playerId);
-
-                if (player){
-                    this._clearTimeout(player);
-                    this._sendToAll("RemoveSprite", {type : "Player", id : player.id});
+        removeMissile : function(missile, send){
+            if (this.model.players.remove(missile.id)){
+                clearTimeout(missile.timeout);
+                if (send){
+                    this._sendToAll("RemoveSprite", missile);
                 }
             }
         },
 
         /**
          * Updates a player using the given json data
+         * @param {*} playerId Player Model Id
          * @param {*} dataObj 'PlayerUpdate' JSON data
          */
-        updatePlayer : function(dataObj){
+        updatePlayer : function(playerId, dataObj){
 
-            var player = this.model.players.get(dataObj.id);
+            var player = this.players.get(playerId);
 
-            if (!player) return;
-
-            player.update();
-
-            var shieldBroken = player.changed.isShieldBroken;
+            if (!player){
+                throw new Error("Cannot update player, as it does not belong to zone");
+            }
 
             if (dataObj.isAccelerating && !player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !player.canShield()) dataObj.isShielded = false;
 
             //Update player data
-            player.set(dataObj);
+            player.update().set(dataObj);
 
-            if (shieldBroken){
+            if ((player.get("isAccelerating") && player.hasChanged("angle")) || player.hasChanged("isAccelerating")){
                 this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
-            }
-            else if (player.hasChanged()){
-                if (player.get("isAccelerating") || player.hasChanged("isAccelerating")){
-                    this._sendPlayer(player, PARTIAL_PLAYER_SIZE);
-                }else{
-                    this._sendToAll("PlayerUpdate", dataObj);
-                }
-            }
-
-            if (dataObj.isFiring && player.canFire()){
-                var missile = this.model.missiles.add(player.fireMissile());
-                this._sendMissile(missile);
+            }else{
+                this._sendToAll("PlayerUpdate", player.toJSON());
             }
         },
 
@@ -162,51 +170,79 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
-                data.sprite1.explode = this.collide(sprite1, sprite2);
-                data.sprite2.explode = this.collide(sprite2, sprite1Clone);
+                data.sprite1.explode = this._collide(sprite1, sprite2);
+                data.sprite2.explode = this._collide(sprite2, sprite1Clone);
 
                 //send the collision data objects to the clients
-                this._sendToAll("Collision", data);
+                this._sendToAll("Collision", data, 7);
             }
         },
 
-        collide : function(sprite1, sprite2){
-            //If collision results in explosion, remove sprite
-            if (sprite1.collide(sprite2)){
-                this._clearTimeout(sprite1);
-                this.model.remove(sprite1);
-                return true;
+        checkZoneChange : function(sprite){
+
+            var direction, newZone;
+
+            //If sprite not in this zone or zone out of bounds return false
+            if (!(sprite = this.get(sprite)) || !(direction = sprite.update().outOfBounds())){
+                return false;
             }
 
-            //Otherwise Fast forward sprite location to avoid multiple collisions and send the update data values to clients
-            this._sendSprite(sprite1.update(100));
+            //Depending on the direction of zone change, adjust sprite position and get new zone
+            switch(direction){
+                case "top" :
+                    newZone = this.adjacentZones[1];
+                    break;
 
-            return false;
+                case "left" :
+                    newZone = this.adjacentZones[3];
+                    break;
+
+                case "right" :
+                    newZone = this.adjacentZones[4];
+                    break;
+
+                case "bottom" :
+                    newZone = this.adjacentZones[6];
+                    break;
+            }
+
+            this.removeSprite(sprite, false);  //Remove sprite from this zone
+
+            //Send sprite removal to clients of all adjacent zones that aren't shared with the new zone
+            var i = this.adjacentZones.length;
+            var buffer = micro.toBinary(sprite, "RemoveSprite");
+            while(i--){
+                var adjacentZone = this.adjacentZones[i];
+                if (adjacentZone !== newZone && newZone.adjacentZones.indexOf(adjacentZone) === -1){
+                    adjacentZone.sendToAll(buffer);
+                }
+            }
+
+            newZone.addSprite(sprite, false);  //Add sprite to new zone
+
+            return true;
+        },
+
+        sendToAll : function(buffer){
+            var players = this.model.players;
+            var i = players.length;
+            while (i--){
+                players[i].connection.out.write(buffer);
+            }
         },
 
         getNumPlayers : function(){
             return this.model.players.length;
         },
 
-        getPlayer : function(playerId){
-            return this.model.players.get(playerId);
-        },
-
-        checkZoneChange : function(player){
-            var direction = player.update().outOfBounds();
-            if (direction){
-               this.trigger(Constants.Events.ZONE_CHANGED, player, direction);
-               return true;
-            }
-            return false;
-        },
-
         _sendToAll : function(type, json, byteLength){
-            var buffer = micro.toBinary(json, type, byteLength);
 
-            var i = this.connections.length;
+            var buffer = micro.toBinary(json, type, byteLength);
+            this.sendToAll(buffer);
+
+            var i = this.adjacentZones.length;
             while (i--){
-                this.connections[i].out.write(buffer);
+                this.adjacentZones[i].sendToAll(buffer);
             }
         },
 
@@ -220,53 +256,34 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         _sendPlayer : function(player, byteLength){
+            if (this.checkZoneChange(player)) return;
 
-            this._clearTimeout(player);
+            clearTimeout(player.timeout);
 
-            var buffer = micro.toBinary(player.toJSON(), "Player", byteLength);
-            var i = this.connections.length;
-            while (i--){
-                var connection = this.connections[i];
-                connection.out.write(buffer);
-                if (connection.playerId === player.id){
-                    connection.out.write(micro.toBinary(player.toJSON(), "PlayerInfo"));
-                }
-            }
+            this._sendToAll("Player", player.toJSON(), byteLength);
+            this._sendPlayerInfo(player);
 
             var self = this;
-            this._setTimeout(player,function(){
-                if (!self.checkZoneChange(player)){
-                    self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
-                }
-            });
+            setTimeout(function(){
+                self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
+            }, Constants.SERVER_UPDATE_INTERVAL);
+        },
+
+        _sendPlayerInfo : function(player){
+            var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
+            player.connection.out.write(buffer);
         },
 
         _sendMissile : function(missile, byteLength){
+            if (this.checkZoneChange(missile)) return;
 
-            this._clearTimeout(missile);
+            clearTimeout(missile.timeout);
             this._sendToAll("Missile", missile.toJSON(), byteLength);
 
             var self = this;
-            this._setTimeout(missile,function(){
-
-                if (!missile.update().outOfBounds()){
-                    self._sendMissile(missile, PARTIAL_MISSILE_SIZE);
-                }else{
-                    self.model.missiles.remove(missile);
-                }
-            });
-        },
-
-        _setTimeout : function(sprite, callback){
-            var key = sprite.toString();
-            clearTimeout(this.timeouts[key]);
-            this.timeouts[key] = setTimeout(callback,Constants.SERVER_UPDATE_INTERVAL);
-        },
-
-        _clearTimeout : function(sprite){
-            var key =  sprite.toString();
-            clearTimeout(this.timeouts[key]);
-            delete this.timeouts[key];
+            setTimeout(function(){
+                self._sendMissile(missile, PARTIAL_MISSILE_SIZE);
+            }, Constants.SERVER_UPDATE_INTERVAL);
         },
 
         _isValidPlanetPlacement : function(data){
@@ -307,23 +324,22 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             }
 
             return true;
+        },
+
+        _collide : function(sprite1, sprite2){
+            //If collision results in explosion, remove sprite
+            if (sprite1.collide(sprite2)){
+                this.remove(sprite1, false);
+                return true;
+            }
+
+            //Otherwise Fast forward sprite location to avoid multiple collisions and send the update data values to clients
+            this._sendSprite(sprite1.update(100));
+
+            return false;
         }
 
     });
-
-    function onPlayerUpdate(){
-        if (this.get("isAccelerating") && !this.canAccelerate()){
-            this.set("isAccelerating", false);
-        }
-
-        if (this.get("shields") == 0 && !this.get("isShieldBroken")){
-            var self = this;
-            self.set({isShielded:false, isShieldBroken:true});
-            setTimeout(function(){
-                self.set({isShieldBroken:false,shields:20});
-            }, self.shieldDownTime);
-        }
-    }
 
 
     return ServerZone;

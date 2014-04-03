@@ -14,7 +14,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             key : "saturn",
             posX : 0,
             posY : 0,
-            scale : 1
+            scale : 1,
+            zone : -1
         }
 
 

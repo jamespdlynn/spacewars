@@ -39,8 +39,10 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
             options = options || {};
 
+            var model;
+
             if (Array.isArray(data)){
-                var models = [], model;
+                var models = [];
                 for (var i=0; i < data.length; i++){
                     if (model = this.add(data[i], options)){
                         models.push(model);
@@ -49,26 +51,16 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 return models;
             }
 
-            data.id = data.id || options.id;
-
-            if (!data.id){
-                do {
-                    this.currentId = ((this.currentId)%255)+1;
-                }while(this.map[this.currentId]);
-
-                data.id = this.currentId;
-            }
-            else if (this.map[data.id]){
-                return this.map[data.id];
+            if (this.map[data.id]){
+                return null;
             }
 
-            var model = (data instanceof this.Model) ? data : new (this.Model)(data, options);
+            model = (data instanceof this.Model) ? data : new (this.Model)(data, options);
             this.map[data.id] = model;
             this.models.push(model);
 
-            this.trigger("add", model);
-
             this.length = this.models.length;
+            this.trigger("add", model);
 
             return model;
         },
@@ -89,8 +81,9 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 return this.add(data, options)
             }
 
+            var model;
             if (Array.isArray(data)){
-                var models = [], model;
+                var models = [];
                 for (var i=0; i < data.length; i++){
                     if (model = this.set(data[i])){
                         models.push(model);
@@ -99,10 +92,12 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 return models;
             }
 
-            var model = this.map[data.id || 0];
+            model = this.map[data.id];
             if (!model){
                 return this.add(data, options);
             }
+
+            this.trigger("update", model);
 
             return model.set(data, options);
         },

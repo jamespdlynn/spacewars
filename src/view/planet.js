@@ -1,37 +1,32 @@
-define(['createjs', 'model/game'],function(createjs, gameData){
+define(['createjs','view/sprite','model/game'],function(createjs, Sprite, gameData){
     'use strict';
 
     var Bitmap = createjs.Bitmap;
 
     var Planet = function (model){
-        this.model = model;
         this.initialize();
+        this.setModel(model);
     };
 
     Planet.prototype = new Bitmap();
 
-    extend.call(Planet.prototype, {
+    extend.call(Planet.prototype, Sprite.prototype, {
 
         initialize : function(){
-
             Bitmap.prototype.initialize.call(this);
 
-            this.image = preloader.getResult(this.model.data.key);
-            this.regX = this.image.width/2;
-            this.regY = this.image.height/2;
             this.alpha = 0.3;
             this.tickEnabled = false;
+            this.mouseEnabled = false;
         },
 
-        updateContext : function(ctx){
-            var data = this.model.data;
-            var scale = ((gameData.scaleX+gameData.scaleY)/2) * data.scale;
-            this.x = data.posX*gameData.scaleX;
-            this.y = data.posY*gameData.scaleY;
-            this.scaleX = scale;
-            this.scaleY = scale;
+        setModel : function(model){
+            Sprite.prototype.setModel.call(this,model);
 
-            Bitmap.prototype.updateContext.call(this,ctx);
+            this.image = preloader.getResult(model.get("key"));
+            this.regX = this.image.width/2;
+            this.regY = this.image.height/2;
+            this.scaleX = this.scaleY = model.get("scale");
         }
     });
 

@@ -84,7 +84,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             createjs.Ticker.setFPS(Constants.FPS);
             createjs.Ticker.addEventListener("tick", onTick);
 
-            gameData.on(Constants.Events.ZONE_CHANGED, renderZone);
             gameData.on(Constants.Events.COLLISION, onCollision);
 
             updateTimeout = setTimeout(triggerUpdate, Constants.CLIENT_UPDATE_INTERVAL);
@@ -144,15 +143,17 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         background.removeAllChildren();
         sprites = {};
 
-        var planets = gameData.currentZone.planets;
-        var players = gameData.currentZone.players;
-        var missiles = gameData.currentZone.missiles;
+        var planets = gameData.planets;
+        var players = gameData.players;
+        var missiles = gameData.missiles;
         var i;
+        
+        userShip.setModel(gameData.userPlayer);
 
         i= planets.length;
-        while (i--){
-            background.addChild(new Planet(planets.models[i]));
-        }
+        while (i--) addSprite(planets.models[i]);
+        planets.on("add", addSprite);
+        planets.on("remove", removeSprite);
 
         i= missiles.length;
         while (i--) addSprite(missiles.models[i]);
@@ -173,36 +174,47 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function addSprite(model){
-
-        var sprite;
-
-        if (model.type == "Player"){
-            if (model.id === gameData.playerId){
-                userShip.setModel(model);
-                return;
-            }
-            sprite = new EnemyShip(model);
-        }else if (model.type === "Missile"){
-            sprite = new Missile(model);
-            playRelativeSound('shotSound',model);
+        
+        if (model.equals(gameData.userPlayer)){
+            return;
         }
 
-        sprites[model.toString()] = sprite;
-        stage.addChildAt(sprite, 0);
+        var sprite;
+        
+        switch (model.type){
+            case "Planet":
+                sprite = sprites[model.toString()] = new Planet(model);
+                background.addChild(sprite);
+               
+            case "Player":
+                sprite = sprites[model.toString()] = new EnemyShip(model);
+                stage.addChildAt(sprite, 0);
+                break;
+
+            case "Missile":
+                sprite = sprites[model.toString()] = new Missile(model);
+                stage.addChildAt(sprite, 0);
+                playRelativeSound('shotSound',model);
+                break;
+        }
 
         return sprite;
     }
 
     function removeSprite(model){
-        if (userShip && model.equals(userShip.model)){
-            stage.removeChild(userShip);
-            userShip.destroy();
+        
+        var sprite = model.equals(userShip.model) ? userShip : sprites[model.toString()];
+        sprite.destroy();
+        
+        if (model.type === "Planet"){
+           background.removeChild(sprite);
         }else{
-            var sprite = sprites[model.toString()];
-            if (model.type == "Player") sprite.destroy();
-            stage.removeChild(sprite);
-            delete sprites[model.toString()];
+           stage.removeChild(sprite);
         }
+       
+        delete sprites[model.toString()];
+        
+        return sprite;
     }
 
 
@@ -232,40 +244,34 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function onCollision(data){
 
-        var zone = gameData.currentZone;
-
         var explode1 = data.sprite1 && data.sprite1.explode;
         var explode2 = data.sprite2 && data.sprite2.explode;
 
-        var model1 = explode1 ? zone.remove(data.sprite1) : zone.get(data.sprite1);
-        var model2 = explode2 ? zone.remove(data.sprite2) : zone.get(data.sprite2);
+        var model1 = explode1 ? gameData.remove(data.sprite1) : gameData.get(data.sprite1);
+        var model2 = explode2 ? gameData.remove(data.sprite2) : gameData.get(data.sprite2);
 
         if (model1){
-
-
 
             if ((explode1 && (explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
             {
 
-                var size, position;
+                var model;
 
                 if (!model2 || model1.height > model2.height){
-                    size = model1.height*2;
-                    position = model1.data;
+                    model = model1.clone();
                 }
                 else if (model2.height > model1.height){
-                    size = model2.height*2;
-                    position = model2.data;
+                    model = model2.clone();
                 }
                 else{
-                    size = model1.height*2;
-                    position = model1.averagePosition(model2);
+                    model = model1.clone();
+                    model.set(model1.averagePosition(model2));
                 }
 
-                var explosion = new Explosion(position.posX, position.posY, size);
+                var explosion = new Explosion(model);
 
                 stage.addChildAt(explosion);
-                playRelativeSound('explosionSound', model1);
+                playRelativeSound('explosionSound', model);
 
                 explosion.addEventListener("animationend", function(){
                     explosion.removeEventListener("animationend");
@@ -276,7 +282,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 if (explode1 && model1.type === 'Player'){
                     if (userShip.model.equals(model1)){
                         if (model2){
-                            slayer = (model2.type === 'Player') ? zone.players.get(model2.id) : zone.players.get(model2.get("playerId"));
+                            slayer = (model2.type === 'Player') ? gameData.players.get(model2.id) : gameData.players.get(model2.get("playerId"));
                         }
                         endGame(slayer);
                     }
@@ -287,7 +293,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
                 if (explode2 && model2.type === 'Player'){
                     if (userShip.model.equals(model2)){
-                        slayer = (model1.type === 'Player') ? zone.players.get(model1.id) : zone.players.get(model1.get("playerId"));
+                        slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
                         endGame(slayer);
                     }
                     else if (userShip.model.equals(model1) || model1.get("playerId") === userShip.model.id){
@@ -296,7 +302,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 }
             }
             else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
-                playRelativeSound("collideSound", model1);
+                playRelativeSound("collideSound", model);
             }
 
         }
@@ -380,16 +386,18 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var width = window.innerWidth;
         var height = window.innerHeight;
 
-        stage.canvas.width = background.canvas.width = width;
-        stage.canvas.height = background.canvas.height = height;
-
-        gameData.setScale(width/Constants.Zone.width, height/Constants.Zone.height);
+        stage.canvas.width = background.canvas.width = Math.max(width,Constants.zone.width) ;
+        stage.canvas.height = background.canvas.height =  Math.max(height,Constants.zone.height);
 
         overlay.regX = -PADDING;
         overlay.regY = -PADDING;
         overlay.setBounds(PADDING, PADDING, width-(PADDING*2), height-(PADDING*2));
 
+        stage.update();
         background.update();
+
+        gameData.stagePaddingX = (width-Constants.zone.width)/2;
+        gameData.stagePaddingY = (height-Constants.zone.height)/2;
     }
 
 

@@ -4,17 +4,12 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         this.initialize();
     };
 
-    extend.call(GameData.prototype, EventDispatcher.prototype, {
+    extend.call(GameData.prototype, Zone.prototype, EventDispatcher.prototype, {
 
         initialize : function(){
-            this.scaleX = 1;
-            this.scaleY = 1;
-            this.playerId = 0;
             this.roundKills = 0;
-
             this.latency = 0;
-            this.currentZone = null;
-            this.debug = true;
+            this.userPlayer = null;
 
             try{
                 this.user = JSON.parse(localStorage.getItem("user"));
@@ -40,21 +35,18 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             return this;
         },
 
-        setCurrentZone : function(data, playerId){
+        set : function(data, options){
+            Zone.prototype.set.call(this, data, options);
 
-            playerId = playerId || this.playerId;
-
-
-            if (!this.currentZone || this.currentZone.id !== data.id || this.playerId !== playerId){
-                this.currentZone = new Zone(data);
-                this.playerId = playerId;
-
-                this.trigger(Constants.Events.ZONE_CHANGED);
+            if (data.playerId){
+                this.userPlayer = this.players.get(data.playerId);
+                this.zone = this.id = this.userPlayer.get("zone");
             }
+
+            this.trigger(Constants.Events.ZONE_CHANGED);
 
             return this;
         },
-
 
         isUserInitialized : function(){
             return this.user.username.length > 0;
@@ -62,13 +54,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
 
         isUserSprite : function(sprite){
             return sprite.get("username") === this.user.username;
-        },
-
-        setScale : function(scaleX, scaleY){
-            this.scaleX = scaleX;
-            this.scaleY = scaleY;
-
-            return this;
         },
 
         setUsername : function(value){
@@ -101,12 +86,18 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         },
 
         reset : function(){
-            this.playerId = 0;
-            this.currentZone = null;
+            Zone.prototype.reset.call(this);
+
             this.latency = 0;
             this.roundKills = 0;
+            this.userPlayer = undefined;
 
             return this;
+        },
+
+        getZoneString : function(){
+            if (!this.zone) return "";
+            return this.toString();
         }
     });
 

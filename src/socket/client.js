@@ -2,7 +2,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
     function (binary, micro, schemas, Zone, Player, Missile, Constants, gameData){
         'use strict';
 
-        var wsClient, currentZone, userPlayer, collisionInterval, connected;
+        var wsClient, collisionInterval, initialized;
 
         //Register Schemas
         micro.register(schemas);
@@ -47,15 +47,11 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 clearInterval(collisionInterval);
                 gameData.off(Constants.Events.PLAYER_UPDATE,onClientUpdate);
 
-                wsClient.removeAllListeners();
-                if (wsClient.in) wsClient.in.removeAllListeners();
                 wsClient.close();
+                
                 wsClient = undefined;
-
-                currentZone = undefined;
-                userPlayer = undefined;
                 collisionInterval = undefined;
-                connected = false;
+                initialized = false;
 
                 Client.isRunning = false;
             }
@@ -85,77 +81,70 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
 
                 case "GameData" :
+                    var zoneData = new Zone(dataObj).update(gameData.latency).toJSON();
+                    zoneData.playerId = dataObj.playerId;
+                    
+                    gameData.set(zoneData,{easing:true});
 
-                    gameData.setCurrentZone(dataObj.currentZone, dataObj.playerId);
-
-                    currentZone = gameData.currentZone.update(gameData.latency);
-                    userPlayer = currentZone.players.get(gameData.playerId);
-
-                    if (!connected){
-                        gameData.on(Constants.Events.PLAYER_UPDATE, onClientUpdate);
-
-                        setTimeout(function(){
-                            collisionInterval = setInterval(detectCollisions, Constants.COLLISION_DETECT_INTERVAL);
-                        }, Constants.COLLISION_DETECT_INTERVAL/2);
-
-                        connected = true;
-                        gameData.trigger(Constants.Events.CONNECTED);
+                    if (!initialized){
+                       initialize();
                     }
-
                     break;
 
-
                 case "Player":
-                    if (!currentZone) return;
+                    if (!initialized) return;
 
-                    var player = currentZone.players.get(dataObj.id);
+                    var player = gameData.players.get(dataObj.id);
 
                     if (player){
                         dataObj = player.clone().set(dataObj).update(gameData.latency).toJSON();
                         player.set(dataObj,{easing:true});
                     }else{
-                        currentZone.players.add(dataObj);
+                        gameData.players.add(dataObj).update(gameData.latency);
                     }
 
                     break;
 
                 case "PlayerInfo":
-                    if (!userPlayer) return;
-                    userPlayer.set(dataObj);
+                    if (!initialized) return;
+                    gameData.userPlayer.set(dataObj);
                     break;
 
                 case "PlayerUpdate":
-                    if (!currentZone) return;
-                    currentZone.players.get(dataObj.id).set(dataObj);  //No need to ease on player update, as it contains only partial player data
+                    if (!initialized) return;
+                    gameData.players.get(dataObj.id).set(dataObj);  //No need to ease on player update, as it contains only partial player data
                     break;
 
                 case "Missile":
-                    if (!currentZone) return;
+                    if (!initialized) return;
 
-                    var missile = currentZone.missiles.get(dataObj.id);
+                    var missile = gameData.missiles.get(dataObj.id);
 
                     //New missile
-                    if (!missile && dataObj.playerId){
-                        var player = currentZone.players.get(dataObj.playerId);
-                        var missileData = player.update().fireMissile();
-                        missile = currentZone.missiles.add(missileData, {id:dataObj.id});
+                    if (!missile){
+                        var missilePlayer = gameData.players.get(dataObj.playerId);
+                        if (missilePlayer){
+                            var missileData = missilePlayer.update().fireMissile();
+                            missileData.id = dataObj.id;
+                            missile = gameData.missiles.add(missileData);
+                        }else{
+                            missile = gameData.missiles.add(dataObj);
+                        }
                     }
 
-                    if (missile){
-                        dataObj = missile.clone().set(dataObj).update(gameData.latency).toJSON();
-                        missile.set(dataObj, {easing:true});
-                    }
+                    dataObj = missile.clone().set(dataObj).update(gameData.latency).toJSON();
+                    missile.set(dataObj, {easing:true});
 
                     break;
 
                 case "Collision":
-                    if (!currentZone) return;
+                    if (!initialized) return;
                     gameData.trigger(Constants.Events.COLLISION, dataObj);
                     break;
 
                 case "RemoveSprite":
-                    if (!currentZone) return;
-                    currentZone.remove(dataObj);
+                    if (!initialized) return;
+                    gameData.remove(dataObj);
                     break;
 
                 default:
@@ -163,15 +152,28 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
             }
         }
+        
+        function initialize(){
+            setTimeout(function(){
+                collisionInterval = setInterval(detectCollisions, Constants.COLLISION_DETECT_INTERVAL);
+            }, Constants.COLLISION_DETECT_INTERVAL/2);
+
+            gameData.on(Constants.Events.PLAYER_UPDATE, onClientUpdate);
+            gameData.trigger(Constants.Events.CONNECTED);
+
+            initialized = true;
+        }
 
         //When a user player change event is caught, send a "PlayerUpdate" to the server
         function onClientUpdate(data){
 
-            userPlayer.update();
+            gameData.userPlayer.update();
 
-            if (data.isFiring && !userPlayer.canFire()) data.isFiring = false;
+            if (data.isFiring && !gameData.userPlayer.canFire()){
+                data.isFiring = false;
+            }
 
-            if (data.isFiring || (data.isAccelerating !==  userPlayer.get("isAccelerating")) || (data.isShielded !== userPlayer.get("isShielded")) || userPlayer.angleDifference(data.angle) >= 0.1){
+            if (data.isFiring || (data.isAccelerating !==  gameData.userPlayer.get("isAccelerating")) || (data.isShielded !== gameData.userPlayer.get("isShielded")) || gameData.userPlayer.angleDifference(data.angle) >= 0.1){
                 var buffer = micro.toBinary(data, "PlayerUpdate",3);
                 wsClient.out.write(buffer);
             }
@@ -179,10 +181,10 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
         function detectCollisions(){
 
-            var missiles = currentZone.missiles.models;
-            var players = currentZone.players.models;
+            var missiles = gameData.missiles.models;
+            var players = gameData.players.models;
 
-            var deltaTime = gameData.latency + (Date.now()-userPlayer.lastUpdated);
+            var deltaTime = gameData.latency + (Date.now()-gameData.userPlayer.lastUpdated);
 
             var userMissiles = [];
             var enemyMissiles = [];
@@ -194,11 +196,11 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             i = missiles.length;
             while (i--){
                 var missile = missiles[i];
-                if (missile.outOfBounds()){
-                    currentZone.missiles.remove(missile);
-                }else if(missile.data.playerId === gameData.playerId){
+                if(missile.data.playerId === gameData.playerId){
                     userMissiles.push(missile.clone().update(deltaTime));
-                }else{
+
+                }
+                else{
                     enemyMissiles.push(missile.clone().update(deltaTime));
                 }
             }
@@ -207,7 +209,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             i =  players.length;
             while (i--){
                 var player = players[i];
-                if (!userShip && player.equals(userPlayer)){
+                if (!userShip && player.equals(gameData.userPlayer)){
                     userShip = player.clone().update(deltaTime);
                 }else{
                     enemyShips.push(player.clone().update(deltaTime));
@@ -238,6 +240,10 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                         break;
                     }
                 }
+
+                if (userMissile.outOfBounds()){
+                    sendOutOfBounds(userMissile);
+                }
             }
 
             if (userShip){
@@ -252,24 +258,29 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 }
 
                 if (userShip.outOfBounds()){
-                    wsClient.out.write(micro.toBinary({}, "OutOfBounds"));
+                    sendOutOfBounds(userShip);
                 }
             }
         }
 
         function sendCollision(sprite1, sprite2){
            var collision = {
-               sprite1:{
-                   type:sprite1.type,
-                   id:sprite1.id
-               },
-               sprite2:{
-                   type:sprite2.type,
-                   id:sprite2.id
-               }
+               zone : sprite1.get("zone"),
+               sprite1:sprite1,
+               sprite2:sprite2
            };
 
            wsClient.out.write(micro.toBinary(collision, "Collision"));
+        }
+
+        function sendOutOfBounds(sprite){
+            var outOfBounds = {
+               zone : sprite.get("zone"),
+               type : sprite.type,
+               id : sprite.id
+            };
+
+            wsClient.out.write(micro.toBinary(outOfBounds, "OutOfBounds"));
         }
 
 

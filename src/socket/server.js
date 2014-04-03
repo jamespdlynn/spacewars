@@ -1,22 +1,27 @@
-define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], function(binary, micro, schemas,Constants,ServerZone){
+define(["binaryjs","microjs","model/schemas","model/constants","model/Player","model/Missile","socket/zone"],
+    function(binary, micro, schemas, Constants, Player, Missile, ServerZone){
     'use strict';
 
     var BinaryServer = binary.BinaryServer;
 
     //Constants
-    var MAX_PINGS = 5;
     var PING_INTERVAL = 60000;
-    var MAX_ZONES = Constants.MAX_WORLD_SIZE * Constants.MAX_WORLD_SIZE;
-    var MAX_CONNECTIONS = MAX_ZONES * 3;
+    var MAX_PINGS = 5;
+    var NUM_ZONES = Constants.WORLD_SIZE * Constants.WORLD_SIZE;
+    var MAX_PLAYER_ID =  Math.pow(2, (8*Constants.PLAYER_ID_BYTES))-1;
+    var MAX_MISSILE_ID = Math.pow(2, (8*Constants.MISSILE_ID_BYTES))-1;
 
-    var serverZones;
-    var availableWorldSize;
+    var currentPlayerId = 0;
+    var currentMissileId = 0;
+    var connectionCount = 0;
+    var maxConnectionCount = 0;
+
+    var serverZones = [];
+    var playerMap = {};
+    var addresses = {};
+
     var wsServer;
-    var connectionCount;
-    var maxConnectionCount;
-    var addresses;
     var isDevelopment;
-
 
     //Register our schemas
     micro.register(schemas);
@@ -27,19 +32,34 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
             //Initialize zones
             serverZones = [];
-            availableWorldSize = Constants.MIN_WORLD_SIZE;
-            for (var i=0; i < MAX_ZONES; i++){
+            for (var i=0; i < NUM_ZONES; i++){
                  serverZones.push(new ServerZone(i));
             }
 
-            connectionCount = 0;
-            maxConnectionCount = 0;
-            addresses = {};
+            //Set adjacent zones
+            for (var row=0; row < Constants.WORLD_SIZE; row++){
+                for (var col=0; col < Constants.WORLD_SIZE; col++){
+                    var prevRow = row > 0 ? row-1 : Constants.WORLD_SIZE-1;
+                    var nextRow = row < Constants.WORLD_SIZE-1 ? row+1 : 0;
+                    var prevCol = col > 0 ? col-1 : Constants.WORLD_SIZE-1;
+                    var nextCol = col < Constants.WORLD_SIZE-1 ? col+1 : 0;
+
+                    getZone(row,col).adjacentZones = [
+                        getZone(prevRow, prevCol),
+                        getZone(prevRow, col),
+                        getZone(prevRow, nextCol),
+                        getZone(row, prevCol),
+                        getZone(row, nextCol),
+                        getZone(nextRow, prevCol),
+                        getZone(nextRow, col),
+                        getZone(nextRow, nextCol)
+                    ];
+                }
+            }
 
             //Create a new BinaryServer Instance
             wsServer = new BinaryServer({
-                server: httpServer,
-                chunkSize : 1024
+                server: httpServer
             });
 
             //When a new connection request is received from a client
@@ -55,25 +75,28 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
         var remoteAddress = connection._socket._socket.remoteAddress;
 
-        if (connectionCount >= MAX_CONNECTIONS || (addresses[remoteAddress] && !isDevelopment)){
+        if (connectionCount > MAX_PLAYER_ID || (addresses[remoteAddress] && !isDevelopment)){
             connection.close();
             return;
         }
 
-        var currentZone, pingTimeout, updated, username;
+        var pingTimeout, updated, initialized;
+        var player = createPlayer();
+        player.connection = connection;
 
         var readData = function(buffer){
             var data = micro.toJSON(buffer);
             var type = data._type;
             delete data._type;
 
+            var zone;
+
             switch (type)
             {
                 case "Ping" :
-                    var pingComplete = ping(connection,data);
-                    if (pingComplete){
 
-                        if (!currentZone) initializeZone();
+                    if (ping(connection,data)){
+                        if (!initialized) initializeZone();
 
                         updated = false;
                         pingTimeout = setTimeout(function(){
@@ -84,24 +107,30 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
                     break;
 
                 case "PlayerUpdate":
-                    if (!currentZone) break;
-                    data.id = connection.playerId;
-                    currentZone.updatePlayer(data);
+                    if (!initialized) break;
+                    zone = serverZones[player.get("zone")];
+                    zone.updatePlayer(player.id,data);
+
+                    if (data.isFiring && player.canFire()){
+                        var missile = createMissile().set(player.fireMissile());
+                        zone.addMissile(missile);
+                    }
+
                     updated = true;
                     break;
 
                 case "Collision":
-                    if (!currentZone) break;
-                    currentZone.detectCollision(data);
+                    if (!initialized) break;
+                    if (zone = serverZones[data.zone]){
+                        zone.detectCollision(data);
+                    }
                     break;
 
                 case "OutOfBounds":
-                    if (!currentZone) break;
-                    var player = currentZone.getPlayer(connection.playerId);
-                    if (player){
-                        currentZone.checkZoneChange(player);
+                    if (!initialized) break;
+                    if (zone = serverZones[data.zone]){
+                        zone.checkZoneChange(data);
                     }
-
                     break;
 
                 default:
@@ -112,84 +141,30 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
         var initializeZone = function(){
 
-            do {
-                var row = Math.floor(Math.random()*availableWorldSize);
-                var col = Math.floor(Math.random()*availableWorldSize);
-                currentZone = serverZones[getZoneId(row, col)];
-            }while (currentZone.getNumPlayers() >= 3);
+            var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
+            var loop = connectionCount > 1;
 
-            currentZone.add(connection, {username:username});
-            currentZone.on(Constants.Events.ZONE_CHANGED, onZoneChange);
-
-            var maxConnections = (availableWorldSize*availableWorldSize*2.5);
-            if (connectionCount > maxConnections && availableWorldSize < Constants.MAX_WORLD_SIZE){
-                availableWorldSize++;
-            }
-
-            if (connectionCount > maxConnectionCount){
-                logServerStatus();
-                maxConnectionCount = connectionCount;
-            }
-        };
-
-        var onZoneChange = function(player, direction){
-
-            if (player.id !== connection.playerId) return;
-
-            var row = Math.floor(currentZone.id / Constants.MAX_WORLD_SIZE);
-            var col = currentZone.id % Constants.MAX_WORLD_SIZE;
-
-            switch(direction){
-                case "left" :
-                    col--;
-                    player.data.posX = Constants.Zone.width + (player.width/2);
+            while(loop){
+                if (zone.getNumPlayers() >= 1){
+                    do {
+                        zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
+                    }while (zone.getNumPlayers() > 3);
                     break;
-
-                case "right":
-                    col++;
-                    player.data.posX = -player.width/2;
-                    break;
-
-                case "top":
-                    row--;
-                    player.data.posY = Constants.Zone.height + (player.height/2);
-                    break;
-
-                case "bottom":
-                    row++;
-                    player.data.posY = -player.height/2;
-                    break;
+                }
+                zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
             }
 
-            if (row < 0) row = availableWorldSize-1;
-            else if (row >= availableWorldSize) row = 0;
-
-            if (col < 0) col = availableWorldSize-1;
-            else if (col >= availableWorldSize) col = 0;
-
-            var newZoneId = getZoneId(row, col);
-
-            if (newZoneId !== currentZone.id){
-                currentZone.remove(connection);
-                currentZone.off(Constants.Events.ZONE_CHANGED, onZoneChange);
-
-                currentZone = serverZones[newZoneId];
-                currentZone.add(connection, player.toJSON());
-                currentZone.on(Constants.Events.ZONE_CHANGED, onZoneChange);
-            }
-            else{
-                currentZone._sendPlayer(player);
-            }
-
+            zone.addPlayer(player, true);
+            initialized = true;
         };
 
 
         connection.on("stream", function(stream, meta) {
-            username = meta;
-
             connection.in = stream;
             connection.in.writeable = false;
             connection.in.on('data', readData);
+
+            player.set("username",meta);
         });
 
         connection.on("error", function(error){
@@ -202,27 +177,18 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
             clearTimeout(pingTimeout);
 
-            if (currentZone){
-                currentZone.remove(connection);
-                currentZone.off(Constants.Events.ZONE_CHANGED, onZoneChange);
+            if (initialized){
+                serverZones[player.get("zone")].removePlayer(player, true);
             }
 
-            if (connection.in){
-                connection.in.removeAllListeners();
-            }
-
-            connection.removeAllListeners();
-            connection = undefined;
-
+            delete playerMap[player.id];
             delete addresses[remoteAddress];
 
+            player = undefined;
+            connection = undefined;
+            remoteAddress = undefined;
+
             connectionCount--;
-
-            var maxConnections = (availableWorldSize*availableWorldSize*2);
-            if (connectionCount < maxConnections && availableWorldSize > Constants.MIN_WORLD_SIZE){
-                availableWorldSize--;
-            }
-
         });
 
         //Get things going by creating an output stream and pinging the client
@@ -231,6 +197,11 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
 
         addresses[remoteAddress] = 1;
         connectionCount++;
+
+        if (connectionCount > maxConnectionCount){
+            console.log(Date.now()+ " connections: "+connectionCount+"\n");
+            maxConnectionCount = connectionCount;
+        }
 
         ping(connection);
 
@@ -248,20 +219,45 @@ define(["binaryjs","microjs","model/schemas","model/constants","socket/zone"], f
         }
 
         return data.complete;
-
     }
 
-
-    function getZoneId(row, col){
-       return (row*Constants.MAX_WORLD_SIZE) + col;
+    function getZone(row, col){
+       return serverZones[(row*Constants.WORLD_SIZE) + col];
     }
 
-    function logServerStatus(){
-        console.log("");
-        console.log(new Date().toUTCString());
-        console.log("World Size: "+availableWorldSize);
-        console.log("Connections: "+connectionCount);
-        console.log("");
+    function createPlayer(){
+        currentPlayerId = currentPlayerId < MAX_PLAYER_ID ? currentPlayerId+1 : 0;
+        if (!playerMap[currentPlayerId.toString()]){
+            var player =  new Player({id:currentPlayerId});
+            player.on(Constants.Events.UPDATE, onPlayerUpdate);
+            return playerMap[currentPlayerId.toString()] = player;
+        }else{
+            return createPlayer();
+        }
+    }
+
+    function createMissile(){
+        currentMissileId = currentMissileId < MAX_MISSILE_ID ? currentMissileId+1 : 0;
+        return new Missile({id:currentMissileId});
+    }
+
+    function onPlayerUpdate(){
+
+        if (this.get("isInvulnerable") && this.lastUpdated-this.created >= this.invulnerableTime){
+            this.set("isInvulnerable", false);
+        }
+
+        if (this.get("isAccelerating") && !this.canAccelerate()){
+            this.set("isAccelerating", false);
+        }
+
+        if (this.get("shields") == 0 && !this.get("isShieldBroken")){
+            var self = this;
+            self.set({isShielded:false,isShieldBroken:true});
+            setTimeout(function(){
+                self.set({isShieldBroken:false,shields:20});
+            }, self.shieldDownTime);
+        }
     }
 
 

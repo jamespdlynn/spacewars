@@ -1,24 +1,22 @@
-define(['createjs','model/constants','model/game'],function(createjs, Constants,gameData){
+define(['createjs','view/sprite','model/constants','model/game'],function(createjs, Sprite, Constants,gameData){
     'use strict';
 
     var ANGLE_STEP = 300/Constants.FPS;
-    var Container = createjs.Container;
 
-    var StarShip = function (){};
+    var StarShip = function(){};
+    StarShip.prototype = new createjs.Container();
 
-    StarShip.prototype = new Container();
-
-    extend.call(StarShip.prototype, {
+    extend.call(StarShip.prototype, Sprite.prototype, {
 
         initialize : function(){
 
-            this.mouseEnabled = false;
-
-            Container.prototype.initialize.call(this);
+            createjs.Container.initialize.call(this);
 
             var width = Constants.Player.width;
             var height = Constants.Player.height;
             var shieldPadding = Constants.Player.shieldPadding;
+
+            this.mouseEnabled = false;
 
             this.shipBody.tickEnabled = false;
             this.shipBody.x = -width/2;
@@ -52,12 +50,15 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             this.exhaustSound = createjs.Sound.play("exhaustSound", {volume:0, loop:-1});
 
             this.addChild(this.flame1, this.flame2, this.shipBody, this.shield, this.sparks);
-            this.setBounds(-width/2, -height/2, width, height);
+
+
+
         },
 
         setModel : function(model){
 
-            this.model = model;
+            Sprite.prototype.setModel.call(this, model);
+
             this.rotation = toDegrees(model.get("angle"));
 
             if (model.get("isShielded")){
@@ -74,21 +75,14 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
                 this.shieldVisible = false;
             }
 
-
         },
 
         _tick : function(evt){
 
-            var data = this.model.update().data;
+            Sprite.prototype._tick.call(this);
 
-            this.scaleX = gameData.scaleX;
-            this.scaleY = gameData.scaleY;
-
-            this.x = data.posX * this.scaleX;
-            this.y = data.posY * this.scaleY;
-
-            var angle  = this.hasOwnProperty('angle') ? this.angle : data.angle;
-            angle = toDegrees(angle);
+            var data = this.mode.data;
+            var angle  = this.hasOwnProperty('angle') ? toDegrees(this.angle) : toDegrees(data.angle);
 
             if (this.rotation != angle){
                 var deltaAngle = angleDiff(this.rotation, angle);
@@ -149,8 +143,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         },
 
         destroy : function(){
-            this.tickEnabled = false;
-            this.visible = false;
+            Sprite.prototype.destroy.call(this);
             this.exhaustSound.stop();
         }
     });

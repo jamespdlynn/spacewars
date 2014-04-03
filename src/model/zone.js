@@ -32,6 +32,12 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             return null;
         },
 
+        set : function(data, options){
+            this.players.set(data.players, options);
+            this.missiles.set(data.missiles, options);
+            this.planets.set(data.planets, options);
+        },
+
         remove : function(data){
             if (data){
                 switch (data.type){
@@ -58,9 +64,21 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             };
         },
 
+        concat : function(data){
+            data.players = data.players.concat(this.players.toJSON());
+            data.misisles = data.missiles.concat(this.misisles.toJSON());
+            data.planets = data.planets.concat(this.planets.toJSON());
+        },
+
+        reset : function(){
+            this.players = new SpriteCollection("Player");
+            this.missiles = new SpriteCollection("Missile");
+            this.planets = new SpriteCollection("Planet");
+        },
+
         toString : function(){
-            var row = Math.floor(this.id/Constants.MAX_WORLD_SIZE);
-            var col = this.id%Constants.MAX_WORLD_SIZE;
+            var row = Math.floor(this.id/Constants.WORLD_SIZE);
+            var col = this.id%Constants.WORLD_SIZE;
 
             return String.fromCharCode(65 + row) + "-"+ (col+1);
         }

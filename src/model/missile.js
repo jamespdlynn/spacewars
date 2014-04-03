@@ -16,7 +16,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             velocityX : 0,
             velocityY : 0,
             angle : 0,
-            playerId : 0
+            playerId : 0,
+            zone : -1
         },
 
         updateData : function(deltaSeconds){

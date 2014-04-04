@@ -32,8 +32,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 key : Constants.PLANET_KEYS[Math.floor(Math.random()*numKeys)],
                 posX : (Math.random()*(this.model.width-planetWidth))+(planetWidth/2),
                 posY : (Math.random()*(this.model.height-planetHeight))+(planetHeight/2),
-                scale : (Math.random()*(1-minScale)) + minScale,
-                zone : this.id
+                scale : (Math.random()*(1-minScale)) + minScale
             };
 
             if (this._isValidPlanetPlacement(data)){
@@ -84,7 +83,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var gameData = model.toJSON();
             var i = this.adjacentZones.length;
             while (i--){
-                this.adjacentZones[i].model.concat(gameData);
+                this.adjacentZones[i].concat(gameData);
             }
             gameData.playerId = player.id;
 
@@ -142,7 +141,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          */
         updatePlayer : function(playerId, dataObj){
 
-            var player = this.model.players.get(playerId);
+            var player = this.players.get(playerId);
 
             if (!player){
                 throw new Error("Cannot update player, as it does not belong to zone");
@@ -184,7 +183,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var direction, newZone;
 
             //If sprite not in this zone or zone out of bounds return false
-            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.update().outOfBounds())){
+            if (!(sprite = this.get(sprite)) || !(direction = sprite.update().outOfBounds())){
                 return false;
             }
 
@@ -225,7 +224,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         sendToAll : function(buffer){
-            var players = this.model.players.models;
+            var players = this.model.players;
             var i = players.length;
             while (i--){
                 players[i].connection.out.write(buffer);
@@ -265,7 +264,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this._sendPlayerInfo(player);
 
             var self = this;
-            player.timeout = setTimeout(function(){
+            setTimeout(function(){
                 self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
@@ -282,7 +281,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this._sendToAll("Missile", missile.toJSON(), byteLength);
 
             var self = this;
-            missile.timeout = setTimeout(function(){
+            setTimeout(function(){
                 self._sendMissile(missile, PARTIAL_MISSILE_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
@@ -301,7 +300,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var horizontalPadding = horizontalRadius*(data.scale+planetData.scale);
                 var verticalPadding =  verticalRadius*(data.scale+planetData.scale);
 
-                if (Math.abs(planetData.posX - data.posX) < horizontalPadding && Math.abs(planetData.posY-data.posY) < verticalPadding){
+                if (planetData.key === data.key || Math.abs(planetData.posX - data.posX) < horizontalPadding && Math.abs(planetData.posY-data.posY) < verticalPadding){
                     return false;
                 }
             }

@@ -50,9 +50,6 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             this.exhaustSound = createjs.Sound.play("exhaustSound", {volume:0, loop:-1});
 
             this.addChild(this.flame1, this.flame2, this.shipBody, this.shield, this.sparks);
-
-
-
         },
 
         setModel : function(model){

@@ -1,4 +1,4 @@
-define(['createjs','view/sprite','model/game'],function(createjs, Sprite, gameData){
+define(['createjs','view/sprite'],function(createjs, Sprite){
     'use strict';
 
     var Bitmap = createjs.Bitmap;
@@ -27,6 +27,8 @@ define(['createjs','view/sprite','model/game'],function(createjs, Sprite, gameDa
             this.regX = this.image.width/2;
             this.regY = this.image.height/2;
             this.scaleX = this.scaleY = model.get("scale");
+
+            this._tick();
         }
     });
 

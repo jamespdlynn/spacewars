@@ -3,20 +3,16 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
     'use strict';
 
     var SpriteCollection = function(type, data, options){
-        switch (type)
-        {
+        switch (type){
             case "Player":
                 this.Model = Player;
                 break;
-
             case "Missile":
                 this.Model = Missile;
                 break;
-
             case "Planet":
                 this.Model = Planet;
                 break;
-
             default:
                 this.Model = Sprite;
                 break;
@@ -36,8 +32,6 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
             if (!data) return null;
 
-            options = options || {};
-
             var model;
 
             if (Array.isArray(data)){
@@ -50,11 +44,12 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 return models;
             }
 
+            model = (data instanceof this.Model) ? data : new (this.Model)(data, options);
+
             if (this.map[data.id]){
                 return null;
             }
 
-            model = (data instanceof this.Model) ? data : new (this.Model)(data, options);
             this.map[data.id] = model;
             this.models.push(model);
 
@@ -96,9 +91,10 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 return this.add(data, options);
             }
 
+            model.set(data, options);
             this.trigger("update", model);
 
-            return model.set(data, options);
+            return model;
         },
 
         remove : function(data){

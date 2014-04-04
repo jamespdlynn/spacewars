@@ -176,7 +176,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     function addSprite(model){
         
         if (model.equals(gameData.userPlayer)){
-            return;
+            return null;
         }
 
         var sprite;
@@ -185,6 +185,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             case "Planet":
                 sprite = sprites[model.toString()] = new Planet(model);
                 background.addChild(sprite);
+                break;
                
             case "Player":
                 sprite = sprites[model.toString()] = new EnemyShip(model);
@@ -204,6 +205,11 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     function removeSprite(model){
         
         var sprite = model.equals(userShip.model) ? userShip : sprites[model.toString()];
+
+        if (!sprite){
+            return null;
+        }
+
         sprite.destroy();
         
         if (model.type === "Planet"){

@@ -1,8 +1,8 @@
 define(['model/sprite','model/constants'],function(Sprite,Constants){
     'use strict';
 
-    var Planet = function(data, options){
-        this.initialize(data, options);
+    var Planet = function(data,options){
+        this.initialize(data,options);
     };
 
     extend.call(Planet.prototype, Sprite.prototype, Constants.Planet, {
@@ -10,12 +10,16 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Planet",
 
         defaults : {
-            id : 0,
-            key : "saturn",
+            key : "",
             posX : 0,
             posY : 0,
             scale : 1,
             zone : -1
+        },
+
+        initialize : function(data,options){
+            Sprite.prototype.initialize.call(data,options);
+            this.id = this.get("key") + this.get("zone");
         }
 
 

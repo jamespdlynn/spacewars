@@ -113,20 +113,16 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          * @param {boolean} send Flag that indicates whether send this remove to clients
          */
         removePlayer : function(player, send){
-            if (this.model.players.remove(player.id)){
+            if (this.model.players.remove(player)){
                 clearTimeout(player.timeout);
                 if (send){
-                    var self = this;
-                    var data = {type : player.type, id: player.id};
-                    setTimeout(function(){
-                        self._sendToAll("RemoveSprite", data);
-                    }, 2000);
+                    this._sendToAll("RemoveSprite", player);
                 }
             }
         },
 
         removeMissile : function(missile, send){
-            if (this.model.players.remove(missile.id)){
+            if (this.model.missiles.remove(missile)){
                 clearTimeout(missile.timeout);
                 if (send){
                     this._sendToAll("RemoveSprite", missile);
@@ -225,9 +221,14 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         sendToAll : function(buffer){
             var players = this.model.players;
+
             var i = players.length;
+            var connection;
             while (i--){
-                players[i].connection.out.write(buffer);
+                if (connection = players[i].connection){
+                    connection.out.write(buffer);
+                }
+
             }
         },
 
@@ -270,8 +271,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         _sendPlayerInfo : function(player){
-            var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
-            player.connection.out.write(buffer);
+            if (player.connection){
+                var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
+                player.connection.out.write(buffer);
+            }
         },
 
         _sendMissile : function(missile, byteLength){

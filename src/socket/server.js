@@ -182,19 +182,18 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
         connection.on("close", function(){
 
             clearTimeout(pingTimeout);
-
-            if (initialized){
-                serverZones[player.get("zone")].removePlayer(player, true);
-            }
-
             delete playerMap[player.id];
             delete addressMap[remoteKey||""];
 
-            player = undefined;
-            connection = undefined;
-            remoteKey = undefined;
-
+            player.connection = connection = undefined;
             connectionCount--;
+
+            if (initialized){
+                setTimeout(function(){
+                    serverZones[player.get("zone")].removePlayer(player, true);
+                }, 2000);
+            }
+
         });
 
         //Get things going by creating an output stream and pinging the client

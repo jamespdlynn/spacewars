@@ -1,4 +1,4 @@
-define(['model/constants','model/game'],function(createjs, Constants,gameData){
+define(['model/constants','model/game'],function(Constants,gameData){
     'use strict';
 
     var Sprite = function (){};

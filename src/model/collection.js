@@ -23,7 +23,6 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
         }
 
         this.type = type;
-        this.currentId = 0;
         this.models = [];
         this.map = {};
         this.length = 0;

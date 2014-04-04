@@ -1,4 +1,4 @@
-define(["binaryjs","microjs","model/schemas","model/constants","model/Player","model/Missile","socket/zone"],
+define(["binaryjs","microjs","model/schemas","model/constants","model/player","model/missile","socket/zone"],
     function(binary, micro, schemas, Constants, Player, Missile, ServerZone){
     'use strict';
 
@@ -84,6 +84,9 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
         var player = createPlayer();
         player.connection = connection;
 
+
+
+
         var readData = function(buffer){
             var data = micro.toJSON(buffer);
             var type = data._type;
@@ -153,6 +156,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
                 }
                 zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
             }
+
+
 
             zone.addPlayer(player, true);
             initialized = true;
@@ -230,6 +235,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
         if (!playerMap[currentPlayerId.toString()]){
             var player =  new Player({id:currentPlayerId});
             player.on(Constants.Events.UPDATE, onPlayerUpdate);
+            console.log("WIDTH: "+ player.width);
+
             return playerMap[currentPlayerId.toString()] = player;
         }else{
             return createPlayer();

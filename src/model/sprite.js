@@ -155,6 +155,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
         getRect : function(){
 
+            var data = this.data;
             var radius = this.height/2;
 
             return {

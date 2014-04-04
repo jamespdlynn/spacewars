@@ -386,8 +386,8 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var width = window.innerWidth;
         var height = window.innerHeight;
 
-        stage.canvas.width = background.canvas.width = Math.max(width,Constants.zone.width) ;
-        stage.canvas.height = background.canvas.height =  Math.max(height,Constants.zone.height);
+        stage.canvas.width = background.canvas.width = Math.max(width,Constants.Zone.width) ;
+        stage.canvas.height = background.canvas.height =  Math.max(height,Constants.Zone.height);
 
         overlay.regX = -PADDING;
         overlay.regY = -PADDING;
@@ -396,8 +396,8 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         stage.update();
         background.update();
 
-        gameData.stagePaddingX = (width-Constants.zone.width)/2;
-        gameData.stagePaddingY = (height-Constants.zone.height)/2;
+        gameData.stagePaddingX = (width-Constants.Zone.width)/2;
+        gameData.stagePaddingY = (height-Constants.Zone.height)/2;
     }
 
 

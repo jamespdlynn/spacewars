@@ -1,4 +1,4 @@
-define(['model/sprite','model/missile','model/constants'],function(Sprite, Constants){
+define(['model/sprite','model/constants'],function(Sprite, Constants){
     'use strict';
 
     var Player = function(data, options){

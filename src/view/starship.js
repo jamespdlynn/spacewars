@@ -10,7 +10,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
         initialize : function(){
 
-            createjs.Container.initialize.call(this);
+            createjs.Container.prototype.initialize.call(this);
 
             var width = Constants.Player.width;
             var height = Constants.Player.height;
@@ -81,7 +81,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
             Sprite.prototype._tick.call(this);
 
-            var data = this.mode.data;
+            var data = this.model.data;
             var angle  = this.hasOwnProperty('angle') ? toDegrees(this.angle) : toDegrees(data.angle);
 
             if (this.rotation != angle){

@@ -81,9 +81,10 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
 
                 case "GameData" :
+
                     var zoneData = new Zone(dataObj).update(gameData.latency).toJSON();
                     zoneData.playerId = dataObj.playerId;
-                    
+
                     gameData.set(zoneData,{easing:true});
 
                     if (!initialized){
@@ -112,7 +113,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "PlayerUpdate":
                     if (!initialized) return;
-                    gameData.players.get(dataObj.id).set(dataObj);  //No need to ease on player update, as it contains only partial player data
+                    var player =  gameData.players.get(dataObj.id);
+                    if (player) player.set(dataObj);  //No need to ease on player update, as it contains only partial player data
                     break;
 
                 case "Missile":

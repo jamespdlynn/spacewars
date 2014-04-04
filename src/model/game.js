@@ -7,6 +7,9 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
     extend.call(GameData.prototype, Zone.prototype, EventDispatcher.prototype, {
 
         initialize : function(){
+
+            Zone.prototype.initialize.call(this);
+
             this.roundKills = 0;
             this.latency = 0;
             this.userPlayer = null;
@@ -50,10 +53,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
 
         isUserInitialized : function(){
             return this.user.username.length > 0;
-        },
-
-        isUserSprite : function(sprite){
-            return sprite.get("username") === this.user.username;
         },
 
         setUsername : function(value){

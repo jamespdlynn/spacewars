@@ -3,12 +3,18 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
 
     var Zone = function (data, options){
         this.id = data.id;
-        this.players = new SpriteCollection("Player", data.players, options);
-        this.missiles = new SpriteCollection("Missile", data.missiles, options);
-        this.planets = new SpriteCollection("Planet", data.planets, options);
+        this.initialize(data, options);
     };
 
     extend.call(Zone.prototype, Constants.Zone, {
+
+        initialize : function(data, options){
+            data = data || {};
+
+            this.players = new SpriteCollection("Player", data.players, options);
+            this.missiles = new SpriteCollection("Missile", data.missiles, options);
+            this.planets = new SpriteCollection("Planet", data.planets, options);
+        },
 
         update : function(deltaTime){
             this.players.update(deltaTime);
@@ -66,7 +72,7 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
 
         concat : function(data){
             data.players = data.players.concat(this.players.toJSON());
-            data.misisles = data.missiles.concat(this.misisles.toJSON());
+            data.missiles = data.missiles.concat(this.missiles.toJSON());
             data.planets = data.planets.concat(this.planets.toJSON());
         },
 

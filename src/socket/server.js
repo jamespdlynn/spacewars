@@ -1,4 +1,4 @@
-define(["binaryjs","microjs","model/schemas","model/constants","model/player","model/missile","socket/zone"],
+define(["binaryjs","microjs","model/schemas","model/constants","model/Player","model/Missile","socket/zone"],
     function(binary, micro, schemas, Constants, Player, Missile, ServerZone){
     'use strict';
 
@@ -8,8 +8,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     var PING_INTERVAL = 60000;
     var MAX_PINGS = 5;
     var NUM_ZONES = Constants.WORLD_SIZE * Constants.WORLD_SIZE;
-    var MAX_PLAYER_ID =  Math.pow(2, (8*Constants.PLAYER_ID_BYTES))-1;
-    var MAX_MISSILE_ID = Math.pow(2, (8*Constants.MISSILE_ID_BYTES))-1;
+    var MAX_PLAYER_ID =  Math.pow(2,8)-1;
+    var MAX_MISSILE_ID = Math.pow(2,16)-1;
 
     var currentPlayerId = 0;
     var currentMissileId = 0;
@@ -18,7 +18,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
 
     var serverZones = [];
     var playerMap = {};
-    var addresses = {};
+    var addressMap = {};
 
     var wsServer;
     var isDevelopment;
@@ -29,7 +29,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     return {
 
         run : function(httpServer, isDev){
-
             //Initialize zones
             serverZones = [];
             for (var i=0; i < NUM_ZONES; i++){
@@ -72,20 +71,14 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     function onConnection(connection){
 
         //Make sure we haven't exceeded our maximum number of connections
-
-        var remoteAddress = connection._socket._socket.remoteAddress;
-
-        if (connectionCount > MAX_PLAYER_ID || (addresses[remoteAddress] && !isDevelopment)){
+        if (connectionCount > MAX_PLAYER_ID){
             connection.close();
             return;
         }
 
-        var pingTimeout, updated, initialized;
+        var remoteKey, pingTimeout, updated, initialized;
         var player = createPlayer();
         player.connection = connection;
-
-
-
 
         var readData = function(buffer){
             var data = micro.toJSON(buffer);
@@ -157,19 +150,27 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
                 zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
             }
 
-
-
             zone.addPlayer(player, true);
             initialized = true;
         };
 
 
         connection.on("stream", function(stream, meta) {
-            connection.in = stream;
-            connection.in.writeable = false;
-            connection.in.on('data', readData);
 
-            player.set("username",meta);
+            remoteKey = connection._socket._socket.remoteAddress + ":" + meta;
+
+            if (addressMap[remoteKey] && !isDevelopment){
+                remoteKey = undefined;
+                connection.close();
+            }
+            else{
+                addressMap[remoteKey] = 1;
+                player.set("username",meta);
+
+                connection.in = stream;
+                connection.in.writeable = false;
+                connection.in.on('data', readData);
+            }
         });
 
         connection.on("error", function(error){
@@ -187,11 +188,11 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
             }
 
             delete playerMap[player.id];
-            delete addresses[remoteAddress];
+            delete addressMap[remoteKey||""];
 
             player = undefined;
             connection = undefined;
-            remoteAddress = undefined;
+            remoteKey = undefined;
 
             connectionCount--;
         });
@@ -200,16 +201,14 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
         connection.out = connection.createStream();
         connection.out.readable = false;
 
-        addresses[remoteAddress] = 1;
         connectionCount++;
 
         if (connectionCount > maxConnectionCount){
-            console.log(Date.now()+ " connections: "+connectionCount+"\n");
+            console.log(new Date().toUTCString()+ " connections: "+connectionCount+"\n");
             maxConnectionCount = connectionCount;
         }
 
         ping(connection);
-
     }
 
 
@@ -235,8 +234,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
         if (!playerMap[currentPlayerId.toString()]){
             var player =  new Player({id:currentPlayerId});
             player.on(Constants.Events.UPDATE, onPlayerUpdate);
-            console.log("WIDTH: "+ player.width);
-
             return playerMap[currentPlayerId.toString()] = player;
         }else{
             return createPlayer();

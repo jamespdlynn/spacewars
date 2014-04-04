@@ -9,8 +9,7 @@ define(function(){
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
-       PLAYER_ID_BYTES : 1,
-       MISSILE_ID_BYTES : 2,
+       ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
 
        Zone : {
            width : 1024,

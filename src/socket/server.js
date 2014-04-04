@@ -191,6 +191,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
             if (initialized){
                 setTimeout(function(){
                     serverZones[player.get("zone")].removePlayer(player, true);
+                    player = undefined;
                 }, 2000);
             }
 

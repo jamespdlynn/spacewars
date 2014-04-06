@@ -225,13 +225,14 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
             var rowDiff = Math.floor(data.zone/worldSize) - Math.floor(zoneId/worldSize);
             if (Math.abs(rowDiff) > worldSize/2){
-                rowDiff = rowDiff < 0 ? worldSize+rowDiff : worldSize-rowDiff;
+                rowDiff = rowDiff > 0 ? rowDiff-worldSize : rowDiff+worldSize;
             }
 
             var colDiff = (data.zone%worldSize) - (zoneId%worldSize);
             if (Math.abs(colDiff) > worldSize/2){
-                colDiff = colDiff < 0 ? worldSize+colDiff : worldSize-colDiff;
+                colDiff = colDiff > 0 ? colDiff-worldSize : colDiff+worldSize;
             }
+
 
             return {
                 posX : data.posX + (colDiff * Constants.Zone.width),

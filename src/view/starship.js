@@ -23,13 +23,13 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             this.shipBody.y = -height/2;
 
             this.flame1 = new createjs.Sprite(this.exhaustSprites, "play");
-            this.flame1.x = 0;
-            this.flame1.y = (height/2)-12.5;
+            this.flame1.x = -0;
+            this.flame1.y = (height/2)-10;
             this.flame1.visible = false;
 
             this.flame2 = new createjs.Sprite(this.exhaustSprites, "play");
-            this.flame2.x = -20;
-            this.flame2.y = (height/2)-12.5;
+            this.flame2.x = -15;
+            this.flame2.y = (height/2)-10;
             this.flame2.visible = false;
 
             this.shield = new createjs.Shape();

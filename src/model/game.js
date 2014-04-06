@@ -39,14 +39,21 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         },
 
         set : function(data, options){
+
             Zone.prototype.set.call(this, data, options);
 
             if (data.playerId){
                 this.userPlayer = this.players.get(data.playerId);
-                this.zone = this.id = this.userPlayer.get("zone");
-            }
 
-            this.trigger(Constants.Events.ZONE_CHANGED);
+                var oldZone = this.zone;
+                this.zone = this.userPlayer.get("zone");
+
+                if (oldZone !== this.zone){
+                    console.log("NEW ZONE:" +this.zone);
+                    this.trigger(Constants.Events.ZONE_CHANGED, {oldZone:oldZone, newZone:this.zone});
+
+                }
+            }
 
             return this;
         },
@@ -95,8 +102,7 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         },
 
         getZoneString : function(){
-            if (!this.zone) return "";
-            return this.toString();
+            return this.toString.call({id:this.zone});
         }
     });
 

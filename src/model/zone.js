@@ -77,9 +77,9 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
         },
 
         reset : function(){
-            this.players = new SpriteCollection("Player");
-            this.missiles = new SpriteCollection("Missile");
-            this.planets = new SpriteCollection("Planet");
+            this.players.reset();
+            this.missiles.reset();
+            this.planets.reset();
         },
 
         toString : function(){

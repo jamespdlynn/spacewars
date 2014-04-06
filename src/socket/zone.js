@@ -1,7 +1,7 @@
 define(["microjs","model/zone","model/constants","model/dispatcher"], function(micro, Zone, Constants, EventDispatcher){
     'use strict';
 
-    var MAX_PLANETS = 20;
+    var MAX_PLANETS = 3;
     var PARTIAL_PLAYER_SIZE = 12;
     var PARTIAL_MISSILE_SIZE = 6;
 
@@ -30,9 +30,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         while (i--){
             var data = {
                 key : Constants.PLANET_KEYS[Math.floor(Math.random()*numKeys)],
-                posX : (Math.random()*(this.model.width-planetWidth))+(planetWidth/2),
-                posY : (Math.random()*(this.model.height-planetHeight))+(planetHeight/2),
-                scale : (Math.random()*(1-minScale)) + minScale
+                posX : (Math.random()*(this.model.width-planetWidth/2))+(planetWidth/4),
+                posY : (Math.random()*(this.model.height-planetHeight/2))+(planetHeight/4),
+                scale : (Math.random()*(1-minScale)) + minScale,
+                zone : this.id
             };
 
             if (this._isValidPlanetPlacement(data)){
@@ -79,16 +80,18 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             model.players.add(player);
 
-            //Send all the necessary game data to the new user, to get them started
-            var gameData = model.toJSON();
-            var i = this.adjacentZones.length;
-            while (i--){
-                this.adjacentZones[i].concat(gameData);
-            }
-            gameData.playerId = player.id;
+            if (player.connection){
+                //Send all the necessary game data to the new user, to get them started
+                var gameData = model.toJSON();
+                var i = this.adjacentZones.length;
+                while (i--){
+                    this.adjacentZones[i].model.concat(gameData);
+                }
+                gameData.playerId = player.id;
 
-            var buffer = micro.toBinary(gameData,"GameData");
-            player.connection.out.write(buffer);
+                var buffer = micro.toBinary(gameData,"GameData");
+                player.connection.out.write(buffer);
+            }
 
         },
 
@@ -113,16 +116,20 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          * @param {boolean} send Flag that indicates whether send this remove to clients
          */
         removePlayer : function(player, send){
-            if (this.model.players.remove(player)){
+            if (this.model.players.remove(player.id)){
                 clearTimeout(player.timeout);
                 if (send){
-                    this._sendToAll("RemoveSprite", player);
+                    var self = this;
+                    var data = {type : player.type, id: player.id};
+                    setTimeout(function(){
+                        self._sendToAll("RemoveSprite", data);
+                    }, 2000);
                 }
             }
         },
 
         removeMissile : function(missile, send){
-            if (this.model.missiles.remove(missile)){
+            if (this.model.players.remove(missile.id)){
                 clearTimeout(missile.timeout);
                 if (send){
                     this._sendToAll("RemoveSprite", missile);
@@ -137,7 +144,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          */
         updatePlayer : function(playerId, dataObj){
 
-            var player = this.players.get(playerId);
+            var player = this.model.players.get(playerId);
 
             if (!player){
                 throw new Error("Cannot update player, as it does not belong to zone");
@@ -179,7 +186,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var direction, newZone;
 
             //If sprite not in this zone or zone out of bounds return false
-            if (!(sprite = this.get(sprite)) || !(direction = sprite.update().outOfBounds())){
+            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.update().outOfBounds())){
                 return false;
             }
 
@@ -220,8 +227,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         sendToAll : function(buffer){
-            var players = this.model.players;
-
+            var players = this.model.players.models;
             var i = players.length;
             var connection;
             while (i--){
@@ -265,7 +271,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this._sendPlayerInfo(player);
 
             var self = this;
-            setTimeout(function(){
+            player.timeout = setTimeout(function(){
                 self._sendPlayer(player, PARTIAL_PLAYER_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
@@ -284,7 +290,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             this._sendToAll("Missile", missile.toJSON(), byteLength);
 
             var self = this;
-            setTimeout(function(){
+            missile.timeout = setTimeout(function(){
                 self._sendMissile(missile, PARTIAL_MISSILE_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
@@ -303,7 +309,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var horizontalPadding = horizontalRadius*(data.scale+planetData.scale);
                 var verticalPadding =  verticalRadius*(data.scale+planetData.scale);
 
-                if (planetData.key === data.key || Math.abs(planetData.posX - data.posX) < horizontalPadding && Math.abs(planetData.posY-data.posY) < verticalPadding){
+                if (Math.abs(planetData.posX - data.posX) < horizontalPadding && Math.abs(planetData.posY-data.posY) < verticalPadding){
                     return false;
                 }
             }

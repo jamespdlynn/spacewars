@@ -5,7 +5,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     var RADIUS = Constants.Player.width/2;
     var PADDING = 20;
 
-    var initialized, autorun, background, stage, updateTimeout, overlay, userShip, sprites, gameEnding;
+    var initialized, autorun, background, stage, updateTimeout, backgroundImage, overlay, userShip, sprites, gameEnding, game;
 
     var GameView = {
 
@@ -18,13 +18,13 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
                 background = new createjs.Stage("background");
                 background.enableDOMEvents(false);
-                background.tickEnabled = false;
-                background.tickOnUpdate = false;
                 background.mouseChildren = false;
 
                 stage = new createjs.Stage("game");
                 stage.enableDOMEvents(false);
                 stage.mouseChildren = false;
+
+                game = document.getElementById("game");
 
                 window.preloader = new createjs.LoadQueue(false, Constants.ASSETS_URL);
                 preloader.addEventListener("complete", function(){
@@ -73,10 +73,41 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             background.alpha = 1;
             stage.alpha = 1;
 
-            userShip = new UserShip();
-            overlay = new Overlay(userShip);
+            stage.removeAllChildren();
+            background.removeAllChildren();
+            sprites = {};
 
-            renderZone();
+            backgroundImage = new createjs.Shape();
+            backgroundImage.graphics.beginBitmapFill(preloader.getResult('background')).drawRect(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
+            backgroundImage.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
+            background.addChild(backgroundImage);
+
+
+            userShip = new UserShip(gameData.userPlayer);
+            stage.addChild(userShip);
+
+            var planets = gameData.planets;
+            var players = gameData.players;
+            var missiles = gameData.missiles;
+            var i;
+
+            i= planets.length;
+            while (i--) addSprite(planets.models[i]);
+            planets.on("add", addSprite);
+            planets.on("remove", removeSprite);
+
+            i= missiles.length;
+            while (i--) addSprite(missiles.models[i]);
+            missiles.on("add", addSprite);
+            missiles.on("remove", removeSprite);
+
+            i= players.length;
+            while (i--) addSprite(players.models[i]);
+            players.on("add", addSprite);
+            players.on("remove", removeSprite);
+
+            overlay = new Overlay();
+            stage.addChild(overlay);
 
             setStageSize();
             window.onresize = setStageSize;
@@ -85,6 +116,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             createjs.Ticker.addEventListener("tick", onTick);
 
             gameData.on(Constants.Events.COLLISION, onCollision);
+            gameData.on(Constants.Events.ZONE_CHANGED, onZoneChange);
 
             updateTimeout = setTimeout(triggerUpdate, Constants.CLIENT_UPDATE_INTERVAL);
 
@@ -137,56 +169,20 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         }
     };
 
-    function renderZone(){
-
-        stage.removeAllChildren();
-        background.removeAllChildren();
-        sprites = {};
-
-        var planets = gameData.planets;
-        var players = gameData.players;
-        var missiles = gameData.missiles;
-        var i;
-        
-        userShip.setModel(gameData.userPlayer);
-
-        i= planets.length;
-        while (i--) addSprite(planets.models[i]);
-        planets.on("add", addSprite);
-        planets.on("remove", removeSprite);
-
-        i= missiles.length;
-        while (i--) addSprite(missiles.models[i]);
-        missiles.on("add", addSprite);
-        missiles.on("remove", removeSprite);
-
-        i= players.length;
-        while (i--) addSprite(players.models[i]);
-        players.on("add", addSprite);
-        players.on("remove", removeSprite);
-
-        stage.addChild(userShip);
-        stage.addChild(overlay);
-
-        background.update();
-        stage.update();
-
-    }
-
     function addSprite(model){
-        
+
         if (model.equals(gameData.userPlayer)){
             return null;
         }
 
         var sprite;
-        
+
         switch (model.type){
             case "Planet":
                 sprite = sprites[model.toString()] = new Planet(model);
                 background.addChild(sprite);
                 break;
-               
+
             case "Player":
                 sprite = sprites[model.toString()] = new EnemyShip(model);
                 stage.addChildAt(sprite, 0);
@@ -203,7 +199,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function removeSprite(model){
-        
+
         var sprite = model.equals(userShip.model) ? userShip : sprites[model.toString()];
 
         if (!sprite){
@@ -211,15 +207,15 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         }
 
         sprite.destroy();
-        
+
         if (model.type === "Planet"){
            background.removeChild(sprite);
         }else{
-           stage.removeChild(sprite);
+            stage.removeChild(sprite);
         }
-       
+
         delete sprites[model.toString()];
-        
+
         return sprite;
     }
 
@@ -227,18 +223,61 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     //Game Loop
     function onTick(evt){
 
-        if (userShip && !stage.mouseInBounds){
+        var updateBackground = false;
+
+        if (!stage.mouseInBounds){
             userShip.isAccelerating = false;
             userShip.isShielded = false;
             userShip.isFiring = false;
         }
+
+        var scrollSpeed = 500/Constants.FPS;
+        var padding = userShip.model.width;
+
+        var velocityX = userShip.model.get("velocityX")/ Constants.FPS;
+        var velocityY = userShip.model.get("velocityY")/ Constants.FPS;
+
+        game.style.cursor = "crosshair";
+
+
+        if (stage.mouseInBounds && stage.mouseX <= padding && (userShip.x < window.innerWidth-padding || velocityX < 0) && gameData.offsetX < gameData.width-scrollSpeed){
+            gameData.offsetX += (userShip.x <  window.innerWidth-padding-1) ? scrollSpeed : -velocityX;
+            game.style.cursor = "w-resize";
+            updateBackground = true
+        }
+        else if (stage.mouseInBounds && stage.mouseX >= window.innerWidth-padding && (userShip.x > padding || velocityX > 0) && gameData.offsetX > -gameData.width+scrollSpeed+(2*window.paddingX)){
+            gameData.offsetX -= (userShip.x >  padding+1) ? scrollSpeed : velocityX;
+            game.style.cursor = "e-resize";
+            updateBackground = true;
+        }
+        else if ((userShip.x <= padding && velocityX < 0)|| (userShip.x >= window.innerWidth-padding && velocityX > 0)){
+            gameData.offsetX -= velocityX ;
+            updateBackground = true;
+        }
+
+
+        if (stage.mouseInBounds && stage.mouseY <= padding && (userShip.y < window.innerHeight-padding || velocityY < 0) && gameData.offsetY < gameData.height-scrollSpeed){
+            gameData.offsetY += (userShip.y <  window.innerHeight-padding-1 ) ? scrollSpeed : -velocityY;
+            game.style.cursor = game.style.cursor === "crosshair" ?  "n-resize" : "n"+game.style.cursor;
+            updateBackground = true
+        }
+        else if (stage.mouseInBounds && stage.mouseY >= window.innerHeight-padding && (userShip.y > padding || velocityY > 0) && gameData.offsetY > -gameData.height+scrollSpeed+(2*window.paddingY)){
+            gameData.offsetY -= (userShip.y > padding+1 ) ? scrollSpeed : velocityY;
+            game.style.cursor = game.style.cursor === "crosshair" ?  "s-resize" : "s"+game.style.cursor;
+            updateBackground = true;
+        }
+        else if ((userShip.y <= padding && velocityY < 0)|| (userShip.y >= window.innerHeight-padding && velocityY > 0)){
+            gameData.offsetY -= velocityY;
+            updateBackground = true;
+        }
+
 
         if (gameEnding){
             stage.alpha = Math.max(stage.alpha-0.005, 0);
             background.alpha = Math.max(background.alpha-0.005, 0);
             createjs.Sound.setVolume(Math.max(createjs.Sound.getVolume()-0.005, 0));
 
-            background.update();
+            updateBackground = true;
 
             if (stage.alpha === 0 && GameView.isRunning){
                 gameData.trigger(Constants.Events.GAME_END);
@@ -246,6 +285,29 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         }
 
         stage.update(evt);
+
+        if (updateBackground){
+            backgroundImage.x = gameData.offsetX;
+            backgroundImage.y = gameData.offsetY;
+            background.update(evt);
+        }
+    }
+
+    function onZoneChange(data){
+        var worldSize = Constants.WORLD_SIZE;
+
+        var colDiff = (data.newZone%worldSize) - (data.oldZone%worldSize);
+        if (Math.abs(colDiff) > worldSize/2){
+            colDiff = colDiff > 0 ? colDiff-worldSize : colDiff+worldSize;
+        }
+
+        var rowDiff = Math.floor(data.newZone/worldSize) - Math.floor(data.oldZone/worldSize);
+        if (Math.abs(rowDiff) > worldSize/2){
+            rowDiff = rowDiff > 0 ? rowDiff-worldSize : rowDiff+worldSize;
+        }
+
+        gameData.offsetX += (gameData.width*colDiff);
+        gameData.offsetY += (gameData.height*rowDiff);
     }
 
     function onCollision(data){
@@ -348,8 +410,8 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function onMouseMove(evt){
         if (userShip){
-            var deltaX = (evt.stageX - userShip.x);
-            var deltaY = (evt.stageY  - userShip.y);
+            var deltaX = (evt.stageX + stage.regX - userShip.x);
+            var deltaY = (evt.stageY + stage.regY - userShip.y);
 
             if (Math.abs(deltaX) > RADIUS || Math.abs(deltaY) > RADIUS){
                 userShip.angle = Math.atan2(deltaY, deltaX);
@@ -392,18 +454,23 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var width = window.innerWidth;
         var height = window.innerHeight;
 
-        stage.canvas.width = background.canvas.width = Math.max(width,Constants.Zone.width) ;
-        stage.canvas.height = background.canvas.height =  Math.max(height,Constants.Zone.height);
+        window.paddingX = (width-gameData.width)/2;
+        window.paddingY = (height-gameData.height)/2;
 
-        overlay.regX = -PADDING;
-        overlay.regY = -PADDING;
-        overlay.setBounds(PADDING, PADDING, width-(PADDING*2), height-(PADDING*2));
+        stage.canvas.width = background.canvas.width = width;
+        stage.canvas.height = background.canvas.height = height;
+
+        var userData = gameData.userPlayer.data;
+
+        gameData.offsetX =   backgroundImage.x = window.paddingX + (gameData.width/2 - userData.posX);
+        gameData.offsetY =   backgroundImage.y = window.paddingY + (gameData.height/2 - userData.posY);
+
+        overlay.x = PADDING;
+        overlay.y = PADDING;
+        overlay.setBounds(0, 0, width-(PADDING*2), height-(PADDING*2));
 
         stage.update();
         background.update();
-
-        gameData.stagePaddingX = (width-Constants.Zone.width)/2;
-        gameData.stagePaddingY = (height-Constants.Zone.height)/2;
     }
 
 

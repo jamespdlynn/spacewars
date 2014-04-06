@@ -9,33 +9,34 @@ define(function(){
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
-       ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
+       //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
+       ASSETS_URL : "/assets/",
 
        Zone : {
-           width : 1024,
-           height : 768,
+           width : 1280,
+           height : 960,
            padding : 10
        },
 
        Planet : {
-           width : 512,
-           height : 512,
-           minScale :  0.7
+           width : 530,
+           height : 530,
+           minScale :  0.5
        },
 
        Player : {
-           width : 65,
-           height : 65,
+           width : 52,
+           height : 52,
            mass : 100,
-           acceleration : 340,
-           maxVelocity : 155,
+           acceleration : 320,
+           maxVelocity : 160,
            fireInterval : 750,
            invulnerableTime : 1500,
            fuelUseRate : 30,
            fuelRestoreRate : 30,
            shieldUseRate : 8,
            shieldRestoreRate : 4,
-           shieldPadding : 16,
+           shieldPadding : 12,
            shieldHitDiscount : 40,
            shieldDownTime : 10000
        },

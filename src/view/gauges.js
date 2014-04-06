@@ -1,4 +1,4 @@
-define(['createjs','model/game'],function(createjs){
+define(['createjs','model/game'],function(createjs, gameData){
     'use strict';
 
     var GAUGE_WIDTH = 200;
@@ -7,8 +7,7 @@ define(['createjs','model/game'],function(createjs){
     var GAUGE_PADDING = 1;
     var Container = createjs.Container;
 
-    var Gauges = function (userShip){
-        this.userShip = userShip;
+    var Gauges = function (){
         this.tickChildren = false;
 
         this.fuelBackground = new createjs.Shape();
@@ -77,7 +76,7 @@ define(['createjs','model/game'],function(createjs){
             var shieldColor = '#009a00';
             var width;
 
-            var fuel = this.userShip.model.get("fuel");
+            var fuel = gameData.userPlayer.get("fuel");
 
             if (Math.abs(this.fuel-fuel) > 1){
                 if (this.fuel < fuel){
@@ -89,7 +88,7 @@ define(['createjs','model/game'],function(createjs){
                 this.fuel = fuel;
             }
 
-            var shields = this.userShip.model.get("shields");
+            var shields = gameData.userPlayer.get("shields");
             var diff = Math.abs(this.shields-shields);
             if (diff> 1){
                 if (this.shields < shields){
@@ -106,7 +105,7 @@ define(['createjs','model/game'],function(createjs){
                 this.shields = shields;
             }
 
-            var isShieldBroken = this.userShip.model.get("isShieldBroken");
+            var isShieldBroken = gameData.userPlayer.get("isShieldBroken");
             if (isShieldBroken && !this.shieldsWarning.visible){
                 this.shieldsWarning.visible = true;
                 this.shieldsWarning.alpha = 0;

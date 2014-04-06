@@ -2,8 +2,8 @@ define(['model/constants','model/game'],function(Constants,gameData){
     'use strict';
 
     var Sprite = function (){};
-
-    extend.call(Sprite.prototype, {
+    extend.call(
+Sprite.prototype, {
 
         setModel : function(model){
             this.model = model;
@@ -13,8 +13,11 @@ define(['model/constants','model/game'],function(Constants,gameData){
         _tick : function(){
             var data = this.model.update().zoneAdjustedPosition(gameData.zone);
 
-            this.x = data.posX + gameData.stagePaddingX;
-            this.y = data.posY + gameData.stagePaddingY;
+            this.x = data.posX + gameData.offsetX;
+            this.y = data.posY+ gameData.offsetY;
+
+            var radius = this.model.getRadius();
+            this.visible = this.x >= -radius && this.y >= -radius && this.x <= window.innerWidth+radius && this.y <= window.innerHeight+radius;
         },
 
         destroy : function(){

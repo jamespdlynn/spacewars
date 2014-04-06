@@ -1,4 +1,4 @@
-define(["binaryjs","microjs","model/schemas","model/constants","model/Player","model/Missile","socket/zone"],
+define(["binaryjs","microjs","model/schemas","model/constants","model/player","model/missile","socket/zone"],
     function(binary, micro, schemas, Constants, Player, Missile, ServerZone){
     'use strict';
 
@@ -53,6 +53,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/Player","m
                         getZone(nextRow, col),
                         getZone(nextRow, nextCol)
                     ];
+
                 }
             }
 

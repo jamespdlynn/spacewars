@@ -16,7 +16,6 @@ define(['createjs','view/sprite'],function(createjs, Sprite){
             Bitmap.prototype.initialize.call(this);
 
             this.alpha = 0.3;
-            this.tickEnabled = false;
             this.mouseEnabled = false;
         },
 
@@ -27,8 +26,6 @@ define(['createjs','view/sprite'],function(createjs, Sprite){
             this.regX = this.image.width/2;
             this.regY = this.image.height/2;
             this.scaleX = this.scaleY = model.get("scale");
-
-            this._tick();
         }
     });
 

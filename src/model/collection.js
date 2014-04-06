@@ -3,16 +3,20 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
     'use strict';
 
     var SpriteCollection = function(type, data, options){
-        switch (type){
+        switch (type)
+        {
             case "Player":
                 this.Model = Player;
                 break;
+
             case "Missile":
                 this.Model = Missile;
                 break;
+
             case "Planet":
                 this.Model = Planet;
                 break;
+
             default:
                 this.Model = Sprite;
                 break;
@@ -32,6 +36,8 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
             if (!data) return null;
 
+            options = options || {};
+
             var model;
 
             if (Array.isArray(data)){
@@ -46,11 +52,11 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
             model = (data instanceof this.Model) ? data : new (this.Model)(data, options);
 
-            if (this.map[data.id]){
+            if (this.map[model.id]){
                 return null;
             }
 
-            this.map[data.id] = model;
+            this.map[model.id] = model;
             this.models.push(model);
 
             this.length = this.models.length;
@@ -77,13 +83,33 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
             var model;
             if (Array.isArray(data)){
+
                 var models = [];
                 for (var i=0; i < data.length; i++){
                     if (model = this.set(data[i])){
                         models.push(model);
                     }
                 }
+
+                console.log(data.length);
+                console.log(models.length);
+
+                if (options.remove){
+
+                    for (i = 0; i < this.length; i++){
+                        model = this.at(i);
+                        if (models.indexOf(model) == -1){
+                            this.remove(model);
+                            console.log("Remove: "+model.id);
+                        }
+                    }
+                }
+
                 return models;
+            }
+
+            if (!data.id){
+                data.id = new this.Model(data).id;
             }
 
             model = this.map[data.id];
@@ -92,6 +118,7 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
             }
 
             model.set(data, options);
+
             this.trigger("update", model);
 
             return model;
@@ -147,6 +174,12 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                 collection.add(this.models[i].clone());
             }
             return collection;
+        },
+
+        reset : function(){
+            this.models = [];
+            this.map = {};
+            this.length = 0;
         }
     });
 

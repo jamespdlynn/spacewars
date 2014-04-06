@@ -85,7 +85,9 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     var zoneData = new Zone(dataObj).update(gameData.latency).toJSON();
                     zoneData.playerId = dataObj.playerId;
 
-                    gameData.set(zoneData,{easing:true});
+                    console.log(zoneData);
+
+                    gameData.set(zoneData,{easing:true, remove:true});
 
                     if (!initialized){
                        initialize();

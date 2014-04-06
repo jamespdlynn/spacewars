@@ -21,6 +21,9 @@ define(function(){
         {id:"fuelIcon", src:"flame.png"},
         {id:"shieldIcon", src:"shield.png"},
 
+        {id:"userShip", src:"starship.png"},
+
+        {id:"background", src:"background.png"},
         {id:"nebula1", src:"nebula1.png"},
         {id:"nebula2", src:"nebula2.png"},
         {id:"nebula3", src:"nebula3.png"},

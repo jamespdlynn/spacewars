@@ -9,7 +9,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     var MAX_PINGS = 5;
     var NUM_ZONES = Constants.WORLD_SIZE * Constants.WORLD_SIZE;
     var MAX_PLAYER_ID =  Math.pow(2,8)-1;
-    var MAX_MISSILE_ID = Math.pow(2,16)-1;
+    var MAX_MISSILE_ID = Math.pow(2,8)-1;
 
     var currentPlayerId = 0;
     var currentMissileId = 0;
@@ -233,7 +233,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     function createPlayer(){
         currentPlayerId = currentPlayerId < MAX_PLAYER_ID ? currentPlayerId+1 : 0;
         if (!playerMap[currentPlayerId.toString()]){
-            var player =  new Player({id:currentPlayerId});
+            var player =  new Player({id:currentPlayerId, isInvulnerable:true});
             player.on(Constants.Events.UPDATE, onPlayerUpdate);
             return playerMap[currentPlayerId.toString()] = player;
         }else{
@@ -264,6 +264,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
             }, self.shieldDownTime);
         }
     }
+
+
 
 
 });

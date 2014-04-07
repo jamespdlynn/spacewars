@@ -10,11 +10,11 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Planet",
 
         defaults : {
+            zone : -1,
             key : "",
             posX : 0,
             posY : 0,
-            scale : 1,
-            zone : -1
+            scale : 1
         },
 
         initialize : function(data,options){

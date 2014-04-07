@@ -10,7 +10,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         type : "Player",
 
         defaults : {
-            id : 0,
+            id : -1,
+            zone : -1,
+            username : "",
             posX : 0,
             posY : 0,
             velocityX : 0,
@@ -20,11 +22,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             fuel : 100,
             shields : 100,
             isAccelerating : false,
-            isInvulnerable : true,
+            isInvulnerable : false,
             isShielded : false,
-            isShieldBroken : false,
-            username : "",
-            zone : -1
+            isShieldBroken : false
         },
 
         updateData : function(deltaSeconds){

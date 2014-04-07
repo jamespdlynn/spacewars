@@ -83,8 +83,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             background.addChild(backgroundImage);
 
 
-            userShip = new UserShip(gameData.userPlayer);
-            stage.addChild(userShip);
+
 
             var planets = gameData.planets;
             var players = gameData.players;
@@ -105,6 +104,9 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             while (i--) addSprite(players.models[i]);
             players.on("add", addSprite);
             players.on("remove", removeSprite);
+
+            userShip = new UserShip(gameData.userPlayer);
+            stage.addChild(userShip);
 
             overlay = new Overlay();
             stage.addChild(overlay);
@@ -191,7 +193,9 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             case "Missile":
                 sprite = sprites[model.toString()] = new Missile(model);
                 stage.addChildAt(sprite, 0);
-                playRelativeSound('shotSound',model);
+                if (gameData.players.get(model.get("playerId"))){
+                    playRelativeSound('shotSound',model);
+                }
                 break;
         }
 

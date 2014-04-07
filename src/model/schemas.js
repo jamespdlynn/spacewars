@@ -21,7 +21,7 @@ define(['model/constants'],function(Constants){
            posY : {type:"float", byteLength:2, precision:1},
            velocityX : {type:"float", byteLength:2, precision:1},
            velocityY : {type:"float", byteLength: 2, precision:1},
-           angle : {type:"float", byteLength:2, precision:4},
+           angle : {type:"float", byteLength:2, precision:2},
            isAccelerating : "boolean",
            isShielded : "boolean",
            isInvulnerable : "boolean",
@@ -31,12 +31,12 @@ define(['model/constants'],function(Constants){
        },
 
        Missile : {
-          id : "uint16",
+          id : "uint8",
           posX : {type:"float", byteLength:2, precision:1},
           posY : {type:"float", byteLength:2, precision:1},
           velocityX : {type:"float", byteLength:2, precision:1},
           velocityY : {type:"float", byteLength:2, precision:1},
-          angle : {type:"float", byteLength:2, precision:4},
+          angle : {type:"float", byteLength:2, precision:2},
           playerId : "uint8",
           zone : "uint8"
        },
@@ -50,7 +50,7 @@ define(['model/constants'],function(Constants){
         },
 
        PlayerUpdate : {
-           angle :  {type:"float", byteLength:2, precision:4},
+           angle :  {type:"float", byteLength:2, precision:2},
            isAccelerating : "boolean",
            isShielded : "boolean",
            isFiring : "boolean",
@@ -74,7 +74,7 @@ define(['model/constants'],function(Constants){
                type:"object", schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8",
-                   explode : "boolean"
+                   explode : {type:"boolean", default:"true"}
                }
 
            },
@@ -82,7 +82,7 @@ define(['model/constants'],function(Constants){
                type:"object", allowNull: true, schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8",
-                   explode : "boolean"
+                   explode : {type:"boolean", default:"true"}
                }
            },
            zone : "uint8"

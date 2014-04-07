@@ -10,21 +10,23 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Missile",
 
         defaults : {
-            id : 0,
+            id : -1,
+            playerId : -1,
+            zone : -1,
             posX : 0,
             posY : 0,
             velocityX : 0,
             velocityY : 0,
-            angle : 0,
-            playerId : 0,
-            zone : -1
+            angle : 0
         },
 
         updateData : function(deltaSeconds){
-            var data = this.data;
+            this.data.posX += (this.data.velocityX * deltaSeconds);
+            this.data.posY += (this.data.velocityY * deltaSeconds);
+        },
 
-            data.posX += (data.velocityX * deltaSeconds);
-            data.posY += (data.velocityY * deltaSeconds);
+        hasExceededMaxDistance : function(){
+            return Sprite.getHypotenuse(data.velocityX, data.velocityY) * (this.created-this.lastUpdated) > this.maxDistance;
         }
 
     });

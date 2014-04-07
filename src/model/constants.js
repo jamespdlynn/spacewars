@@ -45,7 +45,8 @@ define(function(){
            width : 14,
            height : 24,
            mass : 50,
-           velocity : 310
+           velocity : 310,
+           maxDistance : 1600
        },
 
        Events : {

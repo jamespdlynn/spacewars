@@ -82,34 +82,26 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             backgroundImage.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
             background.addChild(backgroundImage);
 
-
-
-
-            var planets = gameData.planets;
-            var players = gameData.players;
-            var missiles = gameData.missiles;
-            var i;
-
-            i= planets.length;
-            while (i--) addSprite(planets.models[i]);
-            planets.on("add", addSprite);
-            planets.on("remove", removeSprite);
-
-            i= missiles.length;
-            while (i--) addSprite(missiles.models[i]);
-            missiles.on("add", addSprite);
-            missiles.on("remove", removeSprite);
-
-            i= players.length;
-            while (i--) addSprite(players.models[i]);
-            players.on("add", addSprite);
-            players.on("remove", removeSprite);
-
             userShip = new UserShip(gameData.userPlayer);
             stage.addChild(userShip);
 
             overlay = new Overlay();
             stage.addChild(overlay);
+
+            var i= gameData.planets.length;
+            while (i--) addSprite(gameData.planets.models[i]);
+            gameData.planets.on("add", addSprite);
+            gameData.planets.on("remove", removeSprite);
+
+            i= missiles.length;
+            while (i--) addSprite(gameData.missiles.models[i]);
+            gameData.missiles.on("add", addSprite);
+            gameData.missiles.on("remove", removeSprite);
+
+            i= players.length;
+            while (i--) addSprite(gameData.players.models[i]);
+            gameData.players.on("add", addSprite);
+            gameData.players.on("remove", removeSprite);
 
             setStageSize();
             window.onresize = setStageSize;
@@ -173,9 +165,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function addSprite(model){
 
-        if (model.equals(gameData.userPlayer)){
-            return null;
-        }
+        if (model.equals(gameData.userPlayer) return null;
 
         var sprite;
 
@@ -188,6 +178,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             case "Player":
                 sprite = sprites[model.toString()] = new EnemyShip(model);
                 stage.addChildAt(sprite, 0);
+                overlay.radar.addMark(sprite);
                 break;
 
             case "Missile":
@@ -203,21 +194,23 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function removeSprite(model){
-
         var sprite = model.equals(userShip.model) ? userShip : sprites[model.toString()];
+        if (!sprite) return null;
 
-        if (!sprite){
-            return null;
+        switch (model.type){
+            case "Planet":
+                background.removeChild(sprite);
+                break;
+            case "Player":
+                stage.removeChild(sprite);
+                overlay.radar.removeMark(sprite);
+                break;
+            case "Missile":
+                stage.removeChild(sprite);
+                break;
         }
 
         sprite.destroy();
-
-        if (model.type === "Planet"){
-           background.removeChild(sprite);
-        }else{
-            stage.removeChild(sprite);
-        }
-
         delete sprites[model.toString()];
 
         return sprite;
@@ -229,12 +222,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         var updateBackground = false;
 
-        if (!stage.mouseInBounds){
-            userShip.isAccelerating = false;
-            userShip.isShielded = false;
-            userShip.isFiring = false;
-        }
-
         var scrollSpeed = 500/Constants.FPS;
         var padding = userShip.model.width;
 
@@ -242,7 +229,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var velocityY = userShip.model.get("velocityY")/ Constants.FPS;
 
         game.style.cursor = "crosshair";
-
 
         if (stage.mouseInBounds && stage.mouseX <= padding && (userShip.x < window.innerWidth-padding || velocityX < 0) && gameData.offsetX < gameData.width-scrollSpeed){
             gameData.offsetX += (userShip.x <  window.innerWidth-padding-1) ? scrollSpeed : -velocityX;
@@ -275,6 +261,11 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             updateBackground = true;
         }
 
+        if (!stage.mouseInBounds){
+            userShip.isAccelerating = false;
+            userShip.isShielded = false;
+            userShip.isFiring = false;
+        }
 
         if (gameEnding){
             stage.alpha = Math.max(stage.alpha-0.005, 0);
@@ -358,7 +349,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                         }
                         endGame(slayer);
                     }
-                    else if (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id){
+                    else if (model2 && (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id)){
                         gameData.incrementKills();
                     }
                 }
@@ -457,6 +448,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     function setStageSize(){
         var width = window.innerWidth;
         var height = window.innerHeight;
+        var userData = gameData.userPlayer.data;
 
         window.paddingX = (width-gameData.width)/2;
         window.paddingY = (height-gameData.height)/2;
@@ -464,10 +456,8 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         stage.canvas.width = background.canvas.width = width;
         stage.canvas.height = background.canvas.height = height;
 
-        var userData = gameData.userPlayer.data;
-
-        gameData.offsetX =   backgroundImage.x = window.paddingX + (gameData.width/2 - userData.posX);
-        gameData.offsetY =   backgroundImage.y = window.paddingY + (gameData.height/2 - userData.posY);
+        gameData.offsetX = backgroundImage.x = window.paddingX + (gameData.width/2 - userData.posX);
+        gameData.offsetY = backgroundImage.y = window.paddingY + (gameData.height/2 - userData.posY);
 
         overlay.x = PADDING;
         overlay.y = PADDING;

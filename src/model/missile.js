@@ -26,7 +26,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         },
 
         hasExceededMaxDistance : function(){
-            return Sprite.getHypotenuse(data.velocityX, data.velocityY) * (this.created-this.lastUpdated) > this.maxDistance;
+            var combinedVelocity =  Sprite.getHypotenuse(this.data.velocityX, this.data.velocityY)
+            return  combinedVelocity * (this.lastUpdated-this.created)/1000 > this.maxDistance;
         }
 
     });

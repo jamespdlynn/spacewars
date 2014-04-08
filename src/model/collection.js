@@ -69,7 +69,8 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
             return this.models[index];
         },
 
-        get : function(id){
+        get : function(obj){
+            var id = (typeof obj === 'object') ? obj.id : obj;
             return this.map[id];
         },
 

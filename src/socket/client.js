@@ -122,7 +122,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 case "Missile":
                     if (!initialized) return;
 
-                    var missile = gameData.missiles.get(dataObj.id);
+                    var missile = gameData.missiles.get(dataObj);
 
                     //New missile
                     if (!missile){

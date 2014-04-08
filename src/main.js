@@ -104,6 +104,7 @@ require(['view/modals','view/game','socket/client', 'model/constants','model/gam
 
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
+            document.getElementById("version").hide();
         });
 
         gameData.on(Constants.Events.GAME_END, function(){

@@ -15,7 +15,7 @@ define(['createjs','view/sprite'],function(createjs, Sprite){
         initialize : function(){
             Bitmap.prototype.initialize.call(this);
 
-            this.alpha = 0.3;
+
             this.mouseEnabled = false;
         },
 
@@ -26,6 +26,8 @@ define(['createjs','view/sprite'],function(createjs, Sprite){
             this.regX = this.image.width/2;
             this.regY = this.image.height/2;
             this.scaleX = this.scaleY = model.get("scale");
+
+            this.alpha = this.model.get("key").indexOf("nebula") >= 0 ? 0.5 : 0.3;
         }
     });
 

@@ -3,7 +3,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
     var MAX_PLANETS = 3;
     var PARTIAL_PLAYER_SIZE = 12;
-    var PARTIAL_MISSILE_SIZE = 6;
+    var PARTIAL_MISSILE_SIZE = 5;
 
     /**
      * @constructor
@@ -162,7 +162,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             player = this.model.players.get(player);
 
             if (!player){
-                throw new Error("Cannot update player, as it does not belong to zone");
+                return;
             }
 
             if (dataObj.isAccelerating && !player.canAccelerate()) dataObj.isAccelerating = false;
@@ -184,8 +184,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         explodeSprite : function(sprite){
-             if (this.remove(sprite, false)){
-                 this._sendToAll("Collision", {sprite1:sprite}, 2);
+             if (this.removeSprite(sprite, false)){
+                 this._sendToAll("Collision", {
+                     sprite1:{type:sprite.type,id:sprite.id,explode:true}
+                 }, 3);
              }
         },
 
@@ -204,7 +206,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 data.sprite2.explode = this._collide(sprite2, sprite1Clone);
 
                 //send the collision data objects to the clients
-                this._sendToAll("Collision", data, 7);
+                this._sendToAll("Collision", data, 6);
 
                 return true;
             }
@@ -390,7 +392,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         _collide : function(sprite1, sprite2){
             //If collision results in explosion, remove sprite
             if (sprite1.collide(sprite2)){
-                this.remove(sprite1, false);
+                this.removeSprite(sprite1, false);
                 return true;
             }
 

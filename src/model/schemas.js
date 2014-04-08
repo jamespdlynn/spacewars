@@ -21,7 +21,7 @@ define(['model/constants'],function(Constants){
            posY : {type:"float", byteLength:2, precision:1},
            velocityX : {type:"float", byteLength:2, precision:1},
            velocityY : {type:"float", byteLength: 2, precision:1},
-           angle : {type:"float", byteLength:2, precision:2},
+           angle : {type:"float", byteLength:2, precision:4},
            isAccelerating : "boolean",
            isShielded : "boolean",
            isInvulnerable : "boolean",
@@ -50,7 +50,7 @@ define(['model/constants'],function(Constants){
         },
 
        PlayerUpdate : {
-           angle :  {type:"float", byteLength:2, precision:2},
+           angle :  {type:"float", byteLength:2, precision:4},
            isAccelerating : "boolean",
            isShielded : "boolean",
            isFiring : "boolean",

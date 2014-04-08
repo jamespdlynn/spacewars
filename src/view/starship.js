@@ -2,15 +2,16 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
     'use strict';
 
     var ANGLE_STEP = 300/Constants.FPS;
+    var Container =  createjs.Container;
 
     var StarShip = function(){};
-    StarShip.prototype = new createjs.Container();
+    StarShip.prototype = new Container();
 
     extend.call(StarShip.prototype, Sprite.prototype, {
 
         initialize : function(){
 
-            createjs.Container.prototype.initialize.call(this);
+           Container.prototype.initialize.call(this);
 
             var width = Constants.Player.width;
             var height = Constants.Player.height;

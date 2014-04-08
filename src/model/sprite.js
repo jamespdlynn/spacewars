@@ -188,8 +188,10 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
                 return 0;
             }
 
-            var deltaX = sprite.data.posX - this.data.posX;
-            var deltaY = sprite.data.posY - this.data.posY;
+            var data = this.zoneAdjustedPosition(sprite.get("zone"));
+
+            var deltaX = data.posX - this.data.posX;
+            var deltaY = data.posY - this.data.posY;
 
             return Sprite.getHypotenuse(deltaX, deltaY);
         },

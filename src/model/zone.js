@@ -24,6 +24,9 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
         },
 
         get : function(data){
+
+            if (!data) return null;
+
             switch (data.type){
                 case "Player":
                     return this.players.get(data.id);
@@ -80,6 +83,10 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             this.players.reset();
             this.missiles.reset();
             this.planets.reset();
+
+            this.players.off();
+            this.missiles.off();
+            this.planets.off();
         },
 
         toString : function(){

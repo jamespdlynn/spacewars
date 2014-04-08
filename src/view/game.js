@@ -93,12 +93,12 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             gameData.planets.on("add", addSprite);
             gameData.planets.on("remove", removeSprite);
 
-            i= missiles.length;
+            i= gameData.missiles.length;
             while (i--) addSprite(gameData.missiles.models[i]);
             gameData.missiles.on("add", addSprite);
             gameData.missiles.on("remove", removeSprite);
 
-            i= players.length;
+            i= gameData.players.length;
             while (i--) addSprite(gameData.players.models[i]);
             gameData.players.on("add", addSprite);
             gameData.players.on("remove", removeSprite);
@@ -165,7 +165,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function addSprite(model){
 
-        if (model.equals(gameData.userPlayer) return null;
+        if (model.equals(gameData.userPlayer)) return null;
 
         var sprite;
 
@@ -178,7 +178,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             case "Player":
                 sprite = sprites[model.toString()] = new EnemyShip(model);
                 stage.addChildAt(sprite, 0);
-                overlay.radar.addMark(sprite);
+                overlay.radar.addMark(model);
                 break;
 
             case "Missile":
@@ -203,7 +203,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 break;
             case "Player":
                 stage.removeChild(sprite);
-                overlay.radar.removeMark(sprite);
+                overlay.radar.removeMark(model);
                 break;
             case "Missile":
                 stage.removeChild(sprite);
@@ -315,7 +315,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         if (model1){
 
-            if ((explode1 && (explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
+            if ((explode1 && (!model2 || explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
             {
 
                 var model;

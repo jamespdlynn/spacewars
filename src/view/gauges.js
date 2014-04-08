@@ -4,7 +4,7 @@ define(['createjs','model/game'],function(createjs, gameData){
     var GAUGE_WIDTH = 200;
     var GAUGE_HEIGHT = 24;
     var ICON_SIZE = 24;
-    var GAUGE_PADDING = 1;
+    var GAUGE_PADDING = 10;
     var Container = createjs.Container;
 
     var Gauges = function (){
@@ -35,39 +35,26 @@ define(['createjs','model/game'],function(createjs, gameData){
         initialize : function(){
             Container.prototype.initialize.call(this);
 
-            this.fuelIcon.x = 0;
-            this.fuelIcon.y = 0;
+            this.fuelBackground.x = this.fuelFill.x =  this.shieldsBackground.x = this.shieldsFill.x = this.shieldsWarning.x = ICON_SIZE*+GAUGE_PADDING;
+            this.fuelBackground.alpha = this.fuelFill.alpha =  this.shieldsBackground.alpha = this.shieldsFill.alpha = this.shieldsWarning.alpha = 0.8;
+            this.fuelBackground.skewX = this.fuelFill.skewX =  this.shieldsFill.skewX = this.shieldsWarning.skewX = ICON_SIZE;
 
-            this.fuelBackground.x = this.fuelFill.x = ICON_SIZE*1.75;
-            this.fuelBackground.y = this.fuelFill.y = GAUGE_PADDING;
-            this.fuelBackground.alpha = this.fuelFill.alpha = 0.8;
-            this.fuelBackground.skewX = this.fuelFill.skewX = ICON_SIZE;
+            this.shieldsIcon.y = this.shieldsBackground.y = this.shieldsFill.y = this.shieldsWarning.y = ICON_SIZE+GAUGE_PADDING;
 
             this.fuelBackground.graphics.beginFill("rgba(255,255,255,0.7)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
-                                            .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
+                                        .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
             this.fuelBackground.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
 
-
-            this.shieldsIcon.x = this.fuelBackground.x + GAUGE_WIDTH + ICON_SIZE;
-            this.shieldsIcon.y = 0;
-
-            this.shieldsBackground.x =  this.shieldsFill.x = this.shieldsWarning.x = this.shieldsIcon.x+(ICON_SIZE*1.75);
-            this.shieldsBackground.y =  this.shieldsFill.y = this.shieldsWarning.y = GAUGE_PADDING;
-            this.shieldsBackground.alpha = this.shieldsFill.alpha =  this.shieldsWarning.alpha = 0.8;
-            this.shieldsBackground.skewX = this.shieldsFill.skewX = this.shieldsWarning.skewX = ICON_SIZE;
-
-            this.shieldsBackground.graphics.beginFill("rgba(255,255,255,0.7)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
-                .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
-            this.shieldsBackground.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
+            this.shieldsBackground.cacheCanvas = this.fuelBackground.cacheCanvas;
 
             this.shieldsWarning.graphics.beginFill("#C00000").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
-                .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
+                                        .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
             this.shieldsWarning.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
             this.shieldsWarning.visible = false;
 
             this.addChild(this.fuelBackground, this.fuelFill, this.shieldsBackground, this.shieldsFill, this.shieldsWarning, this.shieldsIcon, this.fuelIcon);
 
-            this.setBounds(0, 0, GAUGE_WIDTH, ICON_SIZE);
+            this.setBounds(0, 0, ICON_SIZE+GAUGE_PADDING+GAUGE_WIDTH, (ICON_SIZE*2)+GAUGE_PADDING);
         },
 
         _tick : function(){

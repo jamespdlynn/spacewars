@@ -13,11 +13,8 @@
     extend.call(Explosion.prototype, {
 
         initialize : function(){
-             this.model.set({velocityX:0, velocityY:0});
-
              this.scaleX  = ((this.model.getRadius()*2)+20)/FRAME_SIZE;
              this.scaleY =  ((this.model.getRadius()*2)+20)/FRAME_SIZE;
-             this.alpha = 0.95;
 
              var spriteSheet = new createjs.SpriteSheet({
                  images: [preloader.getResult("explosionSprites")],

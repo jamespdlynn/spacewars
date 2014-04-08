@@ -62,7 +62,11 @@ require.config({
 
     window.oncontextmenu = function(){
         return false;
-    }
+    };
+
+    window.toDegrees = function(angle){
+        return (angle*(180/Math.PI));
+    };
 })();
 
 

@@ -38,7 +38,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 preloader.loadManifest(manifest);
 
                 window.getRelativeVolume = function(sprite){
-                    return userShip && userShip.model ? Math.max(1-(userShip.model.getDistance(sprite)/Constants.Zone.width), 0) : 0;
+                    return userShip && userShip.model ? Math.max(1-(userShip.model.getDistance(sprite)/gameData.width), 0) : 0;
                 };
 
                 window.playRelativeSound = function(sound, sprite){
@@ -307,68 +307,70 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     function onCollision(data){
 
-        var explode1 = data.sprite1 && data.sprite1.explode;
-        var explode2 = data.sprite2 && data.sprite2.explode;
+        var survived1 = data.sprite1 && data.sprite1.survived;
+        var survived2 = data.sprite2 && data.sprite2.survived;
 
-        var model1 = explode1 ? gameData.remove(data.sprite1) : gameData.get(data.sprite1);
-        var model2 = explode2 ? gameData.remove(data.sprite2) : gameData.get(data.sprite2);
+        var model1 = survived1 ? gameData.get(data.sprite1) : gameData.remove(data.sprite1);
+        var model2 = survived2 ? gameData.get(data.sprite1) : gameData.remove(data.sprite2);
 
-        if (model1){
-
-            if ((explode1 && (!model2 || explode2 || model1.type === "Player")) || (explode2 && model2.type === "Player"))
-            {
-
-                var model;
-
-                if (!model2 || model1.height > model2.height){
-                    model = model1.clone();
-                }
-                else if (model2.height > model1.height){
-                    model = model2.clone();
-                }
-                else{
-                    model = model1.clone();
-                    model.set(model1.averagePosition(model2));
-                }
-
-                var explosion = new Explosion(model);
-
-                stage.addChildAt(explosion);
-                playRelativeSound('explosionSound', model);
-
-                explosion.addEventListener("animationend", function(){
-                    explosion.removeEventListener("animationend");
-                    stage.removeChild(explosion);
-                });
-
-                var slayer;
-                if (explode1 && model1.type === 'Player'){
-                    if (userShip.model.equals(model1)){
-                        if (model2){
-                            slayer = (model2.type === 'Player') ? gameData.players.get(model2.id) : gameData.players.get(model2.get("playerId"));
-                        }
-                        endGame(slayer);
-                    }
-                    else if (model2 && (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id)){
-                        gameData.incrementKills();
-                    }
-                }
-
-                if (explode2 && model2.type === 'Player'){
-                    if (userShip.model.equals(model2)){
-                        slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
-                        endGame(slayer);
-                    }
-                    else if (userShip.model.equals(model1) || model1.get("playerId") === userShip.model.id){
-                        gameData.incrementKills();
-                    }
-                }
-            }
-            else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
-                playRelativeSound("collideSound", model);
-            }
-
+        if (!model1){
+            if (!model2) return;
+            model1 = model2;
         }
+
+        if ((!survived1 && !survied2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
+        {
+
+            var model, explosion, slayer;
+
+            if (!model2 || model1.height > model2.height){
+                model = model1;
+            }
+            else if (model2.height > model1.height){
+                model = model2;
+            }
+            else{
+                model = model1;
+                model.set(model1.averagePosition(model2));
+            }
+
+            model.set({velocityX:0, velocityY:0});
+
+            explosion = new Explosion(model);
+
+            stage.addChildAt(explosion);
+            playRelativeSound('explosionSound', model);
+
+            explosion.addEventListener("animationend", function(){
+                explosion.removeEventListener("animationend");
+                stage.removeChild(explosion);
+            });
+
+            slayer = null;
+            if (!survied1 && model1.type === 'Player'){
+                if (userShip.model.equals(model1)){
+                    if (model2) slayer = (model2.type === 'Player') ? gameData.players.get(model2.id) : gameData.players.get(model2.get("playerId"));
+                    endGame(slayer);
+                }
+                else if (model2 && (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id)){
+                    gameData.incrementKills();
+                }
+            }
+
+            if (!survived2 && model2 && model2.type === 'Player'){
+                if (userShip.model.equals(model2)){
+                    slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
+                    endGame(slayer);
+                }
+                else if (userShip.model.equals(model1) || model1.get("playerId") === userShip.model.id){
+                    gameData.incrementKills();
+                }
+            }
+        }
+        else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
+            playRelativeSound("collideSound", model);
+        }
+
     }
 
     function endGame(slayer){

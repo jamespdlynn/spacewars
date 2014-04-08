@@ -45,18 +45,22 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
     extend.call(ServerZone.prototype, {
 
-        addSprite : function(sprite, place){
+        /**
+         * Add a new sprite to zone
+         * @param {object} sprite The sprite model to add
+         */
+        addSprite : function(sprite){
             if (sprite.type === "Player"){
-                this.addPlayer(sprite, place);
+                this.addPlayer(sprite);
             }else if (sprite.type === "Missile"){
                 this.addMissile(sprite);
             }
         },
 
         /**
-         * Add a new player zone
+         * Add a new player to zone
          * @param {object} player The player model to add
-         * @param {boolean} place Boolean flag indicating whether the zone should manually place this player
+         * @param {boolean} [place=false] Boolean flag indicating whether the zone should manually place this player
          */
         addPlayer : function(player, place){
 
@@ -106,7 +110,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         /**
          * Removes a sprite or missile from the zone
          * @param {object} sprite Either a player or missile model
-         * @param {boolean} send Flag that indicates whether send this remove to clients
+         * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
          */
         removeSprite : function(sprite, send){
             if (sprite.type === "Player"){
@@ -121,7 +125,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         /**
          * Removes the given player from the zone
          * @param {(object|number)} player Player model or id to remove
-         * @param {boolean} [send] Flag that indicates whether send this remove to clients
+         * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
          */
         removePlayer : function(player, send){
             if (player = this.model.players.remove(player)){
@@ -184,10 +188,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         explodeSprite : function(sprite){
-             if (this.removeSprite(sprite, false)){
+             if (this.removeSprite(sprite)){
                  this._sendToAll("Collision", {
-                     sprite1:{type:sprite.type,id:sprite.id,explode:true}
-                 }, 3);
+                     sprite1:{type:sprite.type,id:sprite}
+                 }, 2);
              }
         },
 
@@ -202,8 +206,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
-                data.sprite1.explode = this._collide(sprite1, sprite2);
-                data.sprite2.explode = this._collide(sprite2, sprite1Clone);
+                data.sprite1.surived = !this._collide(sprite1, sprite2);
+                data.sprite2.survived = !this._collide(sprite2, sprite1Clone);
 
                 //send the collision data objects to the clients
                 this._sendToAll("Collision", data, 6);
@@ -242,7 +246,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                     break;
             }
 
-            this.removeSprite(sprite, false);  //Remove sprite from this zone
+            this.removeSprite(sprite);  //Remove sprite from this zone
 
             //Send sprite removal to clients of all adjacent zones that aren't shared with the new zone
             var i = this.adjacentZones.length;
@@ -254,7 +258,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 }
             }
 
-            newZone.addSprite(sprite, false);  //Add sprite to new zone
+            newZone.addSprite(sprite);  //Add sprite to new zone
 
             return true;
         },
@@ -392,7 +396,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         _collide : function(sprite1, sprite2){
             //If collision results in explosion, remove sprite
             if (sprite1.collide(sprite2)){
-                this.removeSprite(sprite1, false);
+                this.removeSprite(sprite1);
                 return true;
             }
 

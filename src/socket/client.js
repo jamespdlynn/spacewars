@@ -202,9 +202,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 var missile = missiles[i];
                 if(missile.data.playerId === gameData.playerId){
                     userMissiles.push(missile.clone().update(deltaTime));
-
-                }
-                else{
+                }else{
                     enemyMissiles.push(missile.clone().update(deltaTime));
                 }
             }
@@ -279,7 +277,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
         function sendOutOfBounds(sprite){
             var outOfBounds = {
-               zone : sprite.get("zone"),
+               zone : sprite.data.zone,
                type : sprite.type,
                id : sprite.id
             };

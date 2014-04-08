@@ -81,6 +81,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
             var data = this.model.data;
             var angle  = this.hasOwnProperty('angle') ? toDegrees(this.angle) : toDegrees(data.angle);
+            angle += 90;
 
             if (this.rotation != angle){
                 var deltaAngle = angleDiff(this.rotation, angle);
@@ -146,9 +147,6 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
         }
     });
 
-    function toDegrees(angle){
-        return (angle*(180/Math.PI)) + 90;
-    }
 
     //Calculates the delta between two angles
     function angleDiff(angle1, angle2){

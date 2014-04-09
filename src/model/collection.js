@@ -92,9 +92,6 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                     }
                 }
 
-                console.log(data.length);
-                console.log(models.length);
-
                 if (options.remove){
 
                     for (i = 0; i < this.length; i++){

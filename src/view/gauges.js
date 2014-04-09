@@ -1,10 +1,10 @@
 define(['createjs','model/game'],function(createjs, gameData){
     'use strict';
 
-    var GAUGE_WIDTH = 200;
+    var GAUGE_WIDTH = 220;
     var GAUGE_HEIGHT = 24;
     var ICON_SIZE = 24;
-    var GAUGE_PADDING = 10;
+    var GAUGE_PADDING = 15;
     var Container = createjs.Container;
 
     var Gauges = function (){
@@ -35,9 +35,9 @@ define(['createjs','model/game'],function(createjs, gameData){
         initialize : function(){
             Container.prototype.initialize.call(this);
 
-            this.fuelBackground.x = this.fuelFill.x =  this.shieldsBackground.x = this.shieldsFill.x = this.shieldsWarning.x = ICON_SIZE*+GAUGE_PADDING;
+            this.fuelBackground.x = this.fuelFill.x =  this.shieldsBackground.x = this.shieldsFill.x = this.shieldsWarning.x = ICON_SIZE*1.75;
             this.fuelBackground.alpha = this.fuelFill.alpha =  this.shieldsBackground.alpha = this.shieldsFill.alpha = this.shieldsWarning.alpha = 0.8;
-            this.fuelBackground.skewX = this.fuelFill.skewX =  this.shieldsFill.skewX = this.shieldsWarning.skewX = ICON_SIZE;
+            this.fuelBackground.skewX = this.fuelFill.skewX =  this.shieldsBackground.skewX = this.shieldsFill.skewX = this.shieldsWarning.skewX = ICON_SIZE;
 
             this.shieldsIcon.y = this.shieldsBackground.y = this.shieldsFill.y = this.shieldsWarning.y = ICON_SIZE+GAUGE_PADDING;
 

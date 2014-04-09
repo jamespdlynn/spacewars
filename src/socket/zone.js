@@ -104,6 +104,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             this._sendMissile(missile);
 
+            console.log(missile.toJSON());
+
             return missile;
         },
 
@@ -190,7 +192,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
                  this._sendToAll("Collision", {
-                     sprite1:{type:sprite.type,id:sprite}
+                     sprite1:{type:sprite.type,id:sprite.id}
                  }, 2);
              }
         },
@@ -210,7 +212,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 data.sprite2.survived = !this._collide(sprite2, sprite1Clone);
 
                 //send the collision data objects to the clients
+
+                console.log("SEND");
                 this._sendToAll("Collision", data, 6);
+                console.log("SENT");
 
                 return true;
             }

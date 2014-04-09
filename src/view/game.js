@@ -223,10 +223,10 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var updateBackground = false;
 
         var scrollSpeed = 500/Constants.FPS;
-        var padding = userShip.model.width;
+        var padding = gameData.userPlayer.width;
 
-        var velocityX = userShip.model.get("velocityX")/ Constants.FPS;
-        var velocityY = userShip.model.get("velocityY")/ Constants.FPS;
+        var velocityX = gameData.userPlayer.get("velocityX")/ Constants.FPS;
+        var velocityY = gameData.userPlayer.get("velocityY")/ Constants.FPS;
 
         game.style.cursor = "crosshair";
 
@@ -318,7 +318,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             model1 = model2;
         }
 
-        if ((!survived1 && !survied2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
+        if ((!survived1 && !survived2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
         {
 
             var model, explosion, slayer;
@@ -347,22 +347,22 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             });
 
             slayer = null;
-            if (!survied1 && model1.type === 'Player'){
-                if (userShip.model.equals(model1)){
+            if (!survived1 && model1.type === 'Player'){
+                if (gameData.userPlayer.equals(model1)){
                     if (model2) slayer = (model2.type === 'Player') ? gameData.players.get(model2.id) : gameData.players.get(model2.get("playerId"));
                     endGame(slayer);
                 }
-                else if (model2 && (userShip.model.equals(model2) || model2.get("playerId") === userShip.model.id)){
+                else if (model2 && (gameData.userPlayer.equals(model2) || model2.get("playerId") === userShip.model.id)){
                     gameData.incrementKills();
                 }
             }
 
             if (!survived2 && model2 && model2.type === 'Player'){
-                if (userShip.model.equals(model2)){
+                if (gameData.userPlayer.equals(model2)){
                     slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
                     endGame(slayer);
                 }
-                else if (userShip.model.equals(model1) || model1.get("playerId") === userShip.model.id){
+                else if (gameData.userPlayer.equals(model1) || model1.get("playerId") === gameData.userPlayer.id){
                     gameData.incrementKills();
                 }
             }
@@ -381,7 +381,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     //Canvas Event Listeners
     function onMouseDown(evt){
-        if (userShip){
+        if (userShip.model){
             var which = evt.nativeEvent.which;
             if (which == 1 && userShip.model.canAccelerate()){
                 userShip.isAccelerating = true;
@@ -394,7 +394,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function onMouseUp(evt){
-        if (userShip){
+        if (userShip.model){
             var which = evt.nativeEvent.which;
             if (which == 1){
                 userShip.isAccelerating= false;
@@ -406,7 +406,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function onMouseMove(evt){
-        if (userShip){
+        if (userShip.model){
             var deltaX = (evt.stageX + stage.regX - userShip.x);
             var deltaY = (evt.stageY + stage.regY - userShip.y);
 
@@ -417,20 +417,20 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function onKeyDown(evt){
-        if (userShip && evt.keyCode == 32){
+        if (userShip.model && evt.keyCode == 32){
             userShip.isFiring = true;
             triggerUpdate();
         }
     }
 
     function onKeyUp(evt){
-        if (userShip && evt.keyCode == 32){
+        if (userShip.model && evt.keyCode == 32){
             userShip.isFiring = false;
         }
     }
 
     function triggerUpdate(){
-        if (userShip && !document.isHidden()){
+        if (userShip.model&& !document.isHidden()){
 
             if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
             if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;

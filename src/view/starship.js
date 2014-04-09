@@ -57,7 +57,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
             Sprite.prototype.setModel.call(this, model);
 
-            this.rotation = toDegrees(model.get("angle"));
+            this.rotation = Math.toDegrees(model.get("angle")) + 90;
 
             if (model.get("isShielded")){
                 this.shield.alpha = 1;
@@ -80,7 +80,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             Sprite.prototype._tick.call(this);
 
             var data = this.model.data;
-            var angle  = this.hasOwnProperty('angle') ? toDegrees(this.angle) : toDegrees(data.angle);
+            var angle  = this.hasOwnProperty('angle') ? Math.toDegrees(this.angle) : Math.toDegrees(data.angle);
             angle += 90;
 
             if (this.rotation != angle){

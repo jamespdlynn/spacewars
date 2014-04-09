@@ -64,8 +64,14 @@ require.config({
         return false;
     };
 
-    window.toDegrees = function(angle){
+    Math.toDegrees = function(angle){
         return (angle*(180/Math.PI));
+    };
+
+    Math.getDistance = function(x1, y1, x2, y2){
+        var dx = x2 - x1;
+        var dy = y2 - y1;
+        return Math.sqrt((dx*dx)+(dy+dy));
     };
 })();
 

@@ -75,13 +75,10 @@ define(['createjs','view/Sprite','model/constants','model/game'],function(create
         setModel : function(model){
             Sprite.prototype.setModel.call(this, model);
             this.cacheCanvas = (model.get("playerId") === gameData.userPlayer.id) ? userMissileBody : enemyMissieBody;
-            this.rotation = toDegrees(model.get("angle"));
+            this.rotation = Math.toDegrees(model.get("angle")) + 90;
         }
     });
 
-    function toDegrees(angle){
-        return (angle*(180/Math.PI)) + 90;
-    }
 
     return Missile;
 });

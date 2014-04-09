@@ -4,24 +4,25 @@ define(function(){
 
     return {
        WORLD_SIZE : 16,
-       FPS : 60,
+
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
        //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        ASSETS_URL : "/assets/",
+       FPS : 60,
+       SCROLL_SPEED : 750,
 
        Zone : {
            width : 1280,
-           height : 960,
-           padding : 10
+           height : 960
        },
 
        Planet : {
-           width : 530,
-           height : 530,
-           minScale :  0.5
+           width : 600,
+           height : 600,
+           minScale : 0.5
        },
 
        Player : {

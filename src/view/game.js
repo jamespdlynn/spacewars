@@ -5,7 +5,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     var PADDING = 15;
 
     var initialized, autorun, gameEnding, updateTimeout, scrollSpeed, diagnolScrollSpeed, scrollX, scrollY, isCentering;
-    var background, backgroundImage, canvas, stage, overlay, userShip, sprites,
+    var background, backgroundImage, canvas, stage, overlay, userShip, sprites;
 
     var GameView = {
 
@@ -126,7 +126,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             gameData.trigger(Constants.Events.GAME_START);
 
             scrollSpeed = Constants.SCROLL_SPEED/Constants.FPS;
-            diagnolScrollSpeed = Math.sqrt((scrollSpeed*scrollSpped)/2);
+            diagnolScrollSpeed = Math.sqrt((scrollSpeed*scrollSpeed)/2);
             scrollX = 0;
             scrollY = 0;
             isCentering = false;
@@ -233,7 +233,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         var radius = gameData.userPlayer.getRadius();
 
         //If user is off screen, then center
-        if (!isCentering && (userData.posX+radius < -PADDING || userData.posX-radius > window.innerWidth+PADDING || userData.posY-radius < -PADDING || userData.posY+radius > window.innerHeight+PADDING){
+        if (!isCentering && (userShip.x+radius < 0 || userShip.x-radius > window.innerWidth || userShip.y+radius < 0 || userShip.y-radius > window.innerHeight)){
             isCentering = true;
         }
 
@@ -245,7 +245,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             if (distance > scrollSpeed){
                 var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
                 scrollX = Math.cos(angle) * scrollSpeed;
-                scrollY = Math.sin(angle) * scrollSpped;
+                scrollY = Math.sin(angle) * scrollSpeed;
             }else{
                 gameData.offsetX = centerX;
                 gameData.offsetY = centerY;
@@ -254,14 +254,22 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             }
         }
 
-        if (scrollX && (gameData.offsetX+scrollX < gameData.width) && (gameData.offsetX+scrollX > -gameData.width + (2*window.paddingX))){
+        if ((scrollX > 0 && userShip.x+scrollX < window.innerWidth && gameData.offsetX+scrollX < gameData.width) ||
+            (scrollX < 0 && userShip.x+scrollX >= 0 && gameData.offsetX+scrollX >= -gameData.width + (2*window.paddingX)))
+        {
             gameData.offsetX += scrollX;
             updateBackground = true;
+        }else{
+            scrollX = 0;
         }
 
-        if (scrollY && (gameData.offsetY+scrollY < gameData.height) && (gameData.offsetY+scrollY > -gameData.height + (2*window.paddingY)){
+        if ((scrollY > 0 && userShip.y+scrollY < window.innerHeight  && gameData.offsetY+scrollY < gameData.height) ||
+            (scrollY < 0 && userShip.y+scrollY >= 0 && gameData.offsetY+scrollY >= -gameData.height + (2*window.paddingY)))
+        {
             gameData.offsetY += scrollY;
             updateBackground = true;
+        }else{
+            scrollY = 0;
         }
 
 
@@ -342,8 +350,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 model.set(model1.averagePosition(model2));
             }
 
-            model.set({velocityX:0, velocityY:0});
-
             explosion = new Explosion(model);
 
             stage.addChildAt(explosion);
@@ -367,7 +373,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
             if (!survived2 && model2 && model2.type === 'Player'){
                 if (gameData.userPlayer.equals(model2)){
-                    slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
+                     slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
                     endGame(slayer);
                 }
                 else if (gameData.userPlayer.equals(model1) || model1.get("playerId") === gameData.userPlayer.id){
@@ -389,27 +395,26 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
     //Canvas Event Listeners
     function onMouseDown(evt){
-        if (userShip.model){
-            var which = evt.nativeEvent.which;
-            if (which == 1 && userShip.model.canAccelerate()){
-                userShip.isAccelerating = true;
-                triggerUpdate();
-            }else if (which == 3 && userShip.model.canShield()){
-                userShip.isShielded = true;
-                triggerUpdate();
-            }
+        if (!userShip.model) return;
+
+        var which = evt.nativeEvent.which;
+        if (which == 1 && userShip.model.canAccelerate()){
+            userShip.isAccelerating = true;
+            triggerUpdate();
+        }else if (which == 3 && userShip.model.canShield()){
+            userShip.isShielded = true;
+            triggerUpdate();
         }
     }
 
     function onMouseUp(evt){
-        if (userShip.model){
-            var which = evt.nativeEvent.which;
-            if (which == 1){
-                userShip.isAccelerating= false;
-            }else if (which == 3){
-                userShip.isShielded = false;
-            }
+        if (!userShip.model) return;
 
+        var which = evt.nativeEvent.which;
+        if (which == 1){
+            userShip.isAccelerating= false;
+        }else if (which == 3){
+            userShip.isShielded = false;
         }
     }
 
@@ -457,7 +462,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 canvas.style.cursor = "s-resize";
             }
         }
-        else if (evt.stageX < PADDING)){
+        else if (evt.stageX < PADDING){
             scrollX = scrollSpeed;
             scrollY = 0;
             canvas.style.cursor = "w-resize";
@@ -475,9 +480,13 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     }
 
     function onKeyDown(evt){
-        if (userShip.model && evt.keyCode == 32){
+        if (!userShip.model) return;
+
+        if (evt.keyCode == 32){
             userShip.isFiring = true;
             triggerUpdate();
+        }else if (evt.keyCode == 67){
+            isCentering = true;
         }
     }
 

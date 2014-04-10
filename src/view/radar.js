@@ -39,7 +39,6 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
             this.userMark.model = gameData.userPlayer;
             this.userMark.graphics.beginFill("rgb(0,154,0)").drawCircle(0, 0, 4);
             this.userMark.shadow = new createjs.Shadow("rgb(0,154,0)", 0, 0, 1);
-            this.userMark.regX = this.userMark.regY = 5;
             this.userMark.cache(-5, -5, 10, 10);
 
             this.enemyMark = new Shape();
@@ -54,7 +53,6 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
             var mark = new Shape();
             mark.cacheCanvas = this.enemyMark.cacheCanvas;
             mark.model = model;
-            mark.regX = mark.regY = 5;
             this.addChild(mark);
         },
 
@@ -72,9 +70,10 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
             this.revealer.rotation += this.rotationStep;
             this.revealer.rotation %= 360;
 
-            var centerX = gameData.offsetX + window.paddingX + (gameData.width/2);
-            var centerY = gameData.offsetY + window.paddingY + (gameData.height/2);
+            var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
+            var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
             var divider = gameData.width * 2 / RADIUS;
+
 
             var i = this.children.length;
             while (--i > 1){
@@ -83,6 +82,7 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
                 mark.x =  (data.posX - centerX) / divider;
                 mark.y = (data.posY - centerY) / divider;
 
+
                 if (mark !== this.userMark){
                     var angle = Math.toDegrees(Math.atan2(mark.y, mark.x));
                     if (angle < 0) angle += 360;
@@ -90,7 +90,7 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
                     if (angle >= this.revealer.rotation && angle <= this.revealer.rotation+45){
                         mark.alpha = 1;
                     }else{
-                        mark.alpha -= 1/360/this.rotationStep;
+                        mark.alpha -= 1/(315/this.rotationStep);
                     }
                 }
 

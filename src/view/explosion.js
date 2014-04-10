@@ -23,14 +23,9 @@
                  framerate: 24
              });
 
-             createjs.Sprite.prototype.initialize.call(this, spriteSheet, "play")
-        },
-
-        _tick : function(evt){
-             Sprite.prototype._tick.call(this, evt);
-             createjs.Sprite.prototype._tick.call(this, evt);
+             createjs.Sprite.prototype.initialize.call(this, spriteSheet, "play");
+             Sprite.prototype._tick.call(this);
         }
-
     });
 
     return Explosion;

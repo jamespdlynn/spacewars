@@ -12,7 +12,7 @@ define(function(){
        //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        ASSETS_URL : "/assets/",
        FPS : 60,
-       SCROLL_SPEED : 750,
+       SCROLL_SPEED : 650,
 
        Zone : {
            width : 1280,

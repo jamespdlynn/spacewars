@@ -11,12 +11,18 @@ define(['model/constants','model/game'],function(Constants,gameData){
 
         _tick : function(){
             var data = this.model.update().zoneAdjustedPosition(gameData.zone);
-            var radius = this.model.getRadius();
 
             this.x = data.posX + gameData.offsetX;
             this.y = data.posY + gameData.offsetY;
 
-            this.visible = this.x >= -radius && this.y >= -radius && this.x <= window.innerWidth+radius && this.y <= window.innerHeight+radius;
+            this.visible = !this.outOfScreenBounds();
+        },
+
+        outOfScreenBounds : function(){
+            if (!this.model) return false;
+
+            var radius = this.model.getRadius();
+            return this.x < -radius || this.y < -radius || this.x >= window.innerWidth+radius || this.y >= window.innerHeight+radius;
         },
 
         destroy : function(){

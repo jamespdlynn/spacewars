@@ -74,15 +74,15 @@ define(['model/constants'],function(Constants){
                type:"object", schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8",
-                   explode : {type:"boolean", default:"true"}
+                   survived : "boolean"
                }
 
            },
            sprite2 : {
-               type:"object", allowNull: true, schema:{
+               type:"object", schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
                    id : "uint8",
-                   explode : {type:"boolean", default:"true"}
+                   survived : "boolean"
                }
            },
            zone : "uint8"

@@ -31,6 +31,6 @@ define(function(){
         {id:"saturn", src:"saturn.png"},
         {id:"neptune", src:"neptune.png"},
         {id:"green", src:"green.png"},
-        {id:"purple", src:"purple.png"},
+        {id:"purple", src:"purple.png"}
     ];
 });

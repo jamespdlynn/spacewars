@@ -20,7 +20,7 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
 
             this.alpha = 0.8;
             this.regX = this.regY = -RADIUS;
-            this.rotationStep = 360 * (1000/ROTATION_TIME/Constants.FPS);
+
 
             this.background = new Shape();
             this.background.graphics.beginStroke("#74AC52").beginFill("#294C22").drawCircle(0, 0, RADIUS).endFill()
@@ -66,16 +66,17 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
             }
         },
 
-        _tick : function(){
-            this.revealer.rotation += this.rotationStep;
-            this.revealer.rotation %= 360;
+        _tick : function(evt){
 
+            var rotationStep = 360 * (ROTATION_TIME * (evt.delta/1000));
             var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
             var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
             var divider = gameData.width * 2 / RADIUS;
-
-
             var i = this.children.length;
+
+            this.revealer.rotation += rotationStep;
+            this.revealer.rotation %= 360;
+
             while (--i > 1){
                 var mark = this.getChildAt(i);
                 var data = mark.model.zoneAdjustedPosition(gameData.zone);
@@ -90,7 +91,7 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
                     if (angle >= this.revealer.rotation && angle <= this.revealer.rotation+45){
                         mark.alpha = 1;
                     }else{
-                        mark.alpha -= 1/(315/this.rotationStep);
+                        mark.alpha -= 1/315/rotationStep;
                     }
                 }
 

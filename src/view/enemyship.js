@@ -1,9 +1,7 @@
 define(['createjs','view/starship','model/constants'],function(createjs,StarShip, Constants){
     'use strict';
 
-    var Container = createjs.Container,
-        Shape = createjs.Shape;
-
+    var Container = createjs.Container;
     var enemyShipBody;
 
     (function(){
@@ -131,11 +129,12 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
         initialize : function(){
             StarShip.prototype.initialize.call(this);
 
-            this.nameLabel = new createjs.Text("", "7.5pt Arkitech", "#fff");
-            this.nameLabel.y = (Constants.Player.height/2)+16;
-            this.nameLabel.alpha = 0.9;
+            this.nameLabel = new createjs.Text("", "8pt Arkitech", "#fff");
+            this.nameLabel.alpha = 0.95;
 
-            this.flame2.x = -14;
+            this.flame1.y += 1;
+            this.flame2.x += 1;
+            this.flame2.y += 1;
 
             this.addChild(this.nameLabel);
         },
@@ -150,12 +149,10 @@ define(['createjs','view/starship','model/constants'],function(createjs,StarShip
 
             this.labelWidth = this.labelWidth || this.nameLabel.getMeasuredWidth();
 
-            this.nameLabel.scaleX = 1/this.scaleX;
-            this.nameLabel.scaleY = 1/this.scaleY;
-            this.nameLabel.x = -(this.labelWidth/2)  * this.nameLabel.scaleX;
-
             if (!this.nameLabel.cacheCanvas && this.labelWidth){
-                this.nameLabel.cache(0, 0, this.labelWidth, this.nameLabel.getMeasuredLineHeight());
+                this.nameLabel.x = -(this.labelWidth/2);
+                this.nameLabel.y = (Constants.Player.height/2)+8;
+                this.nameLabel.cache(-1, -1, this.labelWidth+2, this.nameLabel.getMeasuredLineHeight()+2);
             }
         }
     });

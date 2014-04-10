@@ -1,7 +1,7 @@
 define(['createjs','view/sprite','model/constants','model/game'],function(createjs, Sprite, Constants,gameData){
     'use strict';
 
-    var ANGLE_STEP = 300/Constants.FPS;
+    var ROTATION_RATE = 300;
     var Container =  createjs.Container;
 
     var StarShip = function(){};
@@ -24,7 +24,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             this.shipBody.y = -height/2;
 
             this.flame1 = new createjs.Sprite(this.exhaustSprites, "play");
-            this.flame1.x = -0;
+            this.flame1.x = 0;
             this.flame1.y = (height/2)-10;
             this.flame1.visible = false;
 
@@ -77,19 +77,20 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
         _tick : function(evt){
 
-            Sprite.prototype._tick.call(this);
+            Sprite.prototype._tick.call(this,evt);
 
             var data = this.model.data;
             var angle  = this.hasOwnProperty('angle') ? Math.toDegrees(this.angle) : Math.toDegrees(data.angle);
             angle += 90;
 
             if (this.rotation != angle){
+                var angleStep = ROTATION_RATE*(evt.delta/1000);
                 var deltaAngle = angleDiff(this.rotation, angle);
-                if (deltaAngle > ANGLE_STEP){
-                    if (angleDiff(this.rotation+ANGLE_STEP, angle) < deltaAngle){
-                       this.rotation += ANGLE_STEP;
+                if (deltaAngle > angleStep){
+                    if (angleDiff(this.rotation+angleStep, angle) < deltaAngle){
+                       this.rotation += angleStep;
                     }else{
-                       this.rotation -= ANGLE_STEP;
+                       this.rotation -= angleStep;
                     }
                 }else{
                     this.rotation = angle;

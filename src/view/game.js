@@ -1,11 +1,11 @@
-define(['createjs','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+define(['createjs','view/background','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
+function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
     'use strict';
 
     var PADDING = 15;
 
-    var initialized, autorun, gameEnding, updateTimeout, scrollSpeed, diagnolScrollSpeed, scrollX, scrollY, isCentering;
-    var background, backgroundImage, canvas, stage, overlay, userShip, sprites;
+    var initialized, autorun, gameEnding, updateTimeout, scrollDirection;
+    var background, canvas, stage, overlay, userShip, sprites;
 
     var GameView = {
 
@@ -37,20 +37,21 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
                 preloader.installPlugin(createjs.Sound);
                 preloader.loadManifest(manifest);
 
-                window.getRelativeVolume = function(sprite){
-                    return userShip && userShip.model ? Math.max(1-(userShip.model.getDistance(sprite)/gameData.width), 0) : 0;
+                window.getRelativeVolume = function(model){
+                    if (!gameData.userPlayer) return 0;
+                    return Math.max(1-(gameData.userPlayer.getDistance(model)/gameData.width*2), 0);
                 };
 
-                window.playRelativeSound = function(sound, sprite){
+                window.playRelativeSound = function(sound, model){
                     if (typeof sound === 'string'){
-                        createjs.Sound.play(sound, {volume:getRelativeVolume(sprite)});
+                        createjs.Sound.play(sound, {volume:getRelativeVolume(model)});
                     }else{
-                        sound.play({volume:getRelativeVolume(sprite)});
+                        sound.play({volume:getRelativeVolume(model)});
                     }
                 };
 
-                window.setRelativeVolume = function(sound, sprite){
-                    sound.setVolume(getRelativeVolume(sprite));
+                window.setRelativeVolume = function(sound, model){
+                    sound.setVolume(getRelativeVolume(model));
                 };
 
 
@@ -77,10 +78,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             background.removeAllChildren();
             sprites = {};
 
-            backgroundImage = new createjs.Shape();
-            backgroundImage.graphics.beginBitmapFill(preloader.getResult('background')).drawRect(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
-            backgroundImage.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
-            background.addChild(backgroundImage);
+            background.addChild(new BackgrondImage());
 
             userShip = new UserShip(gameData.userPlayer);
             stage.addChild(userShip);
@@ -125,11 +123,7 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             GameView.isRunning = true;
             gameData.trigger(Constants.Events.GAME_START);
 
-            scrollSpeed = Constants.SCROLL_SPEED/Constants.FPS;
-            diagnolScrollSpeed = Math.sqrt((scrollSpeed*scrollSpeed)/2);
-            scrollX = 0;
-            scrollY = 0;
-            isCentering = false;
+            scrollDirection = null;
 
             game.style.cursor = "crosshair";
         },
@@ -229,77 +223,108 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
     function onTick(evt){
 
         var updateBackground = false;
-        var userData = gameData.userPlayer.data;
-        var radius = gameData.userPlayer.getRadius();
-
-        //If user is off screen, then center
-        if (!isCentering && (userShip.x+radius < 0 || userShip.x-radius > window.innerWidth || userShip.y+radius < 0 || userShip.y-radius > window.innerHeight)){
-            isCentering = true;
-        }
-
-        if (isCentering){
-            var centerX = window.paddingX + (gameData.width/2 - userData.posX);
-            var centerY = window.paddingY + (gameData.height/2 - userData.posY);
-            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
-
-            if (distance > scrollSpeed){
-                var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
-                scrollX = Math.cos(angle) * scrollSpeed;
-                scrollY = Math.sin(angle) * scrollSpeed;
-            }else{
-                gameData.offsetX = centerX;
-                gameData.offsetY = centerY;
-                scrollX = scrollY = 0;
-                isCentering = false;
-            }
-        }
-
-        if ((scrollX > 0 && userShip.x+scrollX < window.innerWidth && gameData.offsetX+scrollX < gameData.width) ||
-            (scrollX < 0 && userShip.x+scrollX >= 0 && gameData.offsetX+scrollX >= -gameData.width + (2*window.paddingX)))
-        {
-            gameData.offsetX += scrollX;
-            updateBackground = true;
-        }else{
-            scrollX = 0;
-        }
-
-        if ((scrollY > 0 && userShip.y+scrollY < window.innerHeight  && gameData.offsetY+scrollY < gameData.height) ||
-            (scrollY < 0 && userShip.y+scrollY >= 0 && gameData.offsetY+scrollY >= -gameData.height + (2*window.paddingY)))
-        {
-            gameData.offsetY += scrollY;
-            updateBackground = true;
-        }else{
-            scrollY = 0;
-        }
-
-
-        if (!stage.mouseInBounds){
-            userShip.isAccelerating = false;
-            userShip.isShielded = false;
-            userShip.isFiring = false;
-        }
 
         if (gameEnding){
-
-            var change = 0.3/Constants.FPS;
+            var change = 0.3 * (evt.delta/1000);
 
             stage.alpha -= change;
             background.alpha -= change;
             createjs.Sound.setVolume(createjs.Sound.getVolume()-change);
-            updateBackground = true;
 
-            if (stage.alpha < change && GameView.isRunning){
+            background.update(evt);
+            stage.update(evt);
+
+            if (stage.alpha <= change && GameView.isRunning){
                 gameData.trigger(Constants.Events.GAME_END);
             }
         }
+        else{
+            var userData = gameData.userPlayer.data;
 
-        if (updateBackground){
-            backgroundImage.x = gameData.offsetX;
-            backgroundImage.y = gameData.offsetY;
-            background.update(evt);
+            //If user is off screen, then center
+            if (!scrollDirection && userShip.outOfScreenBounds()){
+                scrollDirection = "center";
+            }
+
+            if (scrollDirection){
+                var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
+
+                //Different scoll speed for topleft,topright,bottomleft,bottomright
+                if (scrollDirection.length > 6){
+                    scrollSpeed = Math.sqrt((scrollSpeed*scrollSpeed)/2);
+                }
+
+                if (scrollDirection == "center"){
+                    var centerX = window.paddingX + (gameData.width/2 - userData.posX);
+                    var centerY = window.paddingY + (gameData.height/2 - userData.posY);
+                    var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
+
+                    if (distance > scrollSpeed){
+                        var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
+                        gameData.offsetX += Math.cos(angle) * scrollSpeed;
+                        gameData.offsetY += Math.sin(angle) * scrollSpeed;
+                    }else{
+                        gameData.offsetX = centerX;
+                        gameData.offsetY = centerY;
+                        scrollX = scrollY = 0;
+                        scrollDirection = null;
+                    }
+                }
+                else{
+
+                    var scrollX = 0
+                    var scrollY = 0;
+
+                    if (scrollDirection.indexOf("left") >= 0){
+                        scrollX = scrollSpeed;
+
+                        if (userShip.x+scrollX >= window.innerWidth || gameData.offsetX+scrollX >= gameData.width){
+                            scrollX = 0;
+                            scrollDirection = null;
+                        }
+                    }
+                    else if (scrollDirection.indexOf("right") >= 0){
+                        scrollX = -scrollSpeed;
+
+                        if (userShip.x+scrollX < 0 || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
+                            scrollX = 0;
+                            scrollDirection = null;
+                        }
+                    }
+
+                    if (scrollDirection.indexOf("top") >= 0){
+                        scrollY = scrollSpeed;
+
+                        if (userShip.y+scrollY >= window.innerHeight ||  gameData.offsetY+scrollY >= gameData.height){
+                            scrollY = 0;
+                            scrollDirection = null;
+                        }
+                    }
+                    else if (scrollDirection.indexOf("bottom") >= 0){
+                        scrollY = -scrollSpeed
+
+                        if (userShip.y+scrollY < 0 ||  gameData.offsetY+scrollY < 0 -gameData.height (2*window.paddingY)){
+                            scrollY = 0;
+                            scrollDirection = null;
+                        }
+                    }
+
+                    gameData.offsetX += scrollX;
+                    gameData.offsetY += scrollY;
+                }
+
+                background.update(evt);
+            }
+
+            if (!stage.mouseInBounds){
+                userShip.isAccelerating = false;
+                userShip.isShielded = false;
+                userShip.isFiring = false;
+            }
+
+            stage.update(evt);
         }
 
-        stage.update(evt);
     }
 
     function onZoneChange(data){
@@ -317,8 +342,6 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
 
         gameData.offsetX += (gameData.width*colDiff);
         gameData.offsetY += (gameData.height*rowDiff);
-
-
     }
 
     function onCollision(data){
@@ -429,52 +452,43 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
             userShip.angle = Math.atan2(deltaY, deltaX);
         }
 
-        if (isCentering){
+        if (scrollDirection === "center"){
             game.style.cursor = "crosshair";
         }
         else if (evt.stageY < PADDING){
             if (evt.stageX < PADDING){
-                scrollX = diagnolScrollSpeed;
-                scrollY = diagnolScrollSpeed;
+                scrollDirection = "topleft"
                 canvas.style.cursor = "nw-resize";
             }else if (evt.stageX > window.innerWidth-PADDING){
-                scrollX = -diagnolScrollSpeed;
-                scrollY = diagnolScrollSpeed;
+                scrollDirection = "topright";
                 canvas.style.cursor = "ne-resize";
             }else{
-                scrollX = 0;
-                scrollY = scrollSpeed;
+                scrollDirection = "top";
                 canvas.style.cursor = "n-resize";
             }
         }
         else if (evt.stageY >= window.innerHeight-PADDING){
             if (evt.stageX < PADDING){
-                scrollX = diagnolScrollSpeed;
-                scrollY = -diagnolScrollSpeed;
+                scrollDirection = "bottomleft"
                 canvas.style.cursor = "sw-resize";
             }else if (evt.stageX > window.innerWidth-PADDING){
-                scrollX = -diagnolScrollSpeed;
-                scrollY = -diagnolScrollSpeed;
+                scrollDirection = "bottomright"
                 canvas.style.cursor = "se-resize";
             }else{
-                scrollX = 0;
-                scrollY = -scrollSpeed;
+                scrollDirection = "bottom"
                 canvas.style.cursor = "s-resize";
             }
         }
         else if (evt.stageX < PADDING){
-            scrollX = scrollSpeed;
-            scrollY = 0;
+            scrollDirection = "left"
             canvas.style.cursor = "w-resize";
         }
         else if (evt.stageX > window.innerWidth-PADDING){
-            scrollX = -scrollSpeed;
-            scrollY = 0;
+            scrollDirection = "right"
             canvas.style.cursor = "e-resize";
         }
         else{
-            scrollX = 0;
-            scrollY = 0;
+            scrollDirection = null;
             game.style.cursor = "crosshair";
         }
     }
@@ -525,8 +539,8 @@ function(createjs, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Con
         stage.canvas.width = background.canvas.width = width;
         stage.canvas.height = background.canvas.height = height;
 
-        gameData.offsetX = backgroundImage.x = window.paddingX + (gameData.width/2 - userData.posX);
-        gameData.offsetY = backgroundImage.y = window.paddingY + (gameData.height/2 - userData.posY);
+        gameData.offsetX = window.paddingX + (gameData.width/2 - userData.posX);
+        gameData.offsetY = window.paddingY + (gameData.height/2 - userData.posY);
 
         overlay.x = PADDING;
         overlay.y = PADDING;

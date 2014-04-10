@@ -1,11 +1,11 @@
 define(['createjs','view/background','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
     'use strict';
 
     var PADDING = 15;
 
     var initialized, autorun, gameEnding, updateTimeout, scrollDirection;
-    var background, canvas, stage, overlay, userShip, sprites;
+    var background, canvas, stage, overlay, userShip, sprites, updateBackground;
 
     var GameView = {
 
@@ -14,45 +14,45 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
         //Set up Game View
         initialize : function(){
 
-                initialized = false;
+            initialized = false;
 
-                background = new createjs.Stage("background");
-                background.enableDOMEvents(false);
-                background.mouseChildren = false;
+            background = new createjs.Stage("background");
+            background.enableDOMEvents(false);
+            background.mouseChildren = false;
 
-                stage = new createjs.Stage("game");
-                stage.enableDOMEvents(false);
-                stage.mouseChildren = false;
+            stage = new createjs.Stage("game");
+            stage.enableDOMEvents(false);
+            stage.mouseChildren = false;
 
-                canvas = document.getElementById("game");
+            canvas = document.getElementById("game");
 
-                window.preloader = new createjs.LoadQueue(false, Constants.ASSETS_URL);
-                preloader.addEventListener("complete", function(){
-                    initialized = true;
-                    if (autorun) GameView.run();
-                });
+            window.preloader = new createjs.LoadQueue(false, Constants.ASSETS_URL);
+            preloader.addEventListener("complete", function(){
+                initialized = true;
+                if (autorun) GameView.run();
+            });
 
-                createjs.Sound.alternateExtensions = ["mp3"];
+            createjs.Sound.alternateExtensions = ["mp3"];
 
-                preloader.installPlugin(createjs.Sound);
-                preloader.loadManifest(manifest);
+            preloader.installPlugin(createjs.Sound);
+            preloader.loadManifest(manifest);
 
-                window.getRelativeVolume = function(model){
-                    if (!gameData.userPlayer) return 0;
-                    return Math.max(1-(gameData.userPlayer.getDistance(model)/gameData.width*2), 0);
-                };
+            window.getRelativeVolume = function(model){
+                if (!gameData.userPlayer) return 0;
+                return Math.max(1-(gameData.userPlayer.getDistance(model)/gameData.width*2), 0);
+            };
 
-                window.playRelativeSound = function(sound, model){
-                    if (typeof sound === 'string'){
-                        createjs.Sound.play(sound, {volume:getRelativeVolume(model)});
-                    }else{
-                        sound.play({volume:getRelativeVolume(model)});
-                    }
-                };
+            window.playRelativeSound = function(sound, model){
+                if (typeof sound === 'string'){
+                    createjs.Sound.play(sound, {volume:getRelativeVolume(model)});
+                }else{
+                    sound.play({volume:getRelativeVolume(model)});
+                }
+            };
 
-                window.setRelativeVolume = function(sound, model){
-                    sound.setVolume(getRelativeVolume(model));
-                };
+            window.setRelativeVolume = function(sound, model){
+                sound.setVolume(getRelativeVolume(model));
+            };
 
 
         },
@@ -78,7 +78,7 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
             background.removeAllChildren();
             sprites = {};
 
-            background.addChild(new BackgrondImage());
+            background.addChild(new BackgroundImage());
 
             userShip = new UserShip(gameData.userPlayer);
             stage.addChild(userShip);
@@ -222,8 +222,6 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
     //Game Loop
     function onTick(evt){
 
-        var updateBackground = false;
-
         if (gameEnding){
             var change = 0.3 * (evt.delta/1000);
 
@@ -231,22 +229,29 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
             background.alpha -= change;
             createjs.Sound.setVolume(createjs.Sound.getVolume()-change);
 
-            background.update(evt);
-            stage.update(evt);
+            updateBackground = true;
 
             if (stage.alpha <= change && GameView.isRunning){
                 gameData.trigger(Constants.Events.GAME_END);
+                return;
             }
         }
         else{
             var userData = gameData.userPlayer.data;
 
-            //If user is off screen, then center
-            if (!scrollDirection && userShip.outOfScreenBounds()){
+            if (!stage.mouseInBounds){
+                userShip.isAccelerating = false;
+                userShip.isShielded = false;
+                userShip.isFiring = false;
+                scrollDirection = "center";
+            }
+            else if (!scrollDirection && userShip.outOfScreenBounds()){
                 scrollDirection = "center";
             }
 
             if (scrollDirection){
+                updateBackground = true;
+
                 var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
 
                 //Different scoll speed for topleft,topright,bottomleft,bottomright
@@ -303,7 +308,7 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
                     else if (scrollDirection.indexOf("bottom") >= 0){
                         scrollY = -scrollSpeed
 
-                        if (userShip.y+scrollY < 0 ||  gameData.offsetY+scrollY < 0 -gameData.height (2*window.paddingY)){
+                        if (userShip.y+scrollY < 0 ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
                             scrollY = 0;
                             scrollDirection = null;
                         }
@@ -313,17 +318,20 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
                     gameData.offsetY += scrollY;
                 }
 
-                background.update(evt);
+
             }
 
-            if (!stage.mouseInBounds){
-                userShip.isAccelerating = false;
-                userShip.isShielded = false;
-                userShip.isFiring = false;
-            }
 
-            stage.update(evt);
+
+
         }
+
+        if (updateBackground){
+            background.update(evt);
+            updateBackground = false;
+        }
+
+        stage.update(evt);
 
     }
 
@@ -546,8 +554,7 @@ function(createjs, BackgoundImage, Overlay, Planet, UserShip, EnemyShip, Missile
         overlay.y = PADDING;
         overlay.setBounds(0, 0, width-(PADDING*2), height-(PADDING*2));
 
-        stage.update();
-        background.update();
+        updateBackground = true;
     }
 
 

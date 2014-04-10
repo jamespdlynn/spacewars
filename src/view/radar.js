@@ -1,4 +1,4 @@
-define(['createjs','model/game','model/constants'],function(createjs,gameData,Constants){
+define(['createjs','model/game'],function(createjs,gameData){
     'use strict';
 
     var RADIUS = 90;
@@ -68,7 +68,7 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
 
         _tick : function(evt){
 
-            var rotationStep = 360 * (ROTATION_TIME * (evt.delta/1000));
+            var rotationStep = 360 * (evt[0].delta/ROTATION_TIME);
             var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
             var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
             var divider = gameData.width * 2 / RADIUS;
@@ -91,10 +91,9 @@ define(['createjs','model/game','model/constants'],function(createjs,gameData,Co
                     if (angle >= this.revealer.rotation && angle <= this.revealer.rotation+45){
                         mark.alpha = 1;
                     }else{
-                        mark.alpha -= 1/315/rotationStep;
+                        mark.alpha -= 1/(315/rotationStep);
                     }
                 }
-
             }
 
 

@@ -84,7 +84,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             angle += 90;
 
             if (this.rotation != angle){
-                var angleStep = ROTATION_RATE*(evt.delta/1000);
+                var angleStep = ROTATION_RATE*(evt[0].delta/1000);
                 var deltaAngle = angleDiff(this.rotation, angle);
                 if (deltaAngle > angleStep){
                     if (angleDiff(this.rotation+angleStep, angle) < deltaAngle){

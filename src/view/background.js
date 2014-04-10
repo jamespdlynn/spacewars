@@ -1,4 +1,4 @@
-define(['createjs','model/gameData'],function(createjs, gameData){
+define(['createjs','model/game'],function(createjs, gameData){
     'use strict';
 
     var Shape = createjs.Shape;

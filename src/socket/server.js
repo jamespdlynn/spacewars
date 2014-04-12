@@ -181,21 +181,18 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
 
         //When the client terminated the websocket connections
         connection.on("close", function(){
+            if (initialized){
+                serverZones[player.get("zone")].removePlayer(player, true);
+            }
 
             clearTimeout(pingTimeout);
             delete playerMap[player.id];
             delete addressMap[remoteKey||""];
 
             connection.removeAllListeners();
-            player.connection = connection = undefined;
+            player = undefined;
+            connection = undefined;
             connectionCount--;
-
-            if (initialized){
-                setTimeout(function(){
-                    serverZones[player.get("zone")].removePlayer(player, true);
-                    player = undefined;
-                }, 2000);
-            }
         });
 
         //Get things going by creating an output stream and pinging the client

@@ -38,7 +38,7 @@ define(function(){
            shieldUseRate : 8,
            shieldRestoreRate : 4,
            shieldPadding : 12,
-           shieldHitDiscount : 40,
+           shieldHitDiscount : 50,
            shieldDownTime : 10000
        },
 

@@ -236,6 +236,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         }
         else{
             var userData = gameData.userPlayer.data;
+            var padding = PADDING*2;
 
             if (!stage.mouseInBounds){
                 userShip.isAccelerating = false;
@@ -243,7 +244,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                 userShip.isFiring = false;
                 scrollDirection = "center";
             }
-            else if (!scrollDirection && userShip.outOfScreenBounds()){
+            else if (userShip.x < padding || userShip.y < padding || userShip.x >= window.innerWidth-padding || userShip.y >= window.innerHeight-padding){
                 scrollDirection = "center";
             }
 
@@ -281,7 +282,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                     if (scrollDirection.indexOf("left") >= 0){
                         scrollX = scrollSpeed;
 
-                        if (userShip.x+scrollX >= window.innerWidth || gameData.offsetX+scrollX >= gameData.width){
+                        if (userShip.x+scrollX >= window.innerWidth-padding || gameData.offsetX+scrollX >= gameData.width){
                             scrollX = 0;
                             scrollDirection = null;
                         }
@@ -289,7 +290,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                     else if (scrollDirection.indexOf("right") >= 0){
                         scrollX = -scrollSpeed;
 
-                        if (userShip.x+scrollX < 0 || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
+                        if (userShip.x+scrollX < padding || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
                             scrollX = 0;
                             scrollDirection = null;
                         }
@@ -298,7 +299,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                     if (scrollDirection.indexOf("top") >= 0){
                         scrollY = scrollSpeed;
 
-                        if (userShip.y+scrollY >= window.innerHeight ||  gameData.offsetY+scrollY >= gameData.height){
+                        if (userShip.y+scrollY >= window.innerHeight-padding ||  gameData.offsetY+scrollY >= gameData.height){
                             scrollY = 0;
                             scrollDirection = null;
                         }
@@ -306,7 +307,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                     else if (scrollDirection.indexOf("bottom") >= 0){
                         scrollY = -scrollSpeed
 
-                        if (userShip.y+scrollY < 0 ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
+                        if (userShip.y+scrollY < padding ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
                             scrollY = 0;
                             scrollDirection = null;
                         }
@@ -453,6 +454,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         var deltaX = (evt.stageX - userShip.x);
         var deltaY = (evt.stageY - userShip.y);
         var radius = userShip.model.getRadius();
+        var padding = PADDING*3;
 
         if (Math.abs(deltaX) > radius || Math.abs(deltaY) > radius){
             userShip.angle = Math.atan2(deltaY, deltaX);
@@ -461,11 +463,11 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         if (scrollDirection === "center"){
             game.style.cursor = "crosshair";
         }
-        else if (evt.stageY < PADDING){
-            if (evt.stageX < PADDING){
+        else if (evt.stageY < padding){
+            if (evt.stageX < padding){
                 scrollDirection = "topleft"
                 canvas.style.cursor = "nw-resize";
-            }else if (evt.stageX > window.innerWidth-PADDING){
+            }else if (evt.stageX > window.innerWidth-padding){
                 scrollDirection = "topright";
                 canvas.style.cursor = "ne-resize";
             }else{
@@ -473,11 +475,11 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                 canvas.style.cursor = "n-resize";
             }
         }
-        else if (evt.stageY >= window.innerHeight-PADDING){
-            if (evt.stageX < PADDING){
+        else if (evt.stageY >= window.innerHeight-padding){
+            if (evt.stageX < padding){
                 scrollDirection = "bottomleft"
                 canvas.style.cursor = "sw-resize";
-            }else if (evt.stageX > window.innerWidth-PADDING){
+            }else if (evt.stageX > window.innerWidth-padding){
                 scrollDirection = "bottomright"
                 canvas.style.cursor = "se-resize";
             }else{
@@ -485,11 +487,11 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                 canvas.style.cursor = "s-resize";
             }
         }
-        else if (evt.stageX < PADDING){
+        else if (evt.stageX < padding){
             scrollDirection = "left"
             canvas.style.cursor = "w-resize";
         }
-        else if (evt.stageX > window.innerWidth-PADDING){
+        else if (evt.stageX > window.innerWidth-padding){
             scrollDirection = "right"
             canvas.style.cursor = "e-resize";
         }
@@ -506,7 +508,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             userShip.isFiring = true;
             triggerUpdate();
         }else if (evt.keyCode == 67){
-            isCentering = true;
+            scrollDirection = "center";
         }
     }
 

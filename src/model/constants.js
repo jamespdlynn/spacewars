@@ -12,7 +12,7 @@ define(function(){
        //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        ASSETS_URL : "/assets/",
        FPS : 60,
-       SCROLL_SPEED : 500,
+       SCROLL_SPEED : 600,
 
        Zone : {
            width : 1280,
@@ -20,8 +20,8 @@ define(function(){
        },
 
        Planet : {
-           width : 600,
-           height : 600,
+           width : 550,
+           height : 550,
            minScale : 0.5
        },
 
@@ -29,12 +29,12 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 320,
-           maxVelocity : 160,
+           acceleration : 300,
+           maxVelocity : 150,
            fireInterval : 750,
-           invulnerableTime : 1500,
+           invulnerableTime : 2000,
            fuelUseRate : 30,
-           fuelRestoreRate : 30,
+           fuelRestoreRate : 25,
            shieldUseRate : 8,
            shieldRestoreRate : 4,
            shieldPadding : 12,
@@ -47,7 +47,7 @@ define(function(){
            height : 18,
            mass : 50,
            velocity : 300,
-           maxDistance : 1600
+           maxDistance : 1200
        },
 
        Events : {

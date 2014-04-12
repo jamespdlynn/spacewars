@@ -14,19 +14,20 @@ var isProd = ('production' == app.get('env'));
 
 app.configure(function(){
 
-    var fs = require('fs');
+    if (!process.env.DEBUG){
+        var fs = require('fs');
 
-    var htmlPath = __dirname+'/public/index.html';
-    if (fs.existsSync(htmlPath)) fs.unlinkSync(htmlPath);
+        var htmlPath = __dirname+'/public/index.html';
+        if (fs.existsSync(htmlPath)) fs.unlinkSync(htmlPath);
 
-    var cssPath = __dirname+'/public/css/style.css';
-    if (fs.existsSync(cssPath)) fs.unlinkSync(cssPath);
+        var cssPath = __dirname+'/public/css/style.css';
+        if (fs.existsSync(cssPath)) fs.unlinkSync(cssPath);
 
-    var mainPath = isProd ? '/js/main-'+pkg.version: 'main';
-    require('jade').renderFile(__dirname+'/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
-        fs.writeFile(htmlPath, html);
-    });
-
+        var mainPath = isProd ? '/js/main-'+pkg.version: 'main';
+        require('jade').renderFile(__dirname+'/index.jade', {version:pkg.version, mainPath:mainPath}, function(error,html){
+            fs.writeFile(htmlPath, html);
+        });
+    }
     app.use(express.favicon());
 
     app.use(require('less-middleware')({

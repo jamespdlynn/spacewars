@@ -104,8 +104,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             this._sendMissile(missile);
 
-            console.log(missile.toJSON());
-
             return missile;
         },
 
@@ -208,14 +206,23 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
-                data.sprite1.surived = !this._collide(sprite1, sprite2);
-                data.sprite2.survived = !this._collide(sprite2, sprite1Clone);
+                data.sprite1.survived = !sprite1.collide(sprite2)
+                data.sprite2.survived = !sprite2.collide(sprite1Clone);
 
                 //send the collision data objects to the clients
+                this._sendToAll("Collision", data);
 
-                console.log("SEND");
-                this._sendToAll("Collision", data, 6);
-                console.log("SENT");
+                if (data.sprite1.survived){
+                    this._sendSprite(sprite1.update(100));
+                }else{
+                    this.removeSprite(sprite1);
+                }
+
+                if (data.sprite2.survived){
+                    this._sendSprite(sprite2.update(100));
+                }else{
+                    this.removeSprite(sprite2);
+                }
 
                 return true;
             }
@@ -274,8 +281,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         sendToAll : function(buffer){
             var players = this.model.players.models;
-            var i = players.length;
             var connection;
+            var i = players.length;
             while (i--){
                 if (connection = players[i].connection){
                     connection.out.write(buffer);
@@ -347,10 +354,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         _sendZoneData : function(player){
             if(!player.connection) return;
 
-            var gameData = this.model.toJSON();
+            var gameData = this.model.update().toJSON();
             var i = this.adjacentZones.length;
             while (i--){
-                this.adjacentZones[i].model.concat(gameData);
+                this.adjacentZones[i].model.update().concat(gameData);
             }
             gameData.playerId = player.id;
 
@@ -396,21 +403,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             }
 
             return true;
-        },
-
-        _collide : function(sprite1, sprite2){
-            //If collision results in explosion, remove sprite
-            if (sprite1.collide(sprite2)){
-                this.removeSprite(sprite1);
-                return true;
-            }
-
-            //Otherwise Fast forward sprite location to avoid multiple collisions and send the update data values to clients
-            this._sendSprite(sprite1.update(100));
-
-            return false;
         }
-
     });
 
 

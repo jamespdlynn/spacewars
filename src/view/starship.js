@@ -38,7 +38,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
                 .beginRadialGradientFill(["rgba(255,255,255,0.25)", getColorString(this.shieldColor, 0.25)], [0, 1], 40, 40, 5, 40, 40, 75)
                 .drawEllipse(-width/2-shieldPadding, -height/2-shieldPadding+2, width+(shieldPadding*2), height+(shieldPadding*2))
                 .endStroke();
-            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, 0, 6);
+            this.shield.shadow = new createjs.Shadow(getColorString(this.shieldColor, 1), 0, 0, 5);
             this.shield.cache(-width/2-shieldPadding-6, -height/2-shieldPadding-6, width+(shieldPadding*2)+12, height+(shieldPadding*2)+12);
 
             this.sparks = new createjs.Sprite(this.sparkSprites, "play");

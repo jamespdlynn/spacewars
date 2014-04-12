@@ -1,4 +1,4 @@
-define(['createjs','view/Sprite','model/constants','model/game'],function(createjs, Sprite, Constants, gameData){
+define(['createjs','view/sprite','model/constants','model/game'],function(createjs, Sprite, Constants, gameData){
     'use strict';
 
     var userMissileBody, enemyMissieBody;

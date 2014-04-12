@@ -47,6 +47,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 clearInterval(collisionInterval);
                 gameData.off(Constants.Events.PLAYER_UPDATE,onClientUpdate);
 
+                wsClient.removeAllListeners();
                 wsClient.close();
                 
                 wsClient = undefined;
@@ -81,11 +82,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
 
                 case "GameData" :
-
                     var zoneData = new Zone(dataObj).update(gameData.latency).toJSON();
                     zoneData.playerId = dataObj.playerId;
-
-                    console.log(zoneData);
 
                     gameData.set(zoneData,{easing:true, remove:true});
 
@@ -200,7 +198,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             i = missiles.length;
             while (i--){
                 var missile = missiles[i];
-                if(missile.data.playerId === gameData.playerId){
+                if(missile.data.playerId === gameData.userPlayer.id){
                     userMissiles.push(missile.clone().update(deltaTime));
                 }else{
                     enemyMissiles.push(missile.clone().update(deltaTime));

@@ -98,7 +98,6 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
                         model = this.at(i);
                         if (models.indexOf(model) == -1){
                             this.remove(model);
-                            console.log("Remove: "+model.id);
                         }
                     }
                 }

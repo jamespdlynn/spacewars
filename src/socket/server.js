@@ -5,7 +5,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
     var BinaryServer = binary.BinaryServer;
 
     //Constants
-    var PING_INTERVAL = 60000;
+    var PING_INTERVAL = 30000;
     var MAX_PINGS = 5;
     var NUM_ZONES = Constants.WORLD_SIZE * Constants.WORLD_SIZE;
     var MAX_PLAYER_ID =  Math.pow(2,8)-1;
@@ -97,7 +97,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
 
                         updated = false;
                         pingTimeout = setTimeout(function(){
-                            if (updated) ping(connection);
+                            if (updated || isDevelopment) ping(connection);
                             else connection.close();
                         }, PING_INTERVAL);
                     }
@@ -186,6 +186,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
             delete playerMap[player.id];
             delete addressMap[remoteKey||""];
 
+            connection.removeAllListeners();
             player.connection = connection = undefined;
             connectionCount--;
 
@@ -195,7 +196,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","model/player","m
                     player = undefined;
                 }, 2000);
             }
-
         });
 
         //Get things going by creating an output stream and pinging the client

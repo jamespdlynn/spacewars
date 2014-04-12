@@ -1,20 +1,23 @@
- define(['createjs','view/sprite'],function(createjs, Sprite){
+ define(['createjs','model/sprite','view/sprite'],function(createjs, SpriteModel, SpriteView){
      'use strict';
 
     var FRAME_SIZE = 96;
 
     var Explosion = function (model){
-        this.model = model;
+        this.model = new SpriteModel(model.data);
+        this.model.mass = model.mass;
         this.initialize();
     };
 
     Explosion.prototype = new createjs.Sprite();
 
-    extend.call(Explosion.prototype, {
+    extend.call(Explosion.prototype, SpriteView.prototype, {
 
         initialize : function(){
-             this.scaleX  = ((this.model.getRadius()*2)+20)/FRAME_SIZE;
-             this.scaleY =  ((this.model.getRadius()*2)+20)/FRAME_SIZE;
+            this.scaleX = this.scaleY = (this.model.mass/100);
+
+            var volume = getRelativeVolume(this.model);
+            createjs.Sound.play('explosionSound', {volume:volume*this.scaleX});
 
              var spriteSheet = new createjs.SpriteSheet({
                  images: [preloader.getResult("explosionSprites")],
@@ -24,7 +27,12 @@
              });
 
              createjs.Sprite.prototype.initialize.call(this, spriteSheet, "play");
-             Sprite.prototype._tick.call(this);
+
+        },
+
+        _tick : function(evt){
+            SpriteView.prototype._tick.call(this,evt);
+            createjs.Sprite.prototype._tick.call(this,evt);
         }
     });
 

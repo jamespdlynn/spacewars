@@ -37,14 +37,14 @@ define(['createjs','model/game'],function(createjs,gameData){
 
             this.userMark = new Shape();
             this.userMark.model = gameData.userPlayer;
-            this.userMark.graphics.beginFill("rgb(0,154,0)").drawCircle(0, 0, 4);
-            this.userMark.shadow = new createjs.Shadow("rgb(0,154,0)", 0, 0, 1);
-            this.userMark.cache(-5, -5, 10, 10);
+            this.userMark.graphics.beginFill("#3076C2").drawCircle(0,0,4.5);
+            this.userMark.shadow = new createjs.Shadow("#3076C2", 0, 0, 2);
+            this.userMark.cache(-6, -6, 12, 12);
 
             this.enemyMark = new Shape();
-            this.enemyMark.graphics.beginFill("rgb(200,0,0)").drawCircle(0, 0, 4);
-            this.enemyMark.shadow = new createjs.Shadow("rgb(200,0,0)", 0, 0, 1);
-            this.enemyMark.cache(-5, -5, 10, 10);
+            this.enemyMark.graphics.beginFill("rgb(200,0,0)").drawCircle(0,0,4.5);
+            this.enemyMark.shadow = new createjs.Shadow("rgb(200,0,0)", 0, 0, 2);
+            this.enemyMark.cache(-6, -6, 12, 12);
 
             this.addChild(this.background, this.revealer, this.userMark);
         },
@@ -79,10 +79,10 @@ define(['createjs','model/game'],function(createjs,gameData){
 
             while (--i > 1){
                 var mark = this.getChildAt(i);
+
                 var data = mark.model.zoneAdjustedPosition(gameData.zone);
                 mark.x =  (data.posX - centerX) / divider;
                 mark.y = (data.posY - centerY) / divider;
-
 
                 if (mark !== this.userMark){
                     var angle = Math.toDegrees(Math.atan2(mark.y, mark.x));

@@ -12,8 +12,8 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
         this.zoneLabel =  new createjs.Text("","16px Arkitech", "#fff");
         this.usernameLabel = new createjs.Text("","15px Arkitech", "#fff");
 
-        this.deathLabel = new createjs.Text("","bold 19px Helvetica", "#fff");
-        this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#fff");
+        this.deathLabel = new createjs.Text("","bold 19px Helvetica", "#FF0000");
+        this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#00FF00");
 
         this.deathIcon = new createjs.Bitmap(preloader.getResult('deathIcon'));
         this.killIcon = new createjs.Bitmap(preloader.getResult('killIcon'));

@@ -49,9 +49,7 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
                 this.zone = this.userPlayer.get("zone");
 
                 if (oldZone !== this.zone){
-                    console.log("NEW ZONE:" +this.zone);
                     this.trigger(Constants.Events.ZONE_CHANGED, {oldZone:oldZone, newZone:this.zone});
-
                 }
             }
 

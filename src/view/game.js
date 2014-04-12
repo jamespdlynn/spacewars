@@ -38,8 +38,12 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             preloader.loadManifest(manifest);
 
             window.getRelativeVolume = function(model){
-                if (!gameData.userPlayer) return 0;
-                return Math.max(1-(gameData.userPlayer.getDistance(model)/gameData.width*2), 0);
+                var distance = gameData.userPlayer.getDistance(model);
+                return Math.max(1-(distance/(Math.max(window.innerWidth,window.innerHeight))), 0);
+            };
+
+            window.setRelativeVolume = function(sound, model){
+                sound.setVolume(getRelativeVolume(model));
             };
 
             window.playRelativeSound = function(sound, model){
@@ -49,12 +53,6 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                     sound.play({volume:getRelativeVolume(model)});
                 }
             };
-
-            window.setRelativeVolume = function(sound, model){
-                sound.setVolume(getRelativeVolume(model));
-            };
-
-
         },
 
         run : function(){
@@ -358,7 +356,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         var survived2 = data.sprite2 && data.sprite2.survived;
 
         var model1 = survived1 ? gameData.get(data.sprite1) : gameData.remove(data.sprite1);
-        var model2 = survived2 ? gameData.get(data.sprite1) : gameData.remove(data.sprite2);
+        var model2 = survived2 ? gameData.get(data.sprite2) : gameData.remove(data.sprite2);
 
         if (!model1){
             if (!model2) return;
@@ -384,7 +382,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             explosion = new Explosion(model);
 
             stage.addChildAt(explosion);
-            playRelativeSound('explosionSound', model);
+
 
             explosion.addEventListener("animationend", function(){
                 explosion.removeEventListener("animationend");

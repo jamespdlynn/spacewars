@@ -21,7 +21,6 @@ define(['createjs','model/game'],function(createjs,gameData){
             this.alpha = 0.8;
             this.regX = this.regY = -RADIUS;
 
-
             this.background = new Shape();
             this.background.graphics.beginStroke("#74AC52").beginFill("#294C22").drawCircle(0, 0, RADIUS).endFill()
                                     .drawCircle(0, 0, RADIUS/3).drawCircle(0, 0, 2*RADIUS/3)
@@ -67,16 +66,15 @@ define(['createjs','model/game'],function(createjs,gameData){
         },
 
         _tick : function(evt){
-
             var rotationStep = 360 * (evt[0].delta/ROTATION_TIME);
             var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
             var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
             var divider = gameData.width * 2 / RADIUS;
-            var i = this.children.length;
 
             this.revealer.rotation += rotationStep;
             this.revealer.rotation %= 360;
 
+            var i = this.children.length;
             while (--i > 1){
                 var mark = this.getChildAt(i);
 

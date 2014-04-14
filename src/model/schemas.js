@@ -92,6 +92,10 @@ define(['model/constants'],function(Constants){
            zone : "uint8",
            type : {type:"enum", values:["Player","Missile","Planet"]},
            id : "uint8"
+       },
+
+       GameOver : {
+           slayer : {type:"object", schema:"Player", allowNull:true}
        }
    }
 });

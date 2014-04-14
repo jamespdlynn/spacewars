@@ -88,6 +88,6 @@ requirejs.config({
     nodeRequire : require
 });
 
-requirejs(["socket/server"], function(server){
+requirejs(["control/server"], function(server){
     server.run(httpServer , !isProd);
 });

@@ -77,7 +77,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  ModalsView.showModal(deathTpl);
 
                  if (gameData.slayer){
-                     document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer;
+                     document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer.get("username");
                  }
 
                  document.getElementById("total-kills").innerHTML = gameData.user.kills;

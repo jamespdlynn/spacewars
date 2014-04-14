@@ -107,6 +107,9 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
             gameData.on(Constants.Events.COLLISION, onCollision);
             gameData.on(Constants.Events.ZONE_CHANGED, onZoneChange);
+            gameData.off(Constants.Events.GAME_ENDING, function(){
+                gameEnding = true;
+            });
 
             updateTimeout = setTimeout(triggerUpdate, Constants.CLIENT_UPDATE_INTERVAL);
 
@@ -140,6 +143,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             gameData.off(Constants.Events.ZONE_CHANGED);
             gameData.off(Constants.Events.COLLISION);
             gameData.off(Constants.Events.USER_CHANGED);
+            gameData.off(Constants.Events.GAME_ENDING);
 
             document.onkeydown = undefined;
             document.onkeyup = undefined;
@@ -366,7 +370,6 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
         if ((!survived1 && !survived2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
         {
-
             var model, explosion, slayer;
 
             if (!model2 || model1.height > model2.height){
@@ -381,47 +384,18 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             }
 
             explosion = new Explosion(model);
-
-            stage.addChildAt(explosion);
-
-
             explosion.addEventListener("animationend", function(){
                 explosion.removeEventListener("animationend");
                 stage.removeChild(explosion);
             });
 
-            slayer = null;
-            if (!survived1 && model1.type === 'Player'){
-                if (gameData.userPlayer.equals(model1)){
-                    if (model2) slayer = (model2.type === 'Player') ? gameData.players.get(model2.id) : gameData.players.get(model2.get("playerId"));
-                    endGame(slayer);
-                }
-                else if (model2 && (gameData.userPlayer.equals(model2) || model2.get("playerId") === userShip.model.id)){
-                    gameData.incrementKills();
-                }
-            }
-
-            if (!survived2 && model2 && model2.type === 'Player'){
-                if (gameData.userPlayer.equals(model2)){
-                     slayer = (model1.type === 'Player') ? gameData.players.get(model1.id) : gameData.players.get(model1.get("playerId"));
-                    endGame(slayer);
-                }
-                else if (gameData.userPlayer.equals(model1) || model1.get("playerId") === gameData.userPlayer.id){
-                    gameData.incrementKills();
-                }
-            }
+            stage.addChild(explosion);
         }
         else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
             playRelativeSound("collideSound", model);
         }
-
     }
 
-    function endGame(slayer){
-        gameData.slayer = slayer ? slayer.get("username") : "";
-        gameData.incrementDeaths();
-        gameEnding = true;
-    }
 
     //Canvas Event Listeners
     function onMouseDown(evt){

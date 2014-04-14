@@ -12,7 +12,9 @@ require.config({
         'createjs' : 'vendor/easeljs-0.7.1.combined',
         'preloadjs' : 'vendor/preloadjs-0.4.1',
         'soundjs' : 'vendor/soundjs-0.5.2',
-        'tweenjs' : 'vendor/tweenjs-0.5.1'
+        'tweenjs' : 'vendor/tweenjs-0.5.1',
+
+        'graphics' : 'view/graphics'
     },
 
     shim : {
@@ -77,7 +79,7 @@ require.config({
 
 
 //Main require function
-require(['view/modals','view/game','socket/client', 'model/constants','model/game'],
+require(['view/modals','view/game','control/client', 'model/constants','model/game'],
     function( ModalsView, GameView, Client, Constants, gameData){
         'use strict';
 

@@ -4,6 +4,8 @@ define(function(){
 
     return {
        WORLD_SIZE : 16,
+       MAX_PLAYERS : 256,
+       MAX_MISSILES : 256,
 
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
@@ -55,6 +57,7 @@ define(function(){
            CONNECTED : "connected",
            DISCONNECTED : "disconnected",
            GAME_START : "gameStart",
+           GAME_ENDING : "gameEnding",
            GAME_END : "gameEnd",
            PLAYER_UPDATE : "playerUpdate",
            COLLISION : "collision",

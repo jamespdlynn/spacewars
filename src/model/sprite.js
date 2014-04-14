@@ -121,7 +121,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return this;
         },
 
-        updateData : function(deltaSeconds){
+        updateData : function(){
             return this;
         },
 
@@ -149,7 +149,8 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return Math.max(this.width,this.height)/2;
         },
 
-        collide : function(){
+        collide : function(sprite){
+            this.trigger(Constants.Events.COLLISION, sprite);
             return true;
         },
 

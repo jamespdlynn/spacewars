@@ -21,6 +21,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             angle : 0,
             fuel : 100,
             shields : 100,
+            kills : 0,
             isAccelerating : false,
             isInvulnerable : false,
             isShielded : false,
@@ -90,6 +91,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         collide : function(sprite){
+
+            Sprite.prototype.collide.call(this, sprite);
 
             if (!this.data.isShielded){
                 return true;
@@ -173,6 +176,11 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 playerId : data.id,
                 zone : data.zone
             };
+        },
+
+        incrementKills : function(){
+            this.set("kills",this.data.kills+1);
+            return this;
         }
 
     });

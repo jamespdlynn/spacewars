@@ -63,6 +63,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
             var dataObj = micro.toJSON(new Buffer(data));
             var type = dataObj._type;
+            var player;
 
             delete dataObj._type;
 
@@ -95,7 +96,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 case "Player":
                     if (!initialized) return;
 
-                    var player = gameData.players.get(dataObj.id);
+                    player = gameData.players.get(dataObj.id);
 
                     if (player){
                         dataObj = player.clone().set(dataObj).update(gameData.latency).toJSON();
@@ -108,12 +109,16 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "PlayerInfo":
                     if (!initialized) return;
-                    gameData.userPlayer.set(dataObj);
+                    player = gameData.userPlayer;
+                    player.set(dataObj);
+                    if (player.hasChanged("kills")){
+                        gameData.updateKills();
+                    }
                     break;
 
                 case "PlayerUpdate":
                     if (!initialized) return;
-                    var player =  gameData.players.get(dataObj.id);
+                    player =  gameData.players.get(dataObj.id);
                     if (player) player.set(dataObj);  //No need to ease on player update, as it contains only partial player data
                     break;
 
@@ -147,6 +152,12 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 case "RemoveSprite":
                     if (!initialized) return;
                     gameData.remove(dataObj);
+                    break;
+
+                case "GameOver":
+                    gameData.slayer = dataObj.slayer;
+                    gameData.incrementDeaths();
+                    gameData.trigger(Constants.Events.GAME_ENDING);
                     break;
 
                 default:

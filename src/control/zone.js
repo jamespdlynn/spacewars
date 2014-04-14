@@ -235,7 +235,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             while(i--){
                 var adjacentZone = this.adjacentZones[i];
                 if (adjacentZone !== newZone && newZone.adjacentZones.indexOf(adjacentZone) === -1){
-                    adjacentZone.sendToAll(buffer);
+                    adjacentZone.sendToZone(buffer);
                 }
             }
 

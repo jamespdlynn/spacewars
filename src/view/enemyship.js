@@ -1,4 +1,4 @@
-define(['createjs','view/ship','graphics/enemy-ship'],function(createjs,StarShip,enemyShipBody){
+define(['createjs','view/ship','graphics/darkship'],function(createjs,StarShip,enemyShipBody){
     'use strict';
 
     var EnemyShip = function (model){

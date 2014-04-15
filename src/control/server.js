@@ -98,8 +98,9 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
                 case "PlayerUpdate":
                     if (!initialized) break;
 
-                    pm.updatePlayer(data);
-                    updated = true;
+                    if(pm.updatePlayer(data)){
+                        updated = true;
+                    }
                     break;
 
                 case "Collision":

@@ -1,8 +1,8 @@
 define(['microjs','model/constants','model/player','model/missile'],function (micro, Constants, Player, Missile){
         'use strict';
 
-    var currentPlayerId= 0,currentMissileId=0;
-    var playerMap={},missileMap = {};
+    var currentPlayerId = 0, currentMissileId = 0;
+    var playerMap = {}, missileMap = {};
 
     var PlayerManager = function(connection,username){
         do{
@@ -15,6 +15,8 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         this.player.zone = null;
         this.player.on(Constants.Events.UPDATE, onPlayerUpdate);
         this.player.on(Constants.Events.COLLISION, onPlayerCollision);
+
+        this.reloadTimeout = null;
     };
 
 
@@ -22,7 +24,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         updatePlayer : function(dataObj){
 
-            if (!this.player || !this.player.zone) return;
+            if (!this.player || !this.player.zone) return null;
 
             if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
@@ -37,6 +39,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             //If player is accelerating then send the whole player model to clients, otherwise we can get away with just sending a 4 byte player update
             if ((this.player.get("isAccelerating") && this.player.hasChanged("angle")) || this.player.hasChanged("isAccelerating")){
                 zone.sendPlayer(this.player);
+                sendPlayerInfo.call(this.player);
             }else if (hasChanged){
                 zone.sendToAll("PlayerUpdate", this.player.toJSON());
             }
@@ -44,39 +47,19 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             if (dataObj.isFiring){
                 this._fireMissile();
             }
-        },
 
-        _fireMissile : function(){
-            do{
-                currentMissileId = (currentMissileId+1)%Constants.MAX_MISSILES;
-            } while (missileMap[''+currentMissileId]);
-
-
-            var missile = missileMap[''+currentMissileId] = new Missile({id:currentMissileId});
-            missile.set(this.player.fireMissile());
-            missile.player = this.player;
-
-            missile.on(Constants.Events.Collision, function(sprite){
-                missile.off();
-                delete missileMap[''+missile.id];
-
-                if (sprite && sprite.type === "Player"){
-                    missile.player.incrementKills().update();
-                }
-            });
-
-            this.player.zone.addMissile(missile);
+            return this.player;
         },
 
         destroy : function(){
             if (!this.player) return;
 
             var zone = this.player.zone;
-            if (zone){
-                zone.removePlayer(this.player);
-            }
+            if (zone) zone.removePlayer(this.player,true);
 
-            clearTimeout(this.player.timeout);
+            clearTimeout(this.reloadTimeout);
+            this.reloadTimeout = undefined;
+
             this.player.off();
             delete playerMap[''+this.player.id];
 
@@ -84,6 +67,36 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             this.player.zone = undefined;
             this.player.timeout = undefined;
             this.player = undefined;
+        },
+
+        _fireMissile : function(){
+            do{
+                currentMissileId = (currentMissileId+1)%Constants.MAX_MISSILES;
+            } while (missileMap[''+currentMissileId]);
+
+            var missile = missileMap[''+currentMissileId] = new Missile({id:currentMissileId});
+            missile.set(this.player.fireMissile());
+            missile.player = this.player;
+
+            missile.on(Constants.Events.Collision, function(sprite){
+                if (sprite && sprite.type === "Player"){
+                    missile.player.incrementKills();
+                    sendPlayerInfo.call(missile.player);
+                }
+
+                missile.off();
+                delete missileMap[''+missile.id];
+                missile.player = undefined;
+            });
+
+            this.player.zone.addMissile(missile);
+
+            var self = this;
+            clearTimeout(self.reloadTimeout);
+            self.reloadTimeout = setTimeout(function(){
+                self.player.reload();
+                sendPlayerInfo.call(self.player);
+            }, Constants.Player.reloadTime);
         }
 
     });
@@ -98,6 +111,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         if (this.get("isAccelerating") && !this.canAccelerate()){
             this.set("isAccelerating", false);
+            sendPlayerInfo.call(this);
         }
 
         if (this.get("shields") == 0 && !this.get("isShieldBroken")){
@@ -105,16 +119,17 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             self.set({isShielded:false,isShieldBroken:true});
             setTimeout(function(){
                 self.set({isShieldBroken:false,shields:20});
+                sendPlayerInfo.call(self);
             }, self.shieldDownTime);
+            sendPlayerInfo.call(this);
         }
 
-        sendPlayerInfo(this);
+
     }
 
     function onPlayerCollision(sprite){
         if (!this.connection) return;
 
-        var connection = this.connection;
         var data = {slayer:null};
 
         if (sprite && sprite.type === "Player" && playerMap[''+sprite.id]){
@@ -124,20 +139,16 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         var buffer = micro.toBinary(data, "GameOver");
-        connection.out.write(buffer);
+        this.connection.out.writeBuffer(buffer);
 
-        //Give the client 10 seconds to terminate the connection before we do ourselves
-        clearTimeout(this.timeout);
-        this.timeout = setTimeout(function(){
-            connection.close();
-        }, 10000);
+        this.zone = null;
     }
 
-    function sendPlayerInfo(player){
-        if(!player.connection) return;
+    function sendPlayerInfo(){
+        if(!this.connection) return;
 
-        var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
-        player.connection.out.write(buffer);
+        var buffer = micro.toBinary(this.toJSON(), "PlayerInfo");
+        this.update().connection.out.write(buffer);
     }
 
     return PlayerManager;

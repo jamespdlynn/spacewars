@@ -41,7 +41,9 @@ define(function(){
            shieldRestoreRate : 4,
            shieldPadding : 12,
            shieldHitDiscount : 50,
-           shieldDownTime : 10000
+           shieldDownTime : 10000,
+           maxAmmo : 5,
+           reloadTime : 4000
        },
 
        Missile : {

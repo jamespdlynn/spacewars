@@ -11,6 +11,7 @@ define(function(){
         {id:"exhaustSound", src:"rockets.ogg"},
         {id:"shieldSound", src:"shield.ogg"},
         {id:"shotSound", src:"shot.ogg"},
+        {id:"reloadSound", src:"reload.ogg"},
         {id:"collideSound", src:"collide.ogg"},
         {id:"explosionSound", src:"explosion.ogg"},
         {id:"shieldBreakSound", src:"deflect.ogg"},

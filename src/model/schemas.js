@@ -60,8 +60,10 @@ define(['model/constants'],function(Constants){
        },
 
        PlayerInfo : {
-           fuel : "int8",
-           shields : "int8"
+           fuel : "uint8",
+           shields : "uint8",
+           ammo : "uint8",
+           kills : "uint8"
        },
 
        RemoveSprite : {

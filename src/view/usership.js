@@ -1,4 +1,4 @@
-define(['createjs','view/ship','graphics/user-ship'],function(createjs,StarShip,userShipBody){
+define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,userShipBody){
     'use strict';
 
     var UserShip = function (model){
@@ -50,7 +50,8 @@ define(['createjs','view/ship','graphics/user-ship'],function(createjs,StarShip,
         _tick : function(evt){
             StarShip.prototype._tick.call(this, evt);
 
-            this.reloadBar.scaleX = (this.model.lastUpdated - this.model.lastFired) / this.model.fireInterval;
+            var interval = this.model.get("ammo") ? this.model.fireInterval : this.model.reloadTime;
+            this.reloadBar.scaleX = (this.model.lastUpdated - this.model.lastFired) / interval;
             this.reloadBar.visible = (this.reloadBar.scaleX < 1);
         }
 

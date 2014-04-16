@@ -21,6 +21,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             angle : 0,
             fuel : 100,
             shields : 100,
+            ammo : Constants.Player.maxAmmo,
             kills : 0,
             isAccelerating : false,
             isInvulnerable : false,
@@ -155,7 +156,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         canFire : function(){
-            return !this.data.isInvulnerable && !this.data.isShielded && (!this.lastFired || this.lastUpdated-this.lastFired >= this.fireInterval);
+            return !this.data.isInvulnerable && !this.data.isShielded && this.data.ammo > 0 && (!this.lastFired || this.lastUpdated-this.lastFired >= this.fireInterval);
         },
 
         fireMissile : function(){
@@ -165,6 +166,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             var sin = Math.sin(data.angle);
             var velocity = Constants.Missile.velocity;
 
+            this.data.ammo--;
             this.lastFired = this.lastUpdated;
 
             return {
@@ -176,6 +178,11 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 playerId : data.id,
                 zone : data.zone
             };
+        },
+
+        reload : function(){
+            this.data.ammo = this.maxAmmo;
+            return this;
         },
 
         incrementKills : function(){

@@ -83,10 +83,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
 
                 case "GameData" :
-                    var zoneData = new Zone(dataObj).update(gameData.latency).toJSON();
-                    zoneData.playerId = dataObj.playerId;
-
-                    gameData.set(zoneData,{easing:true, remove:true});
+                    gameData.set(dataObj,{easing:true, remove:true});
 
                     if (!initialized){
                        initialize();
@@ -110,8 +107,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 case "PlayerInfo":
                     if (!initialized) return;
                     player = gameData.userPlayer;
-                    player.set(dataObj);
-                    if (player.hasChanged("kills")){
+                    if (player.set(dataObj).hasChanged("kills")){
                         gameData.updateKills();
                     }
                     break;
@@ -132,6 +128,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                         var missilePlayer = gameData.players.get(dataObj.playerId);
                         if (missilePlayer){
                             var missileData = missilePlayer.update().fireMissile();
+                            missilePlayer.data.missiles++; //Hack
                             missileData.id = dataObj.id;
                             missile = gameData.missiles.add(missileData);
                         }else{

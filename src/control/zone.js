@@ -287,11 +287,21 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var byteLength = sendAll ? undefined : PARTIAL_PLAYER_SIZE;
             this.sendToAll("Player", player.toJSON(), byteLength);
+            this.sendPlayerInfo(player);
 
             var self = this;
             player.timeout = setTimeout(function(){
                 self.sendPlayer(player, PARTIAL_PLAYER_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
+        },
+
+        sendPlayerInfo : function(player){
+            if (!player.connection) return;
+
+            var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
+
+            console.log(player.get("ammo"));
+            player.connection.out.write(buffer);
         },
 
         sendMissile : function(missile, sendAll){
@@ -304,6 +314,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var self = this;
             missile.timeout = setTimeout(function(){
                 if (missile.update().hasExceededMaxDistance()){
+                    missile.collide();
                     self.explodeSprite(missile);
                 }else{
                     self.sendMissile(missile);

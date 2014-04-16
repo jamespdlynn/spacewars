@@ -32,11 +32,11 @@ define(['createjs','view/user','view/gauges','view/ammo','view/radar'],
                 this.gauges.x = 0;
                 this.gauges.y = height- this.gauges.getBounds().height;
 
-                this.ammo.x = this.gauges.fuelBackground.x;
+                this.ammo.x = this.gauges.getBounds().width - this.ammo.getBounds().width;
                 this.ammo.y = this.gauges.y - this.ammo.getBounds().height - 2;
 
-                this.radar.x = width-this.radar.getBounds().width;
-                this.radar.y = height-this.radar.getBounds().height;
+                this.radar.x = width-(this.radar.getBounds().width/2);
+                this.radar.y = height-(this.radar.getBounds().height/2)-5;
             }
 
         });

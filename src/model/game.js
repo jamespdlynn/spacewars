@@ -68,7 +68,7 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         },
 
         updateKills : function(){
-            var kills = this.userPlayer.kills;
+            var kills = this.userPlayer.get("kills");
 
             this.user.kills += (kills-this.roundKills);
             this.roundKills = kills;

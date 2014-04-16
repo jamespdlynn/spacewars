@@ -24,9 +24,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             ammo : Constants.Player.maxAmmo,
             kills : 0,
             isAccelerating : false,
-            isInvulnerable : false,
             isShielded : false,
-            isShieldBroken : false
+            isInvulnerable : false,
         },
 
         updateData : function(deltaSeconds){
@@ -75,13 +74,15 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 }
             }
 
-            if (data.shields > 0 && data.isShielded){
-                data.shields -=  (this.shieldUseRate * deltaSeconds);
-                data.shields = Math.max(data.shields, 0);
-            }
-            else if (data.shields < 100 && !data.isShielded && !data.isShieldBroken){
-                data.shields += (this.shieldRestoreRate * deltaSeconds);
-                data.shields = Math.min(data.shields, 100);
+            if (!this.isShieldBroken()){
+                if ( data.isShielded){
+                    data.shields -=  (this.shieldUseRate * deltaSeconds);
+                    data.shields = Math.max(data.shields, 0);
+                }
+                else{
+                    data.shields += (this.shieldRestoreRate * deltaSeconds);
+                    data.shields = Math.min(data.shields, 100);
+                }
             }
 
             return this;
@@ -152,7 +153,11 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         canShield : function(){
-            return !this.data.isShieldBroken;
+            return this.data.shields > 0;
+        },
+
+        isShieldBroken : function(){
+            return this.data.shields === 0;
         },
 
         canFire : function(){
@@ -166,8 +171,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             var sin = Math.sin(data.angle);
             var velocity = Constants.Missile.velocity;
 
-            this.data.ammo--;
             this.lastFired = this.lastUpdated;
+            data.ammo--;
 
             return {
                 posX : data.posX ,

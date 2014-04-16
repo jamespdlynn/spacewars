@@ -26,6 +26,8 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             if (!this.player || !this.player.zone) return null;
 
+            this.player.update();
+
             if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
             if (dataObj.isFiring && !this.player.canFire()) dataObj.isFiring = false;
@@ -39,7 +41,6 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             //If player is accelerating then send the whole player model to clients, otherwise we can get away with just sending a 4 byte player update
             if ((this.player.get("isAccelerating") && this.player.hasChanged("angle")) || this.player.hasChanged("isAccelerating")){
                 zone.sendPlayer(this.player);
-                sendPlayerInfo.call(this.player);
             }else if (hasChanged){
                 zone.sendToAll("PlayerUpdate", this.player.toJSON());
             }
@@ -77,26 +78,12 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             var missile = missileMap[''+currentMissileId] = new Missile({id:currentMissileId});
             missile.set(this.player.fireMissile());
             missile.player = this.player;
-
-            missile.on(Constants.Events.Collision, function(sprite){
-                if (sprite && sprite.type === "Player"){
-                    missile.player.incrementKills();
-                    sendPlayerInfo.call(missile.player);
-                }
-
-                missile.off();
-                delete missileMap[''+missile.id];
-                missile.player = undefined;
-            });
+            missile.on(Constants.Events.COLLISION, onMissileCollision);
 
             this.player.zone.addMissile(missile);
-
-
         }
 
     });
-
-
 
     function onPlayerUpdate(){
 
@@ -106,53 +93,57 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         if (this.get("isAccelerating") && !this.canAccelerate()){
             this.set("isAccelerating", false);
-            sendPlayerInfo.call(this);
         }
 
-        if (this.get("shields") == 0 && !this.get("isShieldBroken")){
+        if (this.isShieldBroken() && !this.shieldBroken){
             var self = this;
-            self.set({isShielded:false,isShieldBroken:true});
+            self.set("isShielded", false).shieldBroken = true;
             setTimeout(function(){
-                self.set({isShieldBroken:false,shields:20});
-                sendPlayerInfo.call(self);
+                self.set("shields", self.maxShields/5);
+                self.shieldBroken = false;
             }, self.shieldDownTime);
-            sendPlayerInfo.call(this);
         }
 
         if (this.get("ammo") == 0 && !this.isReloading){
             var self = this;
             self.isReloading = true;
             setTimeout(function(){
-                sendPlayerInfo.call(self.reload());
+                self.reload();
                 self.isReloading = false;
             }, Constants.Player.reloadTime);
         }
 
-
     }
 
     function onPlayerCollision(sprite){
-        if (!this.connection) return;
-
-        var data = {slayer:null};
-
-        if (sprite && sprite.type === "Player" && playerMap[''+sprite.id]){
-            data.slayer = sprite.toJSON();
-        }else if (sprite && sprite.type === "Missile" && sprite.player){
-            data.slayer = sprite.player.toJSON();
+        if (sprite && sprite.type === "Player"){
+            this.incrementKills().update();
         }
 
-        var buffer = micro.toBinary(data, "GameOver");
-        this.connection.out.writeBuffer(buffer);
+        if (!this.get("isShielded") && this.connection){
+            var data = {slayer:null};
 
-        this.zone = null;
+            if (sprite && sprite.type === "Player"){
+                data.slayer = sprite.toJSON();
+            }else if (sprite && sprite.type === "Missile" && sprite.player){
+                data.slayer = sprite.player.toJSON();
+            }
+
+            var buffer = micro.toBinary(data, "GameOver");
+            this.connection.out.write(buffer);
+
+            this.zone = null;
+        }
+
     }
 
-    function sendPlayerInfo(){
-        if(!this.connection) return;
+    function onMissileCollision(sprite){
+        if (sprite && sprite.type === "Player"){
+            this.player.incrementKills().update();
+        }
 
-        var buffer = micro.toBinary(this.toJSON(), "PlayerInfo");
-        this.update().connection.out.write(buffer);
+        this.off();
+        delete missileMap[''+this.id];
     }
 
     return PlayerManager;

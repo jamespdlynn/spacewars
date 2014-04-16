@@ -19,7 +19,7 @@ define(['createjs','model/game'],function(createjs,gameData){
             Container.prototype.initialize.call(this);
 
             this.alpha = 0.8;
-            this.regX = this.regY = -RADIUS;
+            //this.regX = this.regY = -RADIUS;
 
             this.background = new Shape();
             this.background.graphics.beginStroke("#74AC52").beginFill("#294C22").drawCircle(0, 0, RADIUS).endFill()
@@ -46,6 +46,7 @@ define(['createjs','model/game'],function(createjs,gameData){
             this.enemyMark.cache(-6, -6, 12, 12);
 
             this.addChild(this.background, this.revealer, this.userMark);
+            this.setBounds(0, 0, RADIUS*2, RADIUS*2);
         },
 
         addMark : function(model){

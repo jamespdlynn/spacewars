@@ -50,7 +50,7 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
         _tick : function(evt){
             StarShip.prototype._tick.call(this, evt);
 
-            this.reloadBar.scaleX = (this.model.lastUpdated - this.model.lastFired) / this.model.reloadTime;
+            this.reloadBar.scaleX = Math.min((this.model.lastUpdated - this.model.lastFired) / this.model.reloadTime, 1);
             this.reloadBar.visible = this.model.get("ammo") == 0;
         }
 

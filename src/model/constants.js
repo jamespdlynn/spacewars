@@ -14,7 +14,7 @@ define(function(){
        //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        ASSETS_URL : "/assets/",
        FPS : 60,
-       SCROLL_SPEED : 600,
+       SCROLL_SPEED : 500,
 
        Zone : {
            width : 1280,
@@ -32,18 +32,20 @@ define(function(){
            height : 52,
            mass : 100,
            acceleration : 300,
-           maxVelocity : 150,
+           maxVelocity : 135,
+           maxAmmo : 5,
            fireInterval : 500,
-           invulnerableTime : 2000,
+           reloadTime : 3500,
+           maxFuel : 100,
            fuelUseRate : 30,
            fuelRestoreRate : 25,
-           shieldUseRate : 8,
+           maxShields : 100,
+           shieldUseRate : 10,
            shieldRestoreRate : 4,
            shieldPadding : 12,
            shieldHitDiscount : 50,
            shieldDownTime : 10000,
-           maxAmmo : 6,
-           reloadTime : 4000
+           invulnerableTime : 2000
        },
 
        Missile : {

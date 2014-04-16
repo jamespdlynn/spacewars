@@ -126,13 +126,13 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
                 createjs.Tween.get(this.shield,{override:true}).to({alpha: 0, scaleX:0, scaleY:0}, 500).call(function(){
                     this.visible = false;
                 });
-                if (data.isShieldBroken){
+                if (this.model.isShieldBroken()){
                     playRelativeSound(this.shieldBreakSound, this.model);
                 }
                 this.shieldVisible = false;
             }
 
-            if (data.isShieldBroken){
+            if (this.model.isShieldBroken()){
                 this.sparks._tick(evt);
                 this.sparks.visible = true;
             }else{

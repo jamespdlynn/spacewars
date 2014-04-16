@@ -1,7 +1,7 @@
 define(['createjs','model/game'],function(createjs, gameData){
     'use strict';
 
-    var GAUGE_WIDTH = 220;
+    var GAUGE_WIDTH = 200;
     var GAUGE_HEIGHT = 24;
     var ICON_SIZE = 24;
     var GAUGE_PADDING = 15;
@@ -47,8 +47,19 @@ define(['createjs','model/game'],function(createjs, gameData){
 
             this.shieldsBackground.cacheCanvas = this.fuelBackground.cacheCanvas;
 
+            this.fuelFill.graphics.clear()
+                .beginFill('#0252fd').drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
+                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
+            this.fuelFill.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
+
+            this.shieldsFill.graphics.clear()
+                .beginFill('#009a00').drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
+                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
+
+            this.shieldsFill.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
+
             this.shieldsWarning.graphics.beginFill("#C00000").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT)
-                                        .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
+                .beginFill("rgba(255,255,255,0.3)").drawRect(0, 0, GAUGE_WIDTH, GAUGE_HEIGHT/2);
             this.shieldsWarning.cache(0, 0,GAUGE_WIDTH, GAUGE_HEIGHT);
             this.shieldsWarning.visible = false;
 
@@ -59,40 +70,25 @@ define(['createjs','model/game'],function(createjs, gameData){
 
         _tick : function(){
 
-            var fuelColor = '#0252fd';
-            var shieldColor = '#009a00';
-            var width;
-
-            var fuel = gameData.userPlayer.get("fuel");
-
-            if (Math.abs(this.fuel-fuel) > 1){
-                if (this.fuel < fuel){
-                    this.fuel++;
-                }else if (this.fuel > fuel){
-                    this.fuel--;
-                }
+            var fuelScale = gameData.userPlayer.get("fuel")/100;
+            if (fuelScale > this.fuelFill.scaleX + 1){
+                this.fuelFill.scaleX++;
+            }else if (fuelScale < this.fuelFill.scaleX - 1){
+                this.fuelFill.scaleX--;
             }else{
-                this.fuel = fuel;
+                this.fuelFill.scaleX = fuelScale;
             }
 
-            var shields = gameData.userPlayer.get("shields");
-            var diff = Math.abs(this.shields-shields);
-            if (diff> 1){
-                if (this.shields < shields){
-                    this.shields++;
-                }else if (this.shields > shields){
-                    this.shields--;
-
-                    if (diff >= 5){
-                        shieldColor = '#C00000';
-                    }
-                }
-            }
-            else{
-                this.shields = shields;
+            var shieldsScale = gameData.userPlayer.get("shields")/100;
+            if (shieldsScale > this.shieldsFill.scaleX + 1){
+                this.shieldsFill.scaleX++;
+            }else if (shieldsScale < this.shieldsFill.scaleX - 1){
+                this.shieldsFill.scaleX--;
+            }else{
+                this.shieldsFill.scaleX = shieldsScale;
             }
 
-            var isShieldBroken = gameData.userPlayer.get("isShieldBroken");
+            var isShieldBroken = gameData.userPlayer.isShieldBroken();
             if (isShieldBroken && !this.shieldsWarning.visible){
                 this.shieldsWarning.visible = true;
                 this.shieldsWarning.alpha = 0;
@@ -103,17 +99,8 @@ define(['createjs','model/game'],function(createjs, gameData){
                 this.shieldsWarning.visible = false;
                 createjs.Tween.removeTweens(this.shieldsWarning);
                 this.alertSound.stop();
+                console.log("STOP");
             }
-
-            width = Math.max(0, GAUGE_WIDTH * (this.fuel/100));
-            this.fuelFill.graphics.clear()
-                .beginFill(fuelColor).drawRect(0, 0, width, GAUGE_HEIGHT)
-                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
-
-            width = Math.max(0, GAUGE_WIDTH * (this.shields/100));
-            this.shieldsFill.graphics.clear()
-                .beginFill(shieldColor).drawRect(0, 0, width, GAUGE_HEIGHT)
-                .beginFill('rgba(255,255,255,0.3)').drawRect(0, 0, width, GAUGE_HEIGHT/2);
 
         }
 

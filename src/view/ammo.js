@@ -2,9 +2,11 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
     function(createjs,missileGraphic,gameData,Constants){
         'use strict';
 
-        var CONTAINER_WIDTH = 220;
+
+        var GRAPHIC_WIDTH = Constants.Missile.width*2;
+        var SCALE = 0.9;
+        var CONTAINER_WIDTH = GRAPHIC_WIDTH * SCALE * Constants.Player.maxAmmo;
         var CONTAINER_HEIGHT = Constants.Missile.height;
-        var GRAPHIC_WIDTH = Constants.Missile.width+5;
 
         var Ammo = function(){
              this.initialize();
@@ -18,6 +20,7 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
                 createjs.Container.prototype.initialize.call(this);
                 this.setBounds(0, 0, CONTAINER_WIDTH, CONTAINER_HEIGHT);
                 this.reloadSound = createjs.Sound.createInstance("reloadSound");
+                this.scaleX = this.scaleY = SCALE;
             },
 
             _tick : function(){
@@ -25,24 +28,21 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
                 var numChildren = this.getNumChildren();
 
                 if (ammo !== numChildren){
-                    while (numChildren < ammo){
+
+                    console.log(ammo);
+
+                    this.removeAllChildren();
+
+                    for (var i=0; i < ammo; i++){
                         var graphic = new createjs.DisplayObject();
                         graphic.cacheCanvas = missileGraphic.cacheCanvas;
-                        graphic.scaleX = graphic.scaleY = 0.8;
-                        graphic.x = numChildren * GRAPHIC_WIDTH;
+                        graphic.x = CONTAINER_WIDTH - (GRAPHIC_WIDTH/2) - (i * GRAPHIC_WIDTH);
                         this.addChild(graphic);
-                        numChildren++;
                     }
 
-                    while (numChildren > ammo){
-                        this.removeChildAt(numChildren-1);
-                        numChildren--;
-                        if (!numChildren){
-                            this.reloadSound.play();
-                        }
+                    if(!ammo){
+                        this.reloadSound.play();
                     }
-                    
-                    this.cache(0, 0, CONTAINER_WIDTH, CONTAINER_HEIGHT);
                 }
             }
         });

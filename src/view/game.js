@@ -107,7 +107,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
             gameData.on(Constants.Events.COLLISION, onCollision);
             gameData.on(Constants.Events.ZONE_CHANGED, onZoneChange);
-            gameData.off(Constants.Events.GAME_ENDING, function(){
+            gameData.on(Constants.Events.GAME_ENDING, function(){
                 gameEnding = true;
             });
 
@@ -124,7 +124,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             GameView.isRunning = true;
             gameData.trigger(Constants.Events.GAME_START);
 
-            scrollDirection = null;
+            scrollDirection = "";
 
             game.style.cursor = "crosshair";
         },
@@ -275,7 +275,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                         gameData.offsetX = centerX;
                         gameData.offsetY = centerY;
                         scrollX = scrollY = 0;
-                        scrollDirection = null;
+                        scrollDirection = "";
                     }
                 }
                 else{
@@ -288,7 +288,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
                         if (userShip.x+scrollX >= window.innerWidth-padding || gameData.offsetX+scrollX >= gameData.width){
                             scrollX = 0;
-                            scrollDirection = null;
+                            scrollDirection = "";
                         }
                     }
                     else if (scrollDirection.indexOf("right") >= 0){
@@ -296,7 +296,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
                         if (userShip.x+scrollX < padding || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
                             scrollX = 0;
-                            scrollDirection = null;
+                            scrollDirection = "";
                         }
                     }
 
@@ -305,7 +305,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
                         if (userShip.y+scrollY >= window.innerHeight-padding ||  gameData.offsetY+scrollY >= gameData.height){
                             scrollY = 0;
-                            scrollDirection = null;
+                            scrollDirection = "";
                         }
                     }
                     else if (scrollDirection.indexOf("bottom") >= 0){
@@ -313,7 +313,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
                         if (userShip.y+scrollY < padding ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
                             scrollY = 0;
-                            scrollDirection = null;
+                            scrollDirection = "";
                         }
                     }
 
@@ -391,7 +391,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
 
             stage.addChild(explosion);
         }
-        else if (!model1.get("isShieldBroken") && model2 && !model2.get("isShieldBroken")){
+        else if ((model1.type !== "Player" || !model1.isShieldBroken()) && model2 && (model2.type !== "Player" || !model2.isShieldBroken())){
             playRelativeSound("collideSound", model);
         }
     }
@@ -470,7 +470,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             canvas.style.cursor = "e-resize";
         }
         else{
-            scrollDirection = null;
+            scrollDirection = "";
             game.style.cursor = "crosshair";
         }
     }

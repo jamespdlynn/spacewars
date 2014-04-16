@@ -88,6 +88,8 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
     });
 
+
+
     function onPlayerUpdate(){
 
         if (this.get("isInvulnerable") && this.lastUpdated-this.created >= this.invulnerableTime){
@@ -122,7 +124,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         var buffer = micro.toBinary(data, "GameOver");
-        connection.out.writeBuffer(buffer);
+        connection.out.write(buffer);
 
         //Give the client 10 seconds to terminate the connection before we do ourselves
         clearTimeout(this.timeout);
@@ -137,5 +139,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
         player.connection.out.write(buffer);
     }
+
+    return PlayerManager;
 });
 

@@ -13,8 +13,6 @@ require.config({
         'preloadjs' : 'vendor/preloadjs-0.4.1',
         'soundjs' : 'vendor/soundjs-0.5.2',
         'tweenjs' : 'vendor/tweenjs-0.5.1',
-
-        'graphics' : 'view/graphics'
     },
 
     shim : {

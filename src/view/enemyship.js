@@ -3,7 +3,8 @@ define(['createjs','view/ship','graphics/enemy-ship'],function(createjs,StarShip
 
     var EnemyShip = function (model){
 
-        this.shipBody = enemyShipBody;
+        this.shipBody = new createjs.DisplayObject();
+        this.shipBody.cacheCanvas = enemyShipBody.cacheCanvas;
 
         this.exhaustSprites = new createjs.SpriteSheet({
             images: [preloader.getResult("redExhaustSprites")],

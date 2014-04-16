@@ -1,5 +1,5 @@
 define(["binaryjs","microjs","model/schemas","model/constants","control/zone","control/player"],
-    function(binary, micro, schemas, Constants, Missile, ServerZone, PlayerManager){
+    function(binary, micro, schemas, Constants, ServerZone, PlayerManager){
     'use strict';
 
     var BinaryServer = binary.BinaryServer;

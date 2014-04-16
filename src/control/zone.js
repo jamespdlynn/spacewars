@@ -251,7 +251,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         sendToAll : function(type, json, byteLength){
             //Send to all connections attached this zone
             var buffer = micro.toBinary(json, type, byteLength);
-            this.sendToAll(buffer);
+            this.sendToZone(buffer);
 
             //Send to all connections attached to adjacent zones
             var i = this.adjacentZones.length;
@@ -291,7 +291,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var self = this;
             player.timeout = setTimeout(function(){
                 self.sendPlayer(player, PARTIAL_PLAYER_SIZE);
-                self.sendPlayerInfo(player);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
 

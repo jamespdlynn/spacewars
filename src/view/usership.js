@@ -3,6 +3,8 @@ define(['createjs','view/ship','graphics/user-ship'],function(createjs,StarShip,
 
     var UserShip = function (model){
 
+        this.shipBody = userShipBody;
+
         this.exhaustSprites = new createjs.SpriteSheet({
             images: [preloader.getResult("blueExhaustSprites")],
             frames: {width:16, height:19, count:4},
@@ -30,7 +32,7 @@ define(['createjs','view/ship','graphics/user-ship'],function(createjs,StarShip,
         initialize : function(){
             StarShip.prototype.initialize.call(this);
 
-            this.reloadBar = new Shape();
+            this.reloadBar = new createjs.Shape();
             this.reloadBar.alpha = 0.95;
             this.reloadBar.visible = false;
             this.addChild(this.reloadBar);
@@ -40,9 +42,9 @@ define(['createjs','view/ship','graphics/user-ship'],function(createjs,StarShip,
             StarShip.prototype.setModel.call(this, model);
 
             this.reloadBar.graphics.beginFill("#fff").drawRect(0, 0, this.model.width, 4);
-            this.reloadBar.x = -this.model.width/2;
-            this.reloadBar.y = (this.model.height/2) + 10;
-            this.reloadBar.cache(0, 0, this.model.width, 4);
+            this.reloadBar.x = -this.model.width/4;
+            this.reloadBar.y = (this.model.height/2) + 14;
+            this.reloadBar.cache(-1, -1, this.model.width/2 + 2, 6);
         },
 
         _tick : function(evt){

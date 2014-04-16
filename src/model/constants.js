@@ -11,8 +11,8 @@ define(function(){
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
-       //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
-       ASSETS_URL : "/assets/",
+       ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
+       //ASSETS_URL : "/assets/",
        FPS : 60,
        SCROLL_SPEED : 500,
 

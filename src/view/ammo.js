@@ -28,9 +28,6 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
                 var numChildren = this.getNumChildren();
 
                 if (ammo !== numChildren){
-
-                    console.log(ammo);
-
                     this.removeAllChildren();
 
                     for (var i=0; i < ammo; i++){

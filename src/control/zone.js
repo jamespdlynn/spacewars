@@ -299,8 +299,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             if (!player.connection) return;
 
             var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
-
-            console.log(player.get("ammo"));
             player.connection.out.write(buffer);
         },
 

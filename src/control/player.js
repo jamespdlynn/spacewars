@@ -91,12 +91,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             this.player.zone.addMissile(missile);
 
-            var self = this;
-            clearTimeout(self.reloadTimeout);
-            self.reloadTimeout = setTimeout(function(){
-                self.player.reload();
-                sendPlayerInfo.call(self.player);
-            }, Constants.Player.reloadTime);
+
         }
 
     });
@@ -122,6 +117,15 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
                 sendPlayerInfo.call(self);
             }, self.shieldDownTime);
             sendPlayerInfo.call(this);
+        }
+
+        if (this.get("ammo") == 0 && !this.isReloading){
+            var self = this;
+            self.isReloading = true;
+            setTimeout(function(){
+                sendPlayerInfo.call(self.reload());
+                self.isReloading = false;
+            }, Constants.Player.reloadTime);
         }
 
 

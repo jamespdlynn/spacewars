@@ -4,7 +4,7 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
 
         var CONTAINER_WIDTH = 220;
         var CONTAINER_HEIGHT = Constants.Missile.height;
-        var GRAPHIC_WIDTH = Constants.Missile.width*2;
+        var GRAPHIC_WIDTH = Constants.Missile.width+5;
 
         var Ammo = function(){
              this.initialize();
@@ -17,7 +17,7 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
             initialize : function(){
                 createjs.Container.prototype.initialize.call(this);
                 this.setBounds(0, 0, CONTAINER_WIDTH, CONTAINER_HEIGHT);
-                this.reloadSound = new createjs.Sound("reloadSound");
+                this.reloadSound = createjs.Sound.createInstance("reloadSound");
             },
 
             _tick : function(){
@@ -26,7 +26,9 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
 
                 if (ammo !== numChildren){
                     while (numChildren < ammo){
-                        var graphic = missileGraphic.clone();
+                        var graphic = new createjs.DisplayObject();
+                        graphic.cacheCanvas = missileGraphic.cacheCanvas;
+                        graphic.scaleX = graphic.scaleY = 0.8;
                         graphic.x = numChildren * GRAPHIC_WIDTH;
                         this.addChild(graphic);
                         numChildren++;

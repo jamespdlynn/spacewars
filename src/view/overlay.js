@@ -20,7 +20,7 @@ define(['createjs','view/user','view/gauges','view/ammo','view/radar'],
                 this.ammo = new Ammo();
                 this.radar = new Radar();
 
-                this.addChild(this.fuelGauge, this.userContainer, this.ammo, this.radar);
+                this.addChild(this.gauges, this.userContainer, this.ammo, this.radar);
             },
 
             setBounds : function(x, y, width, height){
@@ -30,10 +30,10 @@ define(['createjs','view/user','view/gauges','view/ammo','view/radar'],
                 this.userContainer.y = 0;
 
                 this.gauges.x = 0;
-                this.gauges.y = height- this.fuelGauge.getBounds().height;
+                this.gauges.y = height- this.gauges.getBounds().height;
 
-                this.ammo.x = 0;
-                this.ammo.y = this.gauges.y - this.ammo.getBounds().height - 5;
+                this.ammo.x = this.gauges.fuelBackground.x;
+                this.ammo.y = this.gauges.y - this.ammo.getBounds().height - 2;
 
                 this.radar.x = width-this.radar.getBounds().width;
                 this.radar.y = height-this.radar.getBounds().height;

@@ -11,8 +11,8 @@ define(function(){
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
-       ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
-       //ASSETS_URL : "/assets/",
+       //ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
+       ASSETS_URL : "/assets/",
        FPS : 60,
        SCROLL_SPEED : 600,
 
@@ -33,7 +33,7 @@ define(function(){
            mass : 100,
            acceleration : 300,
            maxVelocity : 150,
-           fireInterval : 750,
+           fireInterval : 500,
            invulnerableTime : 2000,
            fuelUseRate : 30,
            fuelRestoreRate : 25,
@@ -42,7 +42,7 @@ define(function(){
            shieldPadding : 12,
            shieldHitDiscount : 50,
            shieldDownTime : 10000,
-           maxAmmo : 5,
+           maxAmmo : 6,
            reloadTime : 4000
        },
 

@@ -14,7 +14,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             run : function(){
                 if (Client.isRunning) return;
 
-                var connectionStr = "ws://"+window.location.hostname+":"+(window.location.port || 80);
+                var connectionStr = "ws://"+window.location.hostname;
                 console.log("Socket connecting to: "+connectionStr);
 
                 //Connect websocket to server and begin listening for messages

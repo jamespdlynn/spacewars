@@ -54,7 +54,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
             //Create a new BinaryServer Instance
             wsServer = new BinaryServer({
-                server: httpServer,
+                port : Constants.WS_PORT,
                 chunkSize : 256
             });
 
@@ -75,82 +75,16 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
         var remoteKey, pingTimeout, updated, initialized, pm;
 
-        var readData = function(buffer){
-            var data = micro.toJSON(buffer);
-            var type = data._type;
-            delete data._type;
-
-            var zone;
-
-            switch (type)
-            {
-                case "Ping" :
-                    if (ping(connection,data)){
-                        if (!initialized) initializeZone();
-
-                        updated = false;
-                        pingTimeout = setTimeout(function(){
-                            if (updated || isDevelopment) ping(connection);
-                            else connection.close();
-                        }, PING_INTERVAL);
-                    }
-                    break;
-
-                case "PlayerUpdate":
-                    if (!initialized) break;
-
-                    if(pm.updatePlayer(data)){
-                        updated = true;
-                    }
-                    break;
-
-                case "Collision":
-                    if (!initialized) break;
-                    if (zone = serverZones[data.zone]){
-                        zone.detectCollision(data);
-                    }
-                    break;
-
-                case "OutOfBounds":
-                    if (!initialized) break;
-                    if (zone = serverZones[data.zone]){
-                        zone.checkZoneChange(data);
-                    }
-                    break;
-
-                default:
-                    console.warn("Unexpected Schema Type Received: "+type);
-                    break;
-            }
-        };
-
-        var initializeZone = function(){
-            var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
-
-            while(connectionCount > 1){
-                if (zone.getNumPlayers() >= 1){
-                    do {
-                        zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
-                    }while (zone.getNumPlayers() > 3);
-                    break;
-                }
-                zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
-            }
-
-            zone.addPlayer(pm.player, true);
-            initialized = true;
-        };
-
-
         connection.on("stream", function(stream, meta) {
 
             remoteKey = connection._socket._socket.remoteAddress + ":" + meta;
 
             if (addressMap[remoteKey] && !isDevelopment){
+                remoteKey = undefined;
                 connection.close();
                 return;
-
             }
+
             connection.in = stream;
             connection.in.writeable = false;
             connection.in.on('data', readData);
@@ -184,14 +118,82 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
         connection.out = connection.createStream();
         connection.out.readable = false;
 
-        connectionCount++;
+        ping(connection);
 
+        connectionCount++;
         if (connectionCount > maxConnectionCount){
             console.log(new Date().toUTCString()+ " connections: "+connectionCount+"\n");
             maxConnectionCount = connectionCount;
         }
 
-        ping(connection);
+        function readData(){
+            var data = micro.toJSON(buffer);
+            var type = data._type;
+            delete data._type;
+
+            var zone;
+
+            switch (type)
+            {
+                case "Ping" :
+                    if (ping(connection,data)){
+                        if (!initialized) initializeZone();
+
+                        updated = false;
+                        pingTimeout = setTimeout(function(){
+                            if (!updated && !isDevelopment){
+                                connection.close();
+                                return;
+                            }
+                            ping(connection);
+                        }, PING_INTERVAL);
+                    }
+                    break;
+
+                case "PlayerUpdate":
+                    if (!initialized) break;
+
+                    if(pm.updatePlayer(data)){
+                        updated = true;
+                    }
+                    break;
+
+                case "Collision":
+                    if (!initialized) break;
+                    if (zone = serverZones[data.zone]){
+                        zone.detectCollision(data);
+                    }
+                    break;
+
+                case "OutOfBounds":
+                    if (!initialized) break;
+                    if (zone = serverZones[data.zone]){
+                        zone.checkZoneChange(data);
+                    }
+                    break;
+
+                default:
+                    console.warn("Unexpected Schema Type Received: "+type);
+                    break;
+            }
+        }
+
+        function initializeZone(){
+            var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
+
+            while(connectionCount > 1){
+                if (zone.getNumPlayers() >= 1){
+                    do {
+                        zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
+                    }while (zone.getNumPlayers() > 3);
+                    break;
+                }
+                zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
+            }
+
+            zone.addPlayer(pm.player, true);
+            initialized = true;
+        }
     }
 
 

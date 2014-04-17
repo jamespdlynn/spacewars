@@ -14,10 +14,9 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             run : function(){
                 if (Client.isRunning) return;
 
-                var connectionStr = "ws://"+window.location.hostname;
-                console.log("Socket connecting to: "+connectionStr);
-
                 //Connect websocket to server and begin listening for messages
+                var connectionStr = "ws://"+window.location.hostname+":"+Constants.WS_PORT;
+                console.log("Socket connecting to: "+connectionStr);
                 wsClient = new BinaryClient(connectionStr, {chunkSize:256});
 
                 wsClient.on('stream', function(stream){
@@ -84,10 +83,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "GameData" :
                     gameData.set(dataObj,{easing:true, remove:true});
-
-                    if (!initialized){
-                       initialize();
-                    }
+                    initialize();
                     break;
 
                 case "Player":
@@ -164,6 +160,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
         }
         
         function initialize(){
+            if (initialized) return;
+
             setTimeout(function(){
                 collisionInterval = setInterval(detectCollisions, Constants.COLLISION_DETECT_INTERVAL);
             }, Constants.COLLISION_DETECT_INTERVAL/2);

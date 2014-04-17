@@ -2,7 +2,7 @@
 // (c) 2014 James Lynn <james.lynn@aristobotgames.com>, Aristobot LLC.
 var http = require("http"),
     express = require("express"),
-    requirejs = require('requirejs'),
+    child = require("child_process"),
     pkg = require('./package.json');
 
 
@@ -28,6 +28,7 @@ app.configure(function(){
             fs.writeFile(htmlPath, html);
         });
     }
+
     app.use(express.favicon());
 
     app.use(require('less-middleware')({
@@ -51,7 +52,7 @@ app.configure('development', function() {
 });
 
 app.configure('production', function(){
-    requirejs.optimize({
+     require('requirejs').optimize({
         baseUrl : __dirname+"/src",
         name : 'main',
         mainConfigFile : __dirname+"/src/main.js",
@@ -61,7 +62,7 @@ app.configure('production', function(){
     });
 });
 
-var httpServer = http.createServer(app).listen(app.get('port'), function(){
+http.createServer(app).listen(app.get('port'), function(){
     console.log("Express "+app.get('env')+" server listening on port "+app.get('port'));
 
     if (isProd){
@@ -71,23 +72,4 @@ var httpServer = http.createServer(app).listen(app.get('port'), function(){
     }
 });
 
-global.extend = function(add){
-    for (var i=0; i < arguments.length; i++){
-        var obj = arguments[i];
-        for (var key in obj){
-            if (obj.hasOwnProperty(key)){
-                this[key] = obj[key];
-            }
-        }
-    }
-    return this;
-};
-
-requirejs.config({
-    baseUrl : __dirname+"/src",
-    nodeRequire : require
-});
-
-requirejs(["control/server"], function(server){
-    server.run(httpServer , !isProd);
-});
+child.fork(__dirname+"/src/child", isProd);

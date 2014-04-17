@@ -3,6 +3,8 @@ define(function(){
     'use strict';
 
     return {
+       WS_PORT : "8080",
+
        WORLD_SIZE : 16,
        MAX_PLAYERS : 256,
        MAX_MISSILES : 256,
@@ -10,9 +12,11 @@ define(function(){
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 100,
+
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
        ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        //ASSETS_URL : "/assets/",
+
        FPS : 60,
        SCROLL_SPEED : 500,
 

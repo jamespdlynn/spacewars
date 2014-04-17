@@ -5,14 +5,14 @@ require.config({
         'tpl' : 'templates',
         'txt' : 'vendor/text',
 
-        'binaryjs' : 'vendor/binary',
+        'binaryjs' : 'vendor/binary.min',
         'microjs' : 'vendor/micro',
         'browser-buffer' : 'vendor/browser-buffer',
 
         'createjs' : 'vendor/easeljs-0.7.1.combined',
         'preloadjs' : 'vendor/preloadjs-0.4.1',
         'soundjs' : 'vendor/soundjs-0.5.2',
-        'tweenjs' : 'vendor/tweenjs-0.5.1',
+        'tweenjs' : 'vendor/tweenjs-0.5.1'
     },
 
     shim : {

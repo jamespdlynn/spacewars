@@ -54,7 +54,8 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
             //Create a new BinaryServer Instance
             wsServer = new BinaryServer({
-                server: httpServer
+                server: httpServer,
+                chunkSize : 256
             });
 
             //When a new connection request is received from a client
@@ -146,17 +147,16 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
             remoteKey = connection._socket._socket.remoteAddress + ":" + meta;
 
             if (addressMap[remoteKey] && !isDevelopment){
-                remoteKey = undefined;
                 connection.close();
-            }
-            else{
-                connection.in = stream;
-                connection.in.writeable = false;
-                connection.in.on('data', readData);
-                addressMap[remoteKey] = 1;
+                return;
 
-                pm = new PlayerManager(connection, meta);
             }
+            connection.in = stream;
+            connection.in.writeable = false;
+            connection.in.on('data', readData);
+            addressMap[remoteKey] = 1;
+
+            pm = new PlayerManager(connection, meta);
         });
 
         connection.on("error", function(error){

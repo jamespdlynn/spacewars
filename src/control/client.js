@@ -18,7 +18,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 console.log("Socket connecting to: "+connectionStr);
 
                 //Connect websocket to server and begin listening for messages
-                wsClient = new BinaryClient(connectionStr);
+                wsClient = new BinaryClient(connectionStr, {chunkSize:256});
 
                 wsClient.on('stream', function(stream){
                     wsClient.in = stream;

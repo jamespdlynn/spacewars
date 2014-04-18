@@ -1,4 +1,6 @@
 var requirejs = require('requirejs');
+var isProd = process.argv[2];
+
 
 global.extend = function(add){
     for (var i=0; i < arguments.length; i++){
@@ -12,21 +14,18 @@ global.extend = function(add){
     return this;
 };
 
-modules.export = function(isProd){
-    requirejs.config({
-        baseUrl : __dirname+"/src",
-        nodeRequire : require
-    });
+requirejs.config({
+    nodeRequire : require
+});
 
-    requirejs(["control/server"], function(server){
-        server.run(!isProd);
-    });
+requirejs(["control/server"], function(server){
+    server.run(!isProd);
+});
 
-    if (isProd){
-        process.on('uncaughtException', function(error) {
-            console.error("Uncaught Exception: "+error.stack);
-        });
-    }
-};
+if (isProd){
+    process.on('uncaughtException', function(error) {
+        console.error("Uncaught Exception: "+error.stack);
+    });
+}
 
 

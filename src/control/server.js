@@ -126,7 +126,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
             maxConnectionCount = connectionCount;
         }
 
-        function readData(){
+        function readData(buffer){
             var data = micro.toJSON(buffer);
             var type = data._type;
             delete data._type;

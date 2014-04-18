@@ -22,9 +22,6 @@ define(['createjs','model/game'],function(createjs, gameData){
 
         this.alertSound = createjs.Sound.createInstance('alertSound');
 
-        this.fuel = 100;
-        this.shields = 100;
-
         this.initialize();
     };
 
@@ -76,13 +73,13 @@ define(['createjs','model/game'],function(createjs, gameData){
             diff = (player.maxFuel/100) - this.fuelBackground.scaleX;
             this.fuelBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
-            diff = (player.get("fuel")/100) + (player.maxFuel/100) - this.fuelFill.scaleX;
+            diff = (player.get("fuel")/100) + (this.fuelBackground.scaleX - 1) - this.fuelFill.scaleX;
             this.fuelFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
             diff = (player.maxShields/100) - this.shieldsBackground.scaleX;
             this.shieldsBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
-            diff = (player.get("shields")/100) + (player.maxShields/100) - this.shieldsFill.scaleX;
+            diff = (player.get("shields")/100) + (this.shieldsBackground.scaleX - 1) - this.shieldsFill.scaleX;
             this.shieldsFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
             var isShieldBroken = gameData.userPlayer.isShieldBroken();
@@ -96,7 +93,6 @@ define(['createjs','model/game'],function(createjs, gameData){
                 this.shieldsWarning.visible = false;
                 createjs.Tween.removeTweens(this.shieldsWarning);
                 this.alertSound.stop();
-                console.log("STOP");
             }
 
         }

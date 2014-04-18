@@ -89,7 +89,6 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
     function onPlayerUpdate(){
 
         var self = this;
-        var sendPlayerInfo = false;
 
         if (this.get("isInvulnerable") && this.lastUpdated-this.created >= this.invulnerableTime){
             this.set("isInvulnerable", false);
@@ -102,15 +101,14 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         if (this.isShieldBroken() && !this.get("isShieldBroken")){
             this.set({isShielded:false, isShieldBroken:true});
             setTimeout(function(){
-                self.set({shields:self.maxShields/5, isShieldBroken:false});
+                self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
             }, self.shieldDownTime);
-            sendPlayerInfo.call(this);
         }
 
         if (this.get("ammo") == 0 && !this.isReloading){
             this.isReloading = true;
             setTimeout(function(){
-                self.reload();
+                self.reload().update();
                 self.isReloading = false;
             }, Constants.Player.reloadTime);
         }
@@ -136,16 +134,14 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             this.zone = null;
         }
         else if(sprite && sprite.type === "Player"){
-            this.incrementKills().refresh();
-            sendPlayerInfo.call(this);
+            this.incrementKills().refresh().update();
         }
 
     }
 
     function onMissileCollision(sprite){
         if (sprite && sprite.type === "Player"){
-            this.player.incrementKills().refresh();
-            sendPlayerInfo.call(this.player);
+            this.player.incrementKills().refresh().update();
         }
 
         this.off();

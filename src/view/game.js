@@ -254,15 +254,15 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         }
 
         if (scrollDirection){
-            scroll();
+            scroll(evt);
             background.update(evt);
         }
 
         stage.update(evt);
     }
 
-    function scroll(){
-        var userData = gameData.userPlayer.data;
+    function scroll(evt){
+        var userData = gameData.userPlayer.update().data;
         var padding = PADDING*2;
         var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
         var scrollX = 0
@@ -276,7 +276,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         if (scrollDirection == "center"){
             var centerX = window.paddingX + (gameData.width/2 - userData.posX);
             var centerY = window.paddingY + (gameData.height/2 - userData.posY);
-            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, , centerY);
+            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
 
             if (distance > scrollSpeed){
                 var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
@@ -426,7 +426,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             userShip.angle = Math.atan2(deltaY, deltaX);
         }
 
-        if (gameData.userData.cameraMode !== "auto" && scrollDirection !== "center"){
+        if (gameData.user.cameraMode !== "auto" && scrollDirection !== "center"){
             if (evt.stageY < padding){
                 if (evt.stageX < padding){
                     scrollDirection = "topleft"
@@ -474,7 +474,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         if (evt.keyCode == 32){
             userShip.isFiring = true;
             triggerUpdate();
-        }else if (userData.cameraMode !== "auto" && evt.keyCode == 67){
+        }else if (gameData.user.cameraMode !== "auto" && evt.keyCode == 67){
             scrollDirection = "center";
         }
     }

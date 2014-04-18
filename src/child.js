@@ -1,6 +1,5 @@
 var requirejs = require('requirejs');
-var isProd = process.argv[2];
-
+var isProd = (process.argv[2] || process.env.NODE_ENV) === "production";
 
 global.extend = function(add){
     for (var i=0; i < arguments.length; i++){

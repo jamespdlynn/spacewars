@@ -72,4 +72,4 @@ http.createServer(app).listen(app.get('port'), function(){
     }
 });
 
-child.fork(__dirname+"/src/child.js", isProd);
+child.fork(__dirname+"/src/child.js");

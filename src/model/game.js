@@ -24,7 +24,8 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
                 username : "",
                 kills : 0,
                 deaths : 0,
-                muted : false
+                muted : false,
+                cameraMode : "auto"
             };
 
             this.on(Constants.Events.USER_CHANGED, function(){

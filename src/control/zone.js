@@ -287,10 +287,11 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var byteLength = sendAll ? undefined : PARTIAL_PLAYER_SIZE;
             this.sendToAll("Player", player.toJSON(), byteLength);
-            this.sendPlayerInfo(player);
+
 
             var self = this;
             player.timeout = setTimeout(function(){
+                self.sendPlayerInfo(player);
                 self.sendPlayer(player, PARTIAL_PLAYER_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
@@ -299,7 +300,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             if (!player.connection) return;
 
             var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
-            player.connection.out.write(buffer);
+            //player.connection.out.write(buffer);
         },
 
         sendMissile : function(missile, sendAll){

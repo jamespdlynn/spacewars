@@ -3,13 +3,13 @@ define(['createjs','model/game'],function(createjs, gameData){
 
     var Shape = createjs.Shape;
 
-    var Background = function (){
+    var BackgroundImage = function (){
         this.initialize();
     };
 
-    Background.prototype = new Shape();
+    BackgroundImage.prototype = new Shape();
 
-    extend.call(Background.prototype, {
+    extend.call(BackgroundImage.prototype, {
 
         initialize : function(){
             this.graphics.beginBitmapFill(preloader.getResult('background')).drawRect(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
@@ -22,5 +22,5 @@ define(['createjs','model/game'],function(createjs, gameData){
         }
     });
 
-    return Background;
+    return BackgroundImage;
 });

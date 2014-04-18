@@ -20,7 +20,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
             angle : 0
         },
 
-        updateData : function(deltaSeconds){
+        _updateData : function(deltaSeconds){
             this.data.posX += (this.data.velocityX * deltaSeconds);
             this.data.posY += (this.data.velocityY * deltaSeconds);
         },

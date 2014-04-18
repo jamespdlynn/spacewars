@@ -26,9 +26,20 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             isAccelerating : false,
             isShielded : false,
             isInvulnerable : false,
+            isShieldBroken : false
         },
 
-        updateData : function(deltaSeconds){
+        set: function() {
+            Sprite.prototype.set.apply(this, arguments);
+
+            if (this.hasChanged("kills")){
+               this._powerUp();
+            }
+
+            return this;
+        },
+
+        _updateData : function(deltaSeconds){
             var data = this.data;
 
             if (data.isAccelerating){
@@ -152,12 +163,22 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return this.data.fuel > 0;
         },
 
+        reFuel : function(){
+            this.data.fuel = this.maxFuel;
+            return this;
+        },
+
         canShield : function(){
             return this.data.shields > 0;
         },
 
+        reShield : function(){
+            this.data.shields = this.shields;
+            return this;
+        },
+
         isShieldBroken : function(){
-            return this.data.shields === 0;
+            return this.data.isShieldBroken || this.data.shields === 0;
         },
 
         canFire : function(){
@@ -185,13 +206,39 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             };
         },
 
+        canReload : function(){
+            return this.data.ammo < this.maxAmmo;
+        },
+
         reload : function(){
             this.data.ammo = this.maxAmmo;
             return this;
         },
 
         incrementKills : function(){
-            this.set("kills",this.data.kills+1);
+            this.data.kills++;
+            this._powerUp();
+            return this;
+        },
+
+        toJSON : function(){
+           this.data.isShieldBroken = this.isShieldBroken();
+           return this.data;
+        },
+
+        refresh : function(){
+            return this.reFuel().reShield().reload();
+        },
+
+        _powerUp : function(){
+            var kills = this.data.kills;
+            if (kills < this.maxLevel){
+                this.maxVelocity = Constants.Player.maxVelocity + (kills*5);
+                this.maxFuel =  Constants.Player.maxShields + (20*kills);
+                this.maxShields = Constants.Player.maxShields * (20*kills);
+                this.maxAmmo = Constants.Player.maxAmmo + kills;
+            }
+
             return this;
         }
 

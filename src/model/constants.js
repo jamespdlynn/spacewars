@@ -18,7 +18,7 @@ define(function(){
        //ASSETS_URL : "/assets/",
 
        FPS : 60,
-       SCROLL_SPEED : 500,
+       SCROLL_SPEED : 600,
 
        Zone : {
            width : 1280,
@@ -35,7 +35,7 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 300,
+           acceleration : 280,
            maxVelocity : 135,
            maxAmmo : 5,
            fireInterval : 500,
@@ -49,14 +49,15 @@ define(function(){
            shieldPadding : 12,
            shieldHitDiscount : 50,
            shieldDownTime : 10000,
-           invulnerableTime : 2000
+           invulnerableTime : 2000,
+           maxLevel : 5
        },
 
        Missile : {
            width : 10,
            height : 18,
            mass : 50,
-           velocity : 300,
+           velocity : 2,
            maxDistance : 1200
        },
 

@@ -121,12 +121,11 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             document.onkeydown = onKeyDown;
             document.onkeyup = onKeyUp;
 
+            scrollDirection = "";
+            game.style.cursor = "crosshair";
+
             GameView.isRunning = true;
             gameData.trigger(Constants.Events.GAME_START);
-
-            scrollDirection = "";
-
-            game.style.cursor = "crosshair";
         },
 
         reset : function(){
@@ -160,6 +159,9 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
                 background.clear();
                 stage.clear();
             }, 100);
+
+            scrollDirection = "";
+            game.style.cursor = "auto";
 
             autorun = false;
             gameEnding = false;
@@ -231,110 +233,100 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             background.alpha -= change;
             createjs.Sound.setVolume(createjs.Sound.getVolume()-change);
 
-            updateBackground = true;
+            background.update(evt);
+            stage.update(evt);
 
             if (stage.alpha <= change && GameView.isRunning){
                 gameData.trigger(Constants.Events.GAME_END);
-                return;
-            }
-        }
-        else{
-            var userData = gameData.userPlayer.data;
-            var padding = PADDING*2;
-
-            if (!stage.mouseInBounds){
-                userShip.isAccelerating = false;
-                userShip.isShielded = false;
-                userShip.isFiring = false;
-                scrollDirection = "center";
-            }
-            else if (userShip.x < padding || userShip.y < padding || userShip.x >= window.innerWidth-padding || userShip.y >= window.innerHeight-padding){
-                scrollDirection = "center";
             }
 
-            if (scrollDirection){
-                updateBackground = true;
-
-                var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
-
-                //Different scoll speed for topleft,topright,bottomleft,bottomright
-                if (scrollDirection.length > 6){
-                    scrollSpeed = Math.sqrt((scrollSpeed*scrollSpeed)/2);
-                }
-
-                if (scrollDirection == "center"){
-                    var centerX = window.paddingX + (gameData.width/2 - userData.posX);
-                    var centerY = window.paddingY + (gameData.height/2 - userData.posY);
-                    var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
-
-                    if (distance > scrollSpeed){
-                        var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
-                        gameData.offsetX += Math.cos(angle) * scrollSpeed;
-                        gameData.offsetY += Math.sin(angle) * scrollSpeed;
-                    }else{
-                        gameData.offsetX = centerX;
-                        gameData.offsetY = centerY;
-                        scrollX = scrollY = 0;
-                        scrollDirection = "";
-                    }
-                }
-                else{
-
-                    var scrollX = 0
-                    var scrollY = 0;
-
-                    if (scrollDirection.indexOf("left") >= 0){
-                        scrollX = scrollSpeed;
-
-                        if (userShip.x+scrollX >= window.innerWidth-padding || gameData.offsetX+scrollX >= gameData.width){
-                            scrollX = 0;
-                            scrollDirection = "";
-                        }
-                    }
-                    else if (scrollDirection.indexOf("right") >= 0){
-                        scrollX = -scrollSpeed;
-
-                        if (userShip.x+scrollX < padding || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
-                            scrollX = 0;
-                            scrollDirection = "";
-                        }
-                    }
-
-                    if (scrollDirection.indexOf("top") >= 0){
-                        scrollY = scrollSpeed;
-
-                        if (userShip.y+scrollY >= window.innerHeight-padding ||  gameData.offsetY+scrollY >= gameData.height){
-                            scrollY = 0;
-                            scrollDirection = "";
-                        }
-                    }
-                    else if (scrollDirection.indexOf("bottom") >= 0){
-                        scrollY = -scrollSpeed
-
-                        if (userShip.y+scrollY < padding ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
-                            scrollY = 0;
-                            scrollDirection = "";
-                        }
-                    }
-
-                    gameData.offsetX += scrollX;
-                    gameData.offsetY += scrollY;
-                }
-
-
-            }
-
-
-
-
+            return;
         }
 
-        if (updateBackground){
+        if (!stage.mouseInBounds){
+            userShip.isAccelerating = false;
+            userShip.isShielded = false;
+            userShip.isFiring = false;
+        }
+
+        if (gameData.user.cameraMode === "auto" || userShip.x < padding || userShip.y < padding || userShip.x >= window.innerWidth-padding || userShip.y >= window.innerHeight-padding){
+            scrollDirection = "center";
+        }
+
+        if (scrollDirection){
+            scroll();
             background.update(evt);
-            updateBackground = false;
         }
 
         stage.update(evt);
+    }
+
+    function scroll(){
+        var userData = gameData.userPlayer.data;
+        var padding = PADDING*2;
+        var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
+        var scrollX = 0
+        var scrollY = 0;
+
+        //Different scoll speed for topleft,topright,bottomleft,bottomright
+        if (scrollDirection.length > 6){
+            scrollSpeed = Math.sqrt((scrollSpeed*scrollSpeed)/2);
+        }
+
+        if (scrollDirection == "center"){
+            var centerX = window.paddingX + (gameData.width/2 - userData.posX);
+            var centerY = window.paddingY + (gameData.height/2 - userData.posY);
+            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, , centerY);
+
+            if (distance > scrollSpeed){
+                var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));
+                scrollX = Math.cos(angle) * scrollSpeed;
+                scrollY = Math.sin(angle) * scrollSpeed;
+            }else{
+                scrollX = centerX - gameData.offsetX;
+                scrollY = centerY - gameData.offsetY;
+                scrollDirection = "";
+            }
+        }
+        else{
+            if (scrollDirection.indexOf("left") >= 0){
+                scrollX = scrollSpeed;
+
+                if (userShip.x+scrollX >= window.innerWidth-padding || gameData.offsetX+scrollX >= gameData.width){
+                    scrollX = 0;
+                    scrollDirection = "";
+                }
+            }
+            else if (scrollDirection.indexOf("right") >= 0){
+                scrollX = -scrollSpeed;
+
+                if (userShip.x+scrollX < padding || gameData.offsetX+scrollX < -gameData.width + (2*window.paddingX)){
+                    scrollX = 0;
+                    scrollDirection = "";
+                }
+            }
+
+            if (scrollDirection.indexOf("top") >= 0){
+                scrollY = scrollSpeed;
+
+                if (userShip.y+scrollY >= window.innerHeight-padding ||  gameData.offsetY+scrollY >= gameData.height){
+                    scrollY = 0;
+                    scrollDirection = "";
+                }
+            }
+            else if (scrollDirection.indexOf("bottom") >= 0){
+                scrollY = -scrollSpeed
+
+                if (userShip.y+scrollY < padding ||  gameData.offsetY+scrollY < 0 -gameData.height+(2*window.paddingY)){
+                    scrollY = 0;
+                    scrollDirection = "";
+                }
+            }
+        }
+
+
+        gameData.offsetX += scrollX;
+        gameData.offsetY += scrollY;
 
     }
 
@@ -434,45 +426,46 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
             userShip.angle = Math.atan2(deltaY, deltaX);
         }
 
-        if (scrollDirection === "center"){
-            game.style.cursor = "crosshair";
-        }
-        else if (evt.stageY < padding){
-            if (evt.stageX < padding){
-                scrollDirection = "topleft"
-                canvas.style.cursor = "nw-resize";
-            }else if (evt.stageX > window.innerWidth-padding){
-                scrollDirection = "topright";
-                canvas.style.cursor = "ne-resize";
-            }else{
-                scrollDirection = "top";
-                canvas.style.cursor = "n-resize";
+        if (gameData.userData.cameraMode !== "auto" && scrollDirection !== "center"){
+            if (evt.stageY < padding){
+                if (evt.stageX < padding){
+                    scrollDirection = "topleft"
+                    canvas.style.cursor = "nw-resize";
+                }else if (evt.stageX > window.innerWidth-padding){
+                    scrollDirection = "topright";
+                    canvas.style.cursor = "ne-resize";
+                }else{
+                    scrollDirection = "top";
+                    canvas.style.cursor = "n-resize";
+                }
+            }
+            else if (evt.stageY >= window.innerHeight-padding){
+                if (evt.stageX < padding){
+                    scrollDirection = "bottomleft"
+                    canvas.style.cursor = "sw-resize";
+                }else if (evt.stageX > window.innerWidth-padding){
+                    scrollDirection = "bottomright"
+                    canvas.style.cursor = "se-resize";
+                }else{
+                    scrollDirection = "bottom"
+                    canvas.style.cursor = "s-resize";
+                }
+            }
+            else if (evt.stageX < padding){
+                scrollDirection = "left"
+                canvas.style.cursor = "w-resize";
+            }
+            else if (evt.stageX > window.innerWidth-padding){
+                scrollDirection = "right"
+                canvas.style.cursor = "e-resize";
+            }
+            else{
+                scrollDirection = "";
+                game.style.cursor = "crosshair";
             }
         }
-        else if (evt.stageY >= window.innerHeight-padding){
-            if (evt.stageX < padding){
-                scrollDirection = "bottomleft"
-                canvas.style.cursor = "sw-resize";
-            }else if (evt.stageX > window.innerWidth-padding){
-                scrollDirection = "bottomright"
-                canvas.style.cursor = "se-resize";
-            }else{
-                scrollDirection = "bottom"
-                canvas.style.cursor = "s-resize";
-            }
-        }
-        else if (evt.stageX < padding){
-            scrollDirection = "left"
-            canvas.style.cursor = "w-resize";
-        }
-        else if (evt.stageX > window.innerWidth-padding){
-            scrollDirection = "right"
-            canvas.style.cursor = "e-resize";
-        }
-        else{
-            scrollDirection = "";
-            game.style.cursor = "crosshair";
-        }
+
+
     }
 
     function onKeyDown(evt){
@@ -481,7 +474,7 @@ function(createjs, BackgroundImage, Overlay, Planet, UserShip, EnemyShip, Missil
         if (evt.keyCode == 32){
             userShip.isFiring = true;
             triggerUpdate();
-        }else if (evt.keyCode == 67){
+        }else if (userData.cameraMode !== "auto" && evt.keyCode == 67){
             scrollDirection = "center";
         }
     }

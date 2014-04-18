@@ -106,7 +106,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             //Ignore minor updates
             if (deltaTime >= 5){
 
-                this.updateData(deltaTime/1000);
+                this._updateData(deltaTime/1000);
 
                 if (this.easeX || this.easeY){
                     var interval = deltaTime/Constants.SERVER_UPDATE_INTERVAL;
@@ -121,7 +121,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return this;
         },
 
-        updateData : function(){
+        _updateData : function(){
             return this;
         },
 

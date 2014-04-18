@@ -25,6 +25,7 @@ define(['model/constants'],function(Constants){
            isAccelerating : "boolean",
            isShielded : "boolean",
            isInvulnerable : "boolean",
+           isShieldBroken : "boolean",
            username : "string",
            zone : "uint8"
        },
@@ -53,8 +54,7 @@ define(['model/constants'],function(Constants){
            isAccelerating : "boolean",
            isShielded : "boolean",
            isFiring : "boolean",
-           shieldBroken : "boolean",
-           isInvulnerable : "boolean",
+           isReloading : "boolean",
            id : "uint8"
        },
 

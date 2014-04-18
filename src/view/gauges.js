@@ -69,24 +69,21 @@ define(['createjs','model/game'],function(createjs, gameData){
         },
 
         _tick : function(){
+            
+            var player = gameData.userPlayer;
+            var diff;
 
-            var fuelScale = gameData.userPlayer.get("fuel")/100;
-            if (fuelScale > this.fuelFill.scaleX + 1){
-                this.fuelFill.scaleX++;
-            }else if (fuelScale < this.fuelFill.scaleX - 1){
-                this.fuelFill.scaleX--;
-            }else{
-                this.fuelFill.scaleX = fuelScale;
-            }
+            diff = (player.maxFuel/100) - this.fuelBackground.scaleX;
+            this.fuelBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
-            var shieldsScale = gameData.userPlayer.get("shields")/100;
-            if (shieldsScale > this.shieldsFill.scaleX + 1){
-                this.shieldsFill.scaleX++;
-            }else if (shieldsScale < this.shieldsFill.scaleX - 1){
-                this.shieldsFill.scaleX--;
-            }else{
-                this.shieldsFill.scaleX = shieldsScale;
-            }
+            diff = (player.get("fuel")/100) + (player.maxFuel/100) - this.fuelFill.scaleX;
+            this.fuelFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+
+            diff = (player.maxShields/100) - this.shieldsBackground.scaleX;
+            this.shieldsBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+
+            diff = (player.get("shields")/100) + (player.maxShields/100) - this.shieldsFill.scaleX;
+            this.shieldsFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
 
             var isShieldBroken = gameData.userPlayer.isShieldBroken();
             if (isShieldBroken && !this.shieldsWarning.visible){

@@ -12,7 +12,17 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
         var existingDialog;
 
-        if (gameData.user.muted) soundIcon.className = "active";
+        if (gameData.user.muted){
+            soundIcon.className = "active";
+        }
+
+        aboutIcon.addEventListener("click", toggleAboutWindow);
+        soundIcon.addEventListener("click", toggleSound);
+        fullScreenIcon.addEventListener("click", toggleFullScreen);
+
+        document.addEventListener("keydown", onKeyDown);
+
+
 
         var ModalsView = {
 
@@ -30,24 +40,27 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  var onSubmit = function(evt){
                      if (evt.type == "click" || evt.which == 13){
-
                          if (usernameInput.value.length){
-                             document.onkeydown = undefined;
+                             document.removeEventListener('keydown', onSubmit);
+                             document.removeEventListener('keyup', onKeyUp);
+                             document.addEventListener('keydown', onKeyDown);
                              gameData.setUsername(usernameInput.value).trigger(Constants.Events.DEPLOY);
                          }else{
                              usernameInput.focus();
                          }
                      }
+                 };
 
+                 var onKeyUp = function(){
+                     usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
                  };
 
                  usernameInput.focus();
                  deployButton.addEventListener("click", onSubmit);
 
-                 document.onkeydown = onSubmit;
-                 document.onkeyup =  function(){
-                     usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
-                 };
+                 document.removeEventListener('keydown', onKeyDown);
+                 document.addEventListener('keydown', onSubmit);
+                 document.addEventListener('keyup', onKeyUp);
 
                  return ModalsView;
              },
@@ -56,7 +69,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  ModalsView.showModal(connectionFailedTpl);
 
-                 document.onkeydown = onSubmit;
+                 document.addEventListener('keydown', onSubmit);
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
 
                  return ModalsView;
@@ -66,7 +79,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  ModalsView.showModal(disconnectedTpl);
 
-                 document.onkeydown = onSubmit;
+                 document.addEventListener('keydown', onSubmit);
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
 
                  return ModalsView;
@@ -89,7 +102,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  document.getElementById("round-deaths").innerHTML = "+1";
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
-                 document.onkeydown = onSubmit;
+                 document.addEventListener('keydown', onSubmit);
 
 
                  return ModalsView;
@@ -139,12 +152,63 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  modal.hide();
                  aboutIcon.className = null;
 
-                 document.onkeydown = null;
-                 document.onkeyup = null;
+                 document.removeEventListener('keydown', onSubmit);
 
                  return ModalsView;
              }
         };
+
+        function onKeyDown(evt){
+            switch (evt.keyCode){
+                case 65:
+                    toggleAboutWindow();
+                    break;
+                case 83:
+                    toggleSound();
+                    break;
+                case 90:
+                    toggleCameraMode();
+                    break;
+                case 70:
+                    toggleFullScreen();
+                    break;
+            }
+        }
+
+
+        function toggleAboutWindow(){
+            if (aboutIcon.className !== "active"){
+                ModalsView.showAboutModal();
+            }else{
+                ModalsView.closeAboutModal();
+            }
+        }
+
+        function toggleCameraMode(){
+            if (gameData.user.cameraMode === 'auto'){
+                gameData.setCameraMode('manual');
+            }else{
+                gameData.setCameraMode('auto');
+            }
+        }
+
+        function toggleSound(){
+            if (!gameData.user.muted){
+                gameData.setMuted(true);
+                soundIcon.className = "active";
+            }else{
+                gameData.setMuted(false);
+                soundIcon.className = null;
+            }
+        }
+
+        function toggleFullScreen(){
+            if (!document.isFullScreen()){
+                document.documentElement.requestFullScreen();
+            }else{
+                document.exitFullScreen();
+            }
+        }
 
         function showModalById(id){
             switch (id){
@@ -171,32 +235,6 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                 gameData.trigger(Constants.Events.DEPLOY);
             }
         }
-
-        aboutIcon.addEventListener("click", function(){
-            if (aboutIcon.className !== "active"){
-                ModalsView.showAboutModal();
-            }else{
-                ModalsView.closeAboutModal();
-            }
-        });
-
-        soundIcon.addEventListener("click",function(){
-            if (!gameData.user.muted){
-                gameData.setMuted(true);
-                soundIcon.className = "active";
-            }else{
-                gameData.setMuted(false);
-                soundIcon.className = null;
-            }
-        });
-
-        fullScreenIcon.addEventListener("click",function(){
-            if (!document.isFullScreen()){
-                document.documentElement.requestFullScreen();
-            }else{
-                document.exitFullScreen();
-            }
-        });
 
         return ModalsView;
     }

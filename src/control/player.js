@@ -24,8 +24,6 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             if (!this.player || !this.player.zone) return null;
 
-            this.player.update();
-
             if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
             if (dataObj.isReloading && this.player.canReload()){
@@ -41,7 +39,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
                 if ((this.player.get("isAccelerating") && this.player.hasChanged("angle")) || this.player.hasChanged("isAccelerating")){
                     zone.sendPlayer(this.player);
                 }else{
-                    zone.sendToAll("PlayerUpdate", this.player.toJSON());
+                    zone.sendPlayerUpdate(this.player);
                 }
             }
 
@@ -101,7 +99,10 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         if (this.isShieldBroken() && !this.get("isShieldBroken")){
             this.set({isShielded:false, isShieldBroken:true});
             setTimeout(function(){
-                self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
+                if (self.zone){
+                    self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
+                    self.zone.sendPlayerUpdate(self);
+                }
             }, self.shieldDownTime);
         }
 

@@ -87,7 +87,7 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
 
                 var models = [];
                 for (var i=0; i < data.length; i++){
-                    if (model = this.set(data[i])){
+                    if (model = this.set(data[i], options)){
                         models.push(model);
                     }
                 }

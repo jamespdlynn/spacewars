@@ -1,7 +1,7 @@
 define(["microjs","model/zone","model/constants","model/dispatcher"], function(micro, Zone, Constants, EventDispatcher){
     'use strict';
 
-    var MAX_PLANETS = 3;
+    var MAX_PLANETS = 4;
     var PARTIAL_PLAYER_SIZE = 12;
     var PARTIAL_MISSILE_SIZE = 5;
 
@@ -64,29 +64,27 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          */
         addPlayer : function(player, place){
 
-            var model = this.model;
+            player.zone = this;
 
             if (place){
                 var data = {};
                 data.zone = this.id;
                 data.angle = (Math.random() * (Math.PI * 2)) - Math.PI;
                 do{
-                    data.posX = (Math.random()*model.width*0.8)+(model.width*0.1);
-                    data.posY = (Math.random()*model.height*0.8)+(model.height*0.1);
+                    data.posX = (Math.random()*this.model.width*0.8)+(this.model.width*0.1);
+                    data.posY = (Math.random()*this.model.height*0.8)+(this.model.height*0.1);
                 }
                 while (!this._isValidPlayerPlacement(data));
+                player.set(data);
             }else{
-                player.set("zone", this.id);
+                player.update().set("zone", this.id);
             }
-
-            player.set(data);
-            player.zone = this;
 
             //Send the new player to existing connections
             this.sendPlayer(player,true);
 
             //Add the player to the collection
-            model.players.add(player);
+            this.model.players.add(player);
 
             //Send all necessary zone data to the player
             this.sendZoneData(player);
@@ -288,19 +286,15 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var byteLength = sendAll ? undefined : PARTIAL_PLAYER_SIZE;
             this.sendToAll("Player", player.toJSON(), byteLength);
 
-
             var self = this;
             player.timeout = setTimeout(function(){
-                self.sendPlayerInfo(player);
                 self.sendPlayer(player, PARTIAL_PLAYER_SIZE);
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
 
-        sendPlayerInfo : function(player){
-            if (!player.connection) return;
-
-            var buffer = micro.toBinary(player.toJSON(), "PlayerInfo");
-            //player.connection.out.write(buffer);
+        sendPlayerUpdate : function(player){
+            if (this.checkZoneChange(player)) return;
+            this.sendToAll("PlayerUpdate", player.toJSON());
         },
 
         sendMissile : function(missile, sendAll){

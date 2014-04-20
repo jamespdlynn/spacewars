@@ -5,8 +5,6 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
 
         var GRAPHIC_WIDTH = Constants.Missile.width*2;
         var SCALE = 0.9;
-        var CONTAINER_WIDTH = GRAPHIC_WIDTH * SCALE * Constants.Player.maxAmmo;
-        var CONTAINER_HEIGHT = Constants.Missile.height;
 
         var Ammo = function(){
              this.initialize();
@@ -18,9 +16,10 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
 
             initialize : function(){
                 createjs.Container.prototype.initialize.call(this);
-                this.setBounds(0, 0, CONTAINER_WIDTH, CONTAINER_HEIGHT);
+
                 this.reloadSound = createjs.Sound.createInstance("reloadSound");
                 this.scaleX = this.scaleY = SCALE;
+                this.setBounds(0, 0, GRAPHIC_WIDTH*SCALE*Constants.Player.maxAmmo, Constants.Missile.height);
             },
 
             _tick : function(){
@@ -33,13 +32,15 @@ define(['createjs','graphics/lightmissile','model/game','model/constants'],
                     for (var i=0; i < ammo; i++){
                         var graphic = new createjs.DisplayObject();
                         graphic.cacheCanvas = missileGraphic.cacheCanvas;
-                        graphic.x = CONTAINER_WIDTH - (GRAPHIC_WIDTH/2) - (i * GRAPHIC_WIDTH);
+                        graphic.x = (i * GRAPHIC_WIDTH);
                         this.addChild(graphic);
                     }
 
                     if(!ammo){
                         this.reloadSound.play();
                     }
+
+                    this.cache(0, 0, GRAPHIC_WIDTH*gameData.userPlayer.maxAmmo, Constants.Missile.height);
                 }
             }
         });

@@ -1,4 +1,4 @@
-define(['createjs','model/game'],function(createjs, gameData){
+define(['createjs','model/game', 'model/constants'],function(createjs, gameData, Constants){
     'use strict';
 
     var GAUGE_WIDTH = 200;
@@ -65,22 +65,24 @@ define(['createjs','model/game'],function(createjs, gameData){
             this.setBounds(0, 0, ICON_SIZE+GAUGE_PADDING+GAUGE_WIDTH, (ICON_SIZE*2)+GAUGE_PADDING);
         },
 
-        _tick : function(){
+        _tick : function(evt){
             
             var player = gameData.userPlayer;
+            var maxStep = 0.4 * (evt[0].delta/1000);
             var diff;
 
             diff = (player.maxFuel/100) - this.fuelBackground.scaleX;
-            this.fuelBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+            this.fuelBackground.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
-            diff = (player.get("fuel")/100) + (this.fuelBackground.scaleX - 1) - this.fuelFill.scaleX;
-            this.fuelFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+            diff = (player.get("fuel")/100) - this.fuelFill.scaleX;
+            this.fuelFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
+
 
             diff = (player.maxShields/100) - this.shieldsBackground.scaleX;
-            this.shieldsBackground.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+            this.shieldsBackground.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
-            diff = (player.get("shields")/100) + (this.shieldsBackground.scaleX - 1) - this.shieldsFill.scaleX;
-            this.shieldsFill.scaleX += (Math.abs(diff) <= 1) ? diff : diff/Math.abs(diff);
+            diff = (player.get("shields")/100) - this.shieldsFill.scaleX;
+            this.shieldsFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
             var isShieldBroken = gameData.userPlayer.isShieldBroken();
             if (isShieldBroken && !this.shieldsWarning.visible){

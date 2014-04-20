@@ -23,7 +23,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
     return {
 
-        run : function(httpServer, isDev){
+        run : function(isDev){
             //Initialize zones
             serverZones = [];
             for (var i=0; i < NUM_ZONES; i++){

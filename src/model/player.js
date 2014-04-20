@@ -70,19 +70,15 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 data.velocityX = newVelocityX;
                 data.velocityY = newVelocityY;
 
-                if (data.fuel > 0){
-                    data.fuel -= this.fuelUseRate * deltaSeconds;
-                    data.fuel = Math.max(data.fuel, 0);
-                }
+                data.fuel -= this.fuelUseRate * deltaSeconds;
+                data.fuel = Math.max(data.fuel, 0);
             }
             else{
                 data.posX += data.velocityX * deltaSeconds;
                 data.posY += data.velocityY * deltaSeconds;
 
-                if (data.fuel < 100){
-                    data.fuel += (this.fuelRestoreRate * deltaSeconds);
-                    data.fuel = Math.min(data.fuel, 100);
-                }
+                data.fuel += (this.fuelRestoreRate * deltaSeconds);
+                data.fuel = Math.min(data.fuel, this.maxFuel);
             }
 
             if (!this.isShieldBroken()){
@@ -92,7 +88,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 }
                 else{
                     data.shields += (this.shieldRestoreRate * deltaSeconds);
-                    data.shields = Math.min(data.shields, 100);
+                    data.shields = Math.min(data.shields, this.maxShields);
                 }
             }
 
@@ -160,7 +156,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         canAccelerate : function(){
-            return this.data.fuel > 0;
+            return this.data.fuel > 5;
         },
 
         reFuel : function(){
@@ -173,7 +169,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         reShield : function(){
-            this.data.shields = this.shields;
+            this.data.shields = this.maxShields;
             return this;
         },
 
@@ -227,15 +223,23 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         refresh : function(){
-            return this.reFuel().reShield().reload();
+            this.reFuel();
+
+            if (!this.isShieldBroken()){
+                this.reShield();
+            }
+
+            if (this.data.ammo > 0){
+                this.reload();
+            }
         },
 
         _powerUp : function(){
             var kills = this.data.kills;
             if (kills < this.maxLevel){
                 this.maxVelocity = Constants.Player.maxVelocity + (kills*5);
-                this.maxFuel =  Constants.Player.maxShields + (20*kills);
-                this.maxShields = Constants.Player.maxShields * (20*kills);
+                this.maxFuel =  Constants.Player.maxFuel + (20*kills);
+                this.maxShields = Constants.Player.maxShields + (20*kills);
                 this.maxAmmo = Constants.Player.maxAmmo + kills;
             }
 

@@ -92,6 +92,13 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             return this;
         },
 
+        setCameraMode : function(value){
+            this.user.cameraMode = value;
+            this.trigger(Constants.Events.USER_CHANGED);
+
+            return this;
+        },
+
         reset : function(){
             Zone.prototype.reset.call(this);
 

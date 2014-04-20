@@ -181,9 +181,11 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 data.isFiring = false;
             }
 
-            if (data.isFiring || (data.isAccelerating !==  gameData.userPlayer.get("isAccelerating")) || (data.isShielded !== gameData.userPlayer.get("isShielded")) || gameData.userPlayer.angleDifference(data.angle) >= 0.1){
+            if (data.isFiring || data.isReloading || (data.isAccelerating !=  gameData.userPlayer.get("isAccelerating")) || (data.isShielded != gameData.userPlayer.get("isShielded")) || gameData.userPlayer.angleDifference(data.angle) >= 0.1){
                 var buffer = micro.toBinary(data, "PlayerUpdate",3);
                 wsClient.out.write(buffer);
+
+                console.log()
             }
         }
 

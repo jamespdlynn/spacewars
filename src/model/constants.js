@@ -19,6 +19,7 @@ define(function(){
 
        FPS : 60,
        SCROLL_SPEED : 600,
+       GAUGE_WIDTH : 200,
 
        Zone : {
            width : 1280,
@@ -37,12 +38,12 @@ define(function(){
            mass : 100,
            acceleration : 280,
            maxVelocity : 135,
-           maxAmmo : 5,
+           maxAmmo : 6,
            fireInterval : 500,
            reloadTime : 3500,
            maxFuel : 100,
-           fuelUseRate : 30,
-           fuelRestoreRate : 25,
+           fuelUseRate : 35,
+           fuelRestoreRate : 20,
            maxShields : 100,
            shieldUseRate : 10,
            shieldRestoreRate : 4,
@@ -57,7 +58,7 @@ define(function(){
            width : 10,
            height : 18,
            mass : 50,
-           velocity : 2,
+           velocity : 300,
            maxDistance : 1200
        },
 
@@ -72,7 +73,8 @@ define(function(){
            COLLISION : "collision",
            ZONE_CHANGED : "zoneChanged",
            USER_CHANGED : "userChanged",
-           UPDATE : "update"
+           UPDATE : "update",
+           KEYDOWN : "keydown"
        }
     }
 

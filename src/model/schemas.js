@@ -55,6 +55,7 @@ define(['model/constants'],function(Constants){
            isShielded : "boolean",
            isFiring : "boolean",
            isReloading : "boolean",
+           isShieldBroken : "boolean",
            id : "uint8"
        },
 

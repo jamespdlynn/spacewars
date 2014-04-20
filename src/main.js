@@ -46,6 +46,7 @@ require.config({
     else if ("msHidden" in document) document.isHidden = function(){return document.msHidden};
     else document.isHidden = function(){return document.hidden};
 
+
     document.documentElement.requestFullScreen = document.documentElement.requestFullscreen || document.documentElement.mozRequestFullScreen || document.documentElement.webkitRequestFullscreen || document.documentElement.msRequestFullscreen;
     document.exitFullScreen = document.exitFullscreen || document.mozCancelFullScreen || document.webkitExitFullscreen || document.msExitFullscreen;
     document.isFullScreen = function(){
@@ -99,7 +100,6 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         });
 
         gameData.on(Constants.Events.DISCONNECTED, function(){
-
             Client.stop();
 
             if (GameView.isRunning){

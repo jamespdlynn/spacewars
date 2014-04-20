@@ -80,14 +80,25 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             }
 
             if (options.easing){
+
+
+
                 this.easeX = attrs.posX - this.data.posX;
                 this.easeY = attrs.posY - this.data.posY;
 
-                if (Sprite.getHypotenuse(this.easeX, this.easeY) > (this.maxVelocity || this.velocity || 100)){
+                var distance =  Sprite.getHypotenuse(this.easeX, this.easeY);
+
+                if (this.type === "Player"){
+                    console.log(distance);
+                }
+
+                if (distance > (this.maxVelocity || this.velocity || 100)){
                     this.data.posX = attrs.posX;
                     this.data.posY = attrs.posY;
                     this.easeX = this.easeY = 0;
                 }
+
+
             }
             else{
                 if (this.easeX && attrs.hasOwnProperty("posX")) this.easeX = 0;

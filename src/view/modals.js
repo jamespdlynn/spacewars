@@ -9,6 +9,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
         var aboutIcon = document.getElementById("about");
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
+        var viewIcon = document.getElementById("view");
 
         var existingDialog;
 
@@ -16,9 +17,14 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
             soundIcon.className = "active";
         }
 
+        if (gameData.user.cameraMode === 'auto'){
+            viewIcon.className = "active";
+        }
+
         aboutIcon.addEventListener("click", toggleAboutWindow);
         soundIcon.addEventListener("click", toggleSound);
         fullScreenIcon.addEventListener("click", toggleFullScreen);
+        viewIcon.addEventListener("click", toggleCameraMode);
 
         document.addEventListener("keydown", onKeyDown);
 
@@ -95,12 +101,8 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
 
                  document.getElementById("total-kills").innerHTML = gameData.user.kills;
                  document.getElementById("total-deaths").innerHTML = gameData.user.deaths;
+                 document.getElementById("round-kills").innerHTML = "+"+gameData.roundKills;
 
-                 if (gameData.roundKills > 0){
-                     document.getElementById("round-kills").innerHTML = "+"+gameData.roundKills;
-                 }
-
-                 document.getElementById("round-deaths").innerHTML = "+1";
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
                  document.addEventListener('keydown', onSubmit);
 
@@ -187,8 +189,10 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
         function toggleCameraMode(){
             if (gameData.user.cameraMode === 'auto'){
                 gameData.setCameraMode('manual');
+                viewIcon.className = null;
             }else{
                 gameData.setCameraMode('auto');
+                viewIcon.className = "active";
             }
         }
 

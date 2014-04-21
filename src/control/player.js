@@ -94,6 +94,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         if (this.get("isAccelerating") && !this.canAccelerate()){
             this.set("isAccelerating", false);
+            this.zone.sendPlayer(this);
         }
 
         if (this.isShieldBroken() && !this.get("isShieldBroken")){

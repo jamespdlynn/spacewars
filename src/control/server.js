@@ -182,10 +182,12 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
             var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
 
             while(connectionCount > 1){
-                if (zone.getNumPlayers() >= 1){
+                //Find a zone populated by a user
+                if (zone.getNumPlayers()){
+                    //Find an empty adjacent zone
                     do {
                         zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
-                    }while (zone.getNumPlayers() > 3);
+                    }while (zone.getNumPlayers());
                     break;
                 }
                 zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]

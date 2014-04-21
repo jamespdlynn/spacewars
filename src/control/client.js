@@ -82,8 +82,11 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     break;
 
                 case "GameData" :
-                    gameData.set(dataObj,{easing:true, remove:true});
-                    initialize();
+                    extend.call(dataObj, gameData.clone().set(dataObj,{remove:true}).update(gameData.latency).toJSON());
+                    gameData.update().set(dataObj,{easing:true, remove:true});
+                    if (!initialized){
+                        initialize();
+                    }
                     break;
 
                 case "Player":
@@ -93,7 +96,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                     if (player){
                         dataObj = player.clone().set(dataObj).update(gameData.latency).toJSON();
-                        player.set(dataObj,{easing:true});
+                        player.update().set(dataObj,{easing:true});
                     }else{
                         gameData.players.add(dataObj).update(gameData.latency);
                     }
@@ -160,7 +163,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
         }
         
         function initialize(){
-            if (initialized) return;
+
 
             setTimeout(function(){
                 collisionInterval = setInterval(detectCollisions, Constants.COLLISION_DETECT_INTERVAL);
@@ -184,8 +187,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             if (data.isFiring || data.isReloading || (data.isAccelerating !=  gameData.userPlayer.get("isAccelerating")) || (data.isShielded != gameData.userPlayer.get("isShielded")) || gameData.userPlayer.angleDifference(data.angle) >= 0.1){
                 var buffer = micro.toBinary(data, "PlayerUpdate",3);
                 wsClient.out.write(buffer);
-
-                console.log()
             }
         }
 

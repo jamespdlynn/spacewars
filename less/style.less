@@ -21,6 +21,7 @@ html{
   background-color: #000;
   color: #ffffff;
   font-family: 'Helvetica';
+  background:url('@{assets}/background.png');
 
   .btn{
     border-radius: 50px;
@@ -309,23 +310,39 @@ html{
       cursor: pointer;
     }
 
-  }
+    #view{
+      background-image: url('@{assets}/view.png');
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      display: none;
+      cursor: se-resize;
 
-  #about{
-    background-image: url('@{assets}/about.png');
-  }
-
-  #sound{
-    background-image: url('@{assets}/sound.png');
-
-    &.active{
-      background-image: url('@{assets}/mute.png');
+      &.active{
+        background-image: url('@{assets}/view-lock.png');
+        cursor: pointer;
+      }
     }
+
+    #about{
+      background-image: url('@{assets}/about.png');
+    }
+
+    #sound{
+      background-image: url('@{assets}/sound.png');
+
+      &.active{
+        background-image: url('@{assets}/mute.png');
+      }
+    }
+
+    #full-screen{
+      background-image: url('@{assets}/fullscreen.png');
+    }
+
   }
 
-  #full-screen{
-    background-image: url('@{assets}/fullscreen.png');
-  }
+
 
   &:-webkit-full-screen #full-screen{
     background-image: url('@{assets}/exit-fullscreen.png');

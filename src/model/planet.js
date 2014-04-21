@@ -20,6 +20,10 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         initialize : function(data,options){
             Sprite.prototype.initialize.call(this,data,options);
             this.id = this.get("key") + "_" + this.get("zone");
+        },
+
+        getRadius : function(){
+            return Math.max(this.width, this.height) * this.get("scale") / 2;
         }
 
 

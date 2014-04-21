@@ -77,12 +77,12 @@ define(['createjs','model/game', 'model/constants'],function(createjs, gameData,
             diff = (player.get("fuel")/100) - this.fuelFill.scaleX;
             this.fuelFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
-
             diff = (player.maxShields/100) - this.shieldsBackground.scaleX;
             this.shieldsBackground.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
             diff = (player.get("shields")/100) - this.shieldsFill.scaleX;
             this.shieldsFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
+
 
             var isShieldBroken = gameData.userPlayer.isShieldBroken();
             if (isShieldBroken && !this.shieldsWarning.visible){

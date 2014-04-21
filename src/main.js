@@ -115,6 +115,7 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
             document.getElementById("version").hide();
+            document.getElementById("view").show();
         });
 
         gameData.on(Constants.Events.GAME_END, function(){
@@ -122,6 +123,9 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             GameView.reset();
             ModalsView.showDeathModal();
             gameData.reset();
+
+            document.getElementById("version").show();
+            document.getElementById("view").hide();
         });
 
         GameView.initialize();

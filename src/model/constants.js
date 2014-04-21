@@ -51,15 +51,15 @@ define(function(){
            shieldHitDiscount : 50,
            shieldDownTime : 10000,
            invulnerableTime : 2000,
-           maxLevel : 5
+           maxLevel : 6
        },
 
        Missile : {
            width : 10,
            height : 18,
            mass : 50,
-           velocity : 300,
-           maxDistance : 1200
+           velocity : 280,
+           maxDistance : 1000
        },
 
        Events : {

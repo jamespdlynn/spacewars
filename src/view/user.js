@@ -11,11 +11,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
         this.zoneLabel =  new createjs.Text("","16px Arkitech", "#fff");
         this.usernameLabel = new createjs.Text("","15px Arkitech", "#fff");
-
-        this.deathLabel = new createjs.Text("","bold 19px Helvetica", "#FF0000");
         this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#00FF00");
-
-        this.deathIcon = new createjs.Bitmap(preloader.getResult('deathIcon'));
         this.killIcon = new createjs.Bitmap(preloader.getResult('killIcon'));
 
         this.tickEnabled = false;
@@ -50,25 +46,16 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
 
         updateUser : function(){
 
-            var data = gameData.user;
-
-            this.usernameLabel.text = data.username;
+            this.usernameLabel.text = gameData.userPlayer.get("username");
             this.usernameLabel.x = 0;
             this.usernameLabel.y = 0;
 
             this.killIcon.x = this.usernameLabel.x + this.usernameLabel.getMeasuredWidth() +  12;
             this.killIcon.y =  this.usernameLabel.y;
 
-            this.killLabel.text = data.kills;
+            this.killLabel.text = gameData.userPlayer.get("kills");
             this.killLabel.x =  this.killIcon.x + ICON_SIZE + 8;
             this.killLabel.y =   this.usernameLabel.y - 1;
-
-            this.deathIcon.x = this.killLabel.x + this.killLabel.getMeasuredWidth() +  12;
-            this.deathIcon.y =  this.usernameLabel.y;
-
-            this.deathLabel.text = data.deaths;
-            this.deathLabel.x =  this.deathIcon.x + ICON_SIZE + 8;
-            this.deathLabel.y =  this.usernameLabel.y - 1;
 
             this.cache(0, 0, WIDTH, HEIGHT);
         },

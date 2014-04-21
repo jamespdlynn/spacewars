@@ -436,7 +436,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             userShip.angle = Math.atan2(deltaY, deltaX);
         }
 
-        if (gameData.user.cameraMode !== "auto" && scrollDirection !== "center"){
+        if (gameData.user.cameraMode !== 'auto' && scrollDirection !== "center"){
             if (evt.stageY < padding){
                 if (evt.stageX < padding){
                     scrollDirection = "topleft"
@@ -473,6 +473,8 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 scrollDirection = "";
                 stage.canvas.style.cursor = "crosshair";
             }
+        }else{
+            stage.canvas.style.cursor = "crosshair";
         }
 
 

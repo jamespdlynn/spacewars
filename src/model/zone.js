@@ -45,6 +45,8 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             this.players.set(data.players, options);
             this.missiles.set(data.missiles, options);
             this.planets.set(data.planets, options);
+
+            return this;
         },
 
         remove : function(data){
@@ -77,6 +79,15 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             data.players = data.players.concat(this.players.toJSON());
             data.missiles = data.missiles.concat(this.missiles.toJSON());
             data.planets = data.planets.concat(this.planets.toJSON());
+        },
+
+        clone : function(){
+            var zone = new Zone({id : this.id});
+            zone.players = this.players.clone();
+            zone.missiles = this.missiles.clone();
+            zone.planets = this.planets.clone();
+
+            return zone;
         },
 
         reset : function(){

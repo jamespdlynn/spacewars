@@ -23,9 +23,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             shields : 100,
             ammo : Constants.Player.maxAmmo,
             kills : 0,
+            isInvulnerable : true,
             isAccelerating : false,
             isShielded : false,
-            isInvulnerable : false,
             isShieldBroken : false
         },
 
@@ -156,7 +156,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         canAccelerate : function(){
-            return this.data.fuel > 5;
+            return this.data.fuel > 0;
         },
 
         reFuel : function(){
@@ -232,6 +232,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             if (this.data.ammo > 0){
                 this.reload();
             }
+
+            return this;
         },
 
         _powerUp : function(){

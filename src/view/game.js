@@ -59,22 +59,24 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 createjs.Sound.setMute(gameData.user.muted);
             });
 
-            background = new Background("background");
-
             stage = new createjs.Stage("game");
             stage.enableDOMEvents(false);
             stage.mouseChildren = false;
 
-            sprites = {};
+            background = new Background();
+            stage.addChild(background);
 
             userShip = new UserShip(gameData.userPlayer);
             stage.addChild(userShip);
 
             overlay = new Overlay();
+            overlay.x = overlay.y = PADDING;
             stage.addChild(overlay);
 
             setStageSize();
             window.onresize = setStageSize;
+
+            sprites = {};
 
             var i= gameData.planets.length;
             while (i--) addSprite(gameData.planets.models[i]);
@@ -152,26 +154,19 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             stage.canvas.style.cursor = "auto";
 
             setTimeout(function(){
-                background.removeAllChildren();
-                background.clear();
-                background = undefined;
-
                 stage.removeAllChildren();
                 stage.clear();
+                background = undefined;
                 stage = undefined;
             }, 100);
 
             autorun = false;
             gameEnding = false;
             GameView.isRunning = false;
-
-
         }
     };
 
     function addSprite(model){
-
-        if (model.equals(gameData.userPlayer)) return null;
 
         var sprite;
 
@@ -182,14 +177,15 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 break;
 
             case "Player":
+                if (model.id === gameData.userPlayer.id) return null;
                 sprite = sprites[model.toString()] = new EnemyShip(model);
-                stage.addChildAt(sprite, 0);
+                stage.addChildAt(sprite, 1);
                 overlay.radar.addMark(model);
                 break;
 
             case "Missile":
                 sprite = sprites[model.toString()] = new Missile(model);
-                stage.addChildAt(sprite, 0);
+                stage.addChildAt(sprite, 1);
                 if (gameData.players.get(model.get("playerId"))){
                     playRelativeSound('shotSound',model);
                 }
@@ -253,15 +249,13 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             scrollDirection = "center";
         }
 
-        if (scrollDirection){
-            scroll(evt);
-            background.update(evt);
-        }
-
+        scroll(evt);
         stage.update(evt);
     }
 
     function scroll(evt){
+        if (!scrollDirection) return;
+
         var userData = gameData.userPlayer.update().data;
         var padding = PADDING*2;
         var scrollSpeed = Constants.SCROLL_SPEED * (evt.delta/1000);
@@ -527,17 +521,13 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         window.paddingX = (width-gameData.width)/2;
         window.paddingY = (height-gameData.height)/2;
 
-        stage.canvas.width = background.canvas.width = width;
-        stage.canvas.height = background.canvas.height = height;
+        stage.canvas.width = background.width = width;
+        stage.canvas.height = background.height = height;
+
+        overlay.setBounds(0, 0, width-(PADDING*2), height-(PADDING*2));
 
         gameData.offsetX = window.paddingX + (gameData.width/2 - userData.posX);
         gameData.offsetY = window.paddingY + (gameData.height/2 - userData.posY);
-
-        overlay.x = PADDING;
-        overlay.y = PADDING;
-        overlay.setBounds(0, 0, width-(PADDING*2), height-(PADDING*2));
-
-        background.update();
     }
 
 

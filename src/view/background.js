@@ -1,48 +1,36 @@
 define(['createjs','model/game'],function(createjs, gameData){
     'use strict';
 
-    var Stage = createjs.Stage;
+    var Container = createjs.Container;
 
-    var Background = function (canvas){
-        this.initialize(canvas);
+    var Background = function (){
+        this.initialize();
     };
 
     Background.prototype = new Stage();
 
     extend.call(Background.prototype, {
 
-        initialize : function(canvas){
-            Stage.prototype.initialize.call(this, canvas);
-            this.enableDOMEvents(false);
-            this.mouseChildren = false;
+        initialize : function(){
+            Container.prototype.initialize.call(this);
 
             this.image = new createjs.Shape();
             this.image.tickEnabled = false;
             this.image.graphics.beginBitmapFill(preloader.getResult('background')).drawRect(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
             this.image.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
-
-            this.container = new createjs.Container();
-            this.container.addChild(this.image);
-
-            Stage.prototype.addChild.call(this, this.container);
-        },
-
-        addChild : function(child){
-           this.container.addChild(child);
-        },
-
-        removeChild : function(child){
-            this.container.removeChild(child);
+            this.addChild(this.image);
         },
 
         cache : function(){
-           this.container._tick();
-           this.container.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
+           Container.prototype._tick.call(this);
+           this.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
         },
 
         _tick : function(){
-            this.container.x = gameData.offsetX;
-            this.container.y = gameData.offsetY;
+            this._cacheOffsetX.x = gameData.offsetX;
+            this._cacheOffsetX.y = gameData.offsetY;
+            this._cacheWidth = this.width;
+            this._cacheHeight = this.height;
         }
     });
 

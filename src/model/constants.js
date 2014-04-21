@@ -17,8 +17,8 @@ define(function(){
        ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        //ASSETS_URL : "/assets/",
 
-       FPS : 60,
-       SCROLL_SPEED : 600,
+       FPS : 50,
+       SCROLL_SPEED : 550,
        GAUGE_WIDTH : 200,
 
        Zone : {

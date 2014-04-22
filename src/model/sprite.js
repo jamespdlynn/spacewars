@@ -152,7 +152,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
         },
 
         collide : function(sprite){
-            this.trigger(Constants.Events.COLLISION, sprite);
+            this.trigger(Constants.Events.COLLISION, true, sprite);
             return true;
         },
 

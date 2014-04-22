@@ -101,9 +101,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
 
         collide : function(sprite){
 
-            Sprite.prototype.collide.call(this, sprite);
-
-            if (!this.data.isShielded){
+            if (!sprite || !this.data.isShielded){
+                this.trigger(Constants.Events.COLLISION, true, sprite);
                 return true;
             }
 
@@ -145,6 +144,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             d1.shields -= this.shieldHitDiscount;
             d1.shields = Math.max(this.data.shields, 0);
 
+            this.trigger(Constants.Events.COLLISION, false, sprite);
             return false;
         },
 

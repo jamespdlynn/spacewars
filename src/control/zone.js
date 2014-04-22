@@ -89,6 +89,11 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             //Send all necessary zone data to the player
             this.sendZoneData(player);
 
+            if (!place){
+                this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
+            }
+
+
             return player;
         },
 
@@ -132,6 +137,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 if (send){
                     this.sendToAll("RemoveSprite", player);
                 }
+                player.zone = undefined;
                 return player;
             }
             return null;
@@ -139,7 +145,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         /**
          * Removes the given player from the zone
-         * @param {(object|number)} missile Missile model or id to remove
+         * @param {object|number} missile Missile model or id to remove
          * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
          */
         removeMissile : function(missile, send){
@@ -148,6 +154,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 if (send){
                     this.sendToAll("RemoveSprite", missile);
                 }
+                missile.zone = undefined;
 
                 return missile;
             }
@@ -155,6 +162,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         explodeSprite : function(sprite){
+             sprite.collide();
              if (this.removeSprite(sprite)){
                  this.sendToAll("Collision", {
                      sprite1:{type:sprite.type,id:sprite.id}
@@ -162,25 +170,44 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
              }
         },
 
+        detectCollision : function(sprite1, sprite2){
 
-        detectCollision : function(data){
-            var sprite1 = this.model.get(data.sprite1);
-            var sprite2 = this.model.get(data.sprite2);
+            if (!sprite1) return false;
+
+            //If second sprite is not specified then check for a collision with every other applicable sprite
+            if (!sprite2){
+                var i = this.model.players.length;
+                while (i--){
+                    if (this.detectCollision(sprite1, this.model.players.at(i))) return true;
+                }
+                i = this.model.missiles.length;
+                while (i--){
+                    if (this.detectCollision(sprite1, this.model.missiles.at(i))) return true;
+                }
+                return false;
+            }
+
+            //Validate these sprites are in the zone
+            sprite1 = this.model.get(sprite1);
+            sprite2 = this.model.get(sprite2);
 
             //Check if collision is valid
-            if (sprite1 && sprite2 && sprite1.update().detectCollision(sprite2.update())){
+            if (sprite1 && sprite2 && !sprite1.equals(sprite2) && sprite1.update().detectCollision(sprite2.update())){
+
                 //Save off current sprite data values
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
+                var data = {sprite1:sprite1.toJSON(), sprite2:sprite2.toJSON()};
                 data.sprite1.survived = !sprite1.collide(sprite2);
                 data.sprite2.survived = !sprite2.collide(sprite1Clone);
 
                 //send the collision data objects to the clients
                 this.sendToAll("Collision", data);
 
+                //Send updates or remove sprites as necessary
                 if (data.sprite1.survived){
-                    this.sendSprite(sprite1.update(100));
+                    this.sendSprite(sprite1.update(100)); //We fast forward the sprite position as to not to have duplicate collisions
                 }else{
                     this.removeSprite(sprite1);
                 }
@@ -293,7 +320,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         sendPlayerUpdate : function(player){
-            if (this.checkZoneChange(player)) return;
+            //if (this.checkZoneChange(player)) return;
             this.sendToAll("PlayerUpdate", player.toJSON());
         },
 
@@ -307,7 +334,6 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var self = this;
             missile.timeout = setTimeout(function(){
                 if (missile.update().hasExceededMaxDistance()){
-                    missile.collide();
                     self.explodeSprite(missile);
                 }else{
                     self.sendMissile(missile);

@@ -24,10 +24,11 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             if (!this.player || !this.player.zone) return null;
 
+            //data object validation
             if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
             if (dataObj.isReloading && this.player.canReload()){
-                this.player.set('ammo', 0);
+                this.player.set('ammo', 0); //Setting ammo to 0 will trigger a reload on the player update
             }
 
             //Update player data and set new data object
@@ -97,54 +98,59 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             this.zone.sendPlayer(this);
         }
 
-        if (this.isShieldBroken() && !this.get("isShieldBroken")){
+        if (this.get("shields") === 0 && !this.get("isShieldBroken")){
             this.set({isShielded:false, isShieldBroken:true});
+            this.zone.sendPlayerUpdate(this);
+
             setTimeout(function(){
-                if (self.zone){
-                    self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
-                    self.zone.sendPlayerUpdate(self);
-                }
+                if (!self.zone || !self.get("isShieldBroken")) return;
+
+                self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
+                self.zone.sendPlayerUpdate(self);
             }, self.shieldDownTime);
         }
 
         if (this.get("ammo") == 0 && !this.isReloading){
             this.isReloading = true;
+
             setTimeout(function(){
+                if (!self.zone || !self.isReloading) return;
+
                 self.reload().update();
                 self.isReloading = false;
             }, Constants.Player.reloadTime);
         }
 
         sendPlayerInfo.call(this);
-
     }
 
-    function onPlayerCollision(sprite){
+    function onPlayerCollision(exploded, sprite){
 
-        if (!this.get("isShielded") && this.connection){
-            var data = {slayer:null};
+        if (!exploded) return;
 
-            if (sprite && sprite.type === "Player"){
-                data.slayer = sprite.toJSON();
-            }else if (sprite && sprite.type === "Missile" && sprite.player){
-                data.slayer = sprite.player.toJSON();
-            }
+        sprite = sprite || {};
 
-            var buffer = micro.toBinary(data, "GameOver");
+        var slayer = null;
+        if (sprite.type === "Player"){
+            slayer = sprite;
+        }else if (sprite.type === "Missile"){
+            slayer = sprite.player;
+        }
+
+        if (this.connection){
+            var buffer = micro.toBinary({slayer: slayer ? slayer.toJSON() : null}, "GameOver");
             this.connection.out.write(buffer);
-
-            this.zone = null;
         }
-        else if(sprite && sprite.type === "Player"){
-            this.incrementKills().refresh().update();
+
+        if (slayer){
+            slayer.update().incrementKills().refresh();
+            sendPlayerInfo.call(slayer);
         }
 
     }
 
-    function onMissileCollision(sprite){
-        if (sprite && sprite.type === "Player"){
-            this.player.incrementKills().refresh().update();
-        }
+    function onMissileCollision(exploded){
+        if (!exploded) return;
 
         this.off();
         delete missileMap[''+this.id];

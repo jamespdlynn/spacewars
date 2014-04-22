@@ -161,7 +161,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
                 case "Collision":
                     if (!initialized) break;
                     if (zone = serverZones[data.zone]){
-                        zone.detectCollision(data);
+                        zone.detectCollision(data.sprite1, data.sprite2);
                     }
                     break;
 

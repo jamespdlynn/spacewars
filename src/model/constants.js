@@ -17,7 +17,7 @@ define(function(){
        ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
        //ASSETS_URL : "/assets/",
 
-       FPS : 50,
+       FPS : 60,
        SCROLL_SPEED : 550,
        GAUGE_WIDTH : 200,
 
@@ -27,26 +27,26 @@ define(function(){
        },
 
        Planet : {
-           width : 550,
-           height : 550,
-           minScale : 0.5
+           width : 540,
+           height : 540,
+           minScale : 0.6
        },
 
        Player : {
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 280,
+           acceleration : 300,
            maxVelocity : 135,
            maxAmmo : 6,
            fireInterval : 500,
            reloadTime : 3500,
            maxFuel : 100,
            fuelUseRate : 35,
-           fuelRestoreRate : 20,
+           fuelRestoreRate : 30,
            maxShields : 100,
            shieldUseRate : 10,
-           shieldRestoreRate : 4,
+           shieldRestoreRate : 3,
            shieldPadding : 12,
            shieldHitDiscount : 50,
            shieldDownTime : 10000,
@@ -58,7 +58,7 @@ define(function(){
            width : 10,
            height : 18,
            mass : 50,
-           velocity : 280,
+           velocity : 300,
            maxDistance : 1000
        },
 

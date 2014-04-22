@@ -7,7 +7,7 @@ define(['createjs','model/game'],function(createjs, gameData){
         this.initialize();
     };
 
-    Background.prototype = new Stage();
+    Background.prototype = new Container();
 
     extend.call(Background.prototype, {
 
@@ -23,12 +23,12 @@ define(['createjs','model/game'],function(createjs, gameData){
 
         cache : function(){
            Container.prototype._tick.call(this);
-           this.cache(-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
+           Container.prototype.cache.call(this,-gameData.width, -gameData.height, 3*gameData.width, 3*gameData.height);
         },
 
         _tick : function(){
-            this._cacheOffsetX.x = gameData.offsetX;
-            this._cacheOffsetX.y = gameData.offsetY;
+            this.x = gameData.offsetX;
+            this.y = gameData.offsetY;
             this._cacheWidth = this.width;
             this._cacheHeight = this.height;
         }

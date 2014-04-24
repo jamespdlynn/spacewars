@@ -191,6 +191,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             sprite1 = this.model.get(sprite1);
             sprite2 = this.model.get(sprite2);
 
+            console.log('a');
+
             //Check if collision is valid
             if (sprite1 && sprite2 && !sprite1.equals(sprite2) && sprite1.update().detectCollision(sprite2.update())){
 
@@ -198,9 +200,11 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
-                var data = {sprite1:sprite1.toJSON(), sprite2:sprite2.toJSON()};
+                var data = {sprite1:sprite1, sprite2:sprite2};
                 data.sprite1.survived = !sprite1.collide(sprite2);
                 data.sprite2.survived = !sprite2.collide(sprite1Clone);
+
+                console.log(data);
 
                 //send the collision data objects to the clients
                 this.sendToAll("Collision", data);

@@ -25,7 +25,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             kills : 0,
             isInvulnerable : true,
             isAccelerating : false,
-            isShielded : false,
+            isShielded : true,
             isShieldBroken : false
         },
 
@@ -42,15 +42,16 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         _updateData : function(deltaSeconds){
             var data = this.data;
 
+            var deltaSeconds1 = 0;
+            var newVelocityX, newVelocityY;
+
             if (data.isAccelerating){
 
-                var deltaSeconds1 = 0;
-
                 //Calculate new velocities
-                var newVelocityX = data.velocityX + (Math.cos(data.angle) *  this.acceleration * deltaSeconds);
-                var newVelocityY = data.velocityY + (Math.sin(data.angle) *  this.acceleration * deltaSeconds);
+                newVelocityX = data.velocityX + (Math.cos(data.angle) *  this.acceleration * deltaSeconds);
+                newVelocityY = data.velocityY + (Math.sin(data.angle) *  this.acceleration * deltaSeconds);
 
-                if (newVelocityX > this.maxVelocity || newVelocityX < -this.maxVelocity){
+                if (Math.abs(newVelocityX) > this.maxVelocity){
                     newVelocityX = (newVelocityX > 0) ? this.maxVelocity : -this.maxVelocity;
                     deltaSeconds1 = getTime(data.velocityX, newVelocityX, this.acceleration);
                     data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds1) + (newVelocityX*(deltaSeconds-deltaSeconds1));
@@ -59,7 +60,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                     data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds);
                 }
 
-                if (newVelocityY > this.maxVelocity || newVelocityY < -this.maxVelocity){
+                if (Math.abs(newVelocityY) > this.maxVelocity){
                     newVelocityY = (newVelocityY > 0) ? this.maxVelocity : -this.maxVelocity;
                     deltaSeconds1 = getTime(data.velocityY, newVelocityY, this.acceleration);
                     data.posY += getDistance(data.velocityY, newVelocityY, deltaSeconds1) + (newVelocityY*(deltaSeconds-deltaSeconds1));
@@ -74,6 +75,39 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 data.fuel = Math.max(data.fuel, 0);
             }
             else{
+
+                /*if (Math.abs(data.velocityX) > this.minVelocity){
+                    newVelocityX = data.velocityX + (Math.cos(data.angle) * this.deceleration * deltaSeconds);
+
+                    if (Math.abs(newVelocityX) < this.minVelocity){
+                        newVelocityX = (newVelocityX > 0) ? this.minVelocity : -this.minVelocity;
+                        deltaSeconds1 = getTime(data.velocityX, newVelocityX, this.deceleration);
+                        data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds1) + (newVelocityX*(deltaSeconds-deltaSeconds1));
+                    } else{
+                        data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds);
+                    }
+
+                    data.velocityX = newVelocityX;
+                }else{
+                    data.posX += data.velocityX * deltaSeconds;
+                }
+
+                if (Math.abs(data.velocityY) > this.minVelocity){
+                    newVelocityY = data.velocityY + (Math.sin(data.angle) * this.deceleration * deltaSeconds);
+
+                    if (Math.abs(newVelocityY) < this.minVelocity){
+                        newVelocityY = (newVelocityY > 0) ? this.minVelocity : -this.minVelocity;
+                        deltaSeconds1 = getTime(data.velocityY, newVelocityY, this.deceleration);
+                        data.posY += getDistance(data.velocityY, newVelocityY, deltaSeconds1) + (newVelocityY*(deltaSeconds-deltaSeconds1));
+                    } else{
+                        data.posY += getDistance(data.velocityY, newVelocityY, deltaSeconds);
+                    }
+
+                    data.velocityY = newVelocityY;
+                }else{
+                    data.posY += data.velocityY * deltaSeconds;
+                }   */
+
                 data.posX += data.velocityX * deltaSeconds;
                 data.posY += data.velocityY * deltaSeconds;
 

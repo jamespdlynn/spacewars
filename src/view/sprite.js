@@ -12,8 +12,8 @@ define(['model/constants','model/game'],function(Constants,gameData){
         _tick : function(){
             var data = this.model.update().zoneAdjustedPosition(gameData.zone);
 
-            this.x = data.posX + gameData.offsetX;
-            this.y = data.posY + gameData.offsetY;
+            this.x = Math.round(data.posX + gameData.offsetX);
+            this.y = Math.round(data.posY + gameData.offsetY);
 
             this.visible = !this.outOfScreenBounds();
         },

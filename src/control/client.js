@@ -105,7 +105,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "PlayerInfo":
                     if (!initialized) return;
-                    dataObj = player.update().clone().set(dataObj).update(gameData.latency).toJSON();
+                    dataObj = gameData.userPlayer.update().clone().set(dataObj).update(gameData.latency).toJSON();
                     gameData.userPlayer.set({fuel:dataObj.fuel, shields: dataObj.shields, ammo:dataObj.ammo, kills: dataObj.kills});
                     if (gameData.userPlayer.hasChanged("kills")){
                         gameData.updateKills();

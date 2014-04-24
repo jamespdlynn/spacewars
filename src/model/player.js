@@ -25,7 +25,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             kills : 0,
             isInvulnerable : true,
             isAccelerating : false,
-            isShielded : true,
+            isShielded : false,
             isShieldBroken : false
         },
 

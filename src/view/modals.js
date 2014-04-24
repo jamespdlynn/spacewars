@@ -1,4 +1,4 @@
-define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
+define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
         'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
     function (Constants, gameData, loadTpl, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
         'use strict';
@@ -28,19 +28,10 @@ define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html',
 
         document.addEventListener("keydown", onKeyDown);
 
-
-
         var ModalsView = {
 
              setConnecting : function(value){
                  value ? connecting.show() : connecting.hide();
-                 return ModalsView;
-             },
-
-             showLoadModal : function(){
-                 ModalsView.showModal(loadTpl);
-                 document.getElementById("tip").innerText = "Pro Tip: " + gameData.getTip();
-
                  return ModalsView;
              },
 
@@ -108,7 +99,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html',
                      document.getElementById("death-title").innerText = "Slain by "+gameData.slayer.username;
                  }
 
-                 document.getElementById("round-kills").innterText = gameData.roundKills;
+                 document.getElementById("round-kills").innerText = gameData.roundKills;
 
                  if (gameData.newBest){
                      document.getElementById("new-best").show();
@@ -136,6 +127,8 @@ define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html',
                  aboutIcon.className = "active";
 
                  document.getElementById("close-button").addEventListener("click", ModalsView.closeAboutModal);
+
+                 return this;
              },
 
              closeAboutModal : function(){
@@ -150,11 +143,11 @@ define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html',
              },
 
              showUnsupportedBrowserModal : function(){
-                 ModalsView.showModal(unsupportedBrowserTpl);
+                 return ModalsView.showModal(unsupportedBrowserTpl);
              },
 
              showUnsupportedDeviceModal : function(){
-                 ModalsView.showModal(unsupportedDeviceTpl);
+                 return ModalsView.showModal(unsupportedDeviceTpl);
              },
 
              showModal : function(template){
@@ -164,6 +157,8 @@ define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html',
                  var modalDialog = document.getElementsByClassName('modal-dialog')[0];
                  var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
                  modalDialog.setAttribute("style", "margin-top:"+padding+"px");
+
+                 return this;
              },
 
              removeModal : function(){

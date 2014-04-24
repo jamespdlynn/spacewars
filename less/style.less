@@ -86,6 +86,7 @@ html{
     overflow: hidden;
     border: none;
     pointer-events:none;
+    display: block;
 
     .modal-dialog{
       margin-top: 120px;
@@ -133,15 +134,16 @@ html{
 
       #load-bar{
         position: relative;
-        width: 200px;
-        height: 20px;
+        width: 300px;
+        height: 12px;
         margin: auto;
         background-color: #333333;
+        margin-top: 5px;
 
         #progress-bar{
           width: 0;
           height: 100%;
-          background-color: #0252fd;
+         #gradient > .vertical(#5CBAFF, #0252fd);
         }
       }
 
@@ -210,8 +212,10 @@ html{
 
     #death-modal{
 
+        width: 800px;
         line-height: 28px;
         font-size: 20px;
+        font-weight: bold;
 
         .modal-body{
           padding: 15px 0;
@@ -219,41 +223,42 @@ html{
 
         .row{
 
-          margin-bottom: 15px;
+          margin-top: 15px;
 
-          &:last-child{
-            margin-bottom: 0;
-          }
 
-          &.best, &.new-best{
+
+          &#best, &#new-best{
             display: none;
           }
 
           .label{
-            width: 320px;
-            font-size: 20px;
+            width: 140px;
+            font-size: 22px;
             text-align: left;
             display: inline-block;
             vertical-align: middle;
+            font-weight: normal;
           }
 
-          .new-best .label{
+          &#new-best .label{
              color: #00ff00;
              font-weight: bold;
+             width: 268px;
+             margin-top: -15px;
           }
 
           .value{
             display: inline-block;
             vertical-align: middle;
             text-align: left;
+            width: 120px;
 
             > *{
               display: inline-block;
               vertical-align: middle;
-              font-size: 27px;
+              font-size: 25px;
               font-weight: bold;
-              width: 42px;
-              padding-left: 30px;
+              padding-left: 28px;
               margin-right: 15px;
 
               &.kills{
@@ -263,7 +268,7 @@ html{
 
               &.deaths{
                 color: red;
-                background:url('@{assets}/deaths.png') transparent no-repeat left center;;
+                background:url('@{assets}/skull.png') transparent no-repeat left center;;
               }
             }
           }
@@ -272,8 +277,9 @@ html{
 
 
         #tip{
-          font-size: 28px;
-          font-family: 'Arkitech';
+          margin-top: -15px;
+          font-size: 18px;
+          font-weight: normal;
           margin-bottom: 30px;
         }
 
@@ -292,6 +298,7 @@ html{
     background-image: url('@{assets}/loader.gif');
     background-position: right center;
     background-repeat: no-repeat;
+    display: none;
   }
 
   #version{

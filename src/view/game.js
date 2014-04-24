@@ -37,12 +37,12 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             var progressBar = document.getElementById("progress-bar");
             preloader.addEventListener("progress", function(evt){
-                progressBar.style.width = (evt.loaded*100)+"%"};
+                progressBar.style.width = (evt.loaded*100)+"%";
             })
 
             preloader.addEventListener("complete", function(){
                preloader.removeAllEventListeners();
-               gameData.trigger(Constants.DEPLOY);
+               gameData.trigger(Constants.Events.DEPLOY);
             });
 
             preloader.loadManifest(manifest);
@@ -158,7 +158,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 stage = undefined;
             }, 100);
 
-            autorun = false;
             gameEnding = false;
             GameView.isRunning = false;
         }

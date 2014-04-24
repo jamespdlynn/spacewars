@@ -1,12 +1,12 @@
 define(['model/dispatcher','model/zone','model/constants'], function(EventDispatcher,Zone,Constants){
 
     var TIPS = [
-        "Playing in full screen mode (f) gives you greater field of vision",
-        "Using your shield (RMB) can protect you from enemy fire, but taking direct hits will quickly deplete it!",
-        "Press (r) at any time to manually reload your ship's missiles",
-        "Press (z) to toggle between locked/free camera modes",
-        "Destroying enemy ships increases your own ship's fuel, shields, ammo and max speed",
-        "If you're in close vicinity in an enemy ship, you can use your shield (RMB) as to destroy them!"
+        "Playing in full screen mode ( f ) gives you greater field of vision.",
+        "Your shield ( RMB ) will protect you from enemy fire, but direct hits will quickly deplete it!",
+        "Press ( r ) at any time to manually reload your ship's missiles.",
+        "Press ( z ) to toggle between locked/free camera modes.",
+        "Destroying enemy ships increases your own ship's fuel, shields, ammo and max speed.",
+        "If you're in close vicinity in an enemy ship, you can use your shield (RMB) as a weapon!"
     ];
 
     var GameData = function(){
@@ -118,8 +118,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             return this;
         },
 
-
-
         setMuted : function (value){
             this.user.muted = !!value;
             this.trigger(Constants.Events.USER_CHANGED);
@@ -133,8 +131,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
 
             return this;
         },
-
-
 
         getZoneString : function(){
             return this.toString.call({id:this.zone});

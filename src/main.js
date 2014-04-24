@@ -136,7 +136,6 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             document.getElementById("view").hide();
         });
 
-        ModalsView.showLoadModal();
         GameView.initialize();
 
     }

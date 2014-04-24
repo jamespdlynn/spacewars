@@ -226,8 +226,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             stage.alpha -= change;
             background.alpha -= change;
             createjs.Sound.setVolume(createjs.Sound.getVolume()-change);
-
-            background.update(evt);
             stage.update(evt);
 
             if (stage.alpha <= change && GameView.isRunning){

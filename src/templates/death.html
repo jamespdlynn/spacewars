@@ -5,24 +5,39 @@
         </div>
         <div class="modal-body">
 
-            <div class="row kill">
-                <div class="label">Kills</div>
+            <div id="round" class="row">
+                <div class="label">Kills Made</div>
                 <div class="value">
-                    <span id="total-kills" class="total"></span>
-                    <span id="round-kills" class="round"></span>
+                    <span id="round-kills" class="kills"></span>
+                </div>
+            </div>
+
+            <div id="best" class="row">
+                <div class="label">Personal Best</div>
+                <div class="value">
+                    <span id="best-kills" class="kills"></span>
+                </div>
+            </div>
+
+            <div id="new-best"">
+                <div class="label">New Personal Best!</div>
+            </div>
+
+            <div class="row career">
+                <div class="label">Career</div>
+                <div class="value">
+                    <span id="career-kills" class="kills"></span>
+                    <span id="career-deaths" class="deaths"></span>
                 </div>
             </div>
 
             <div class="row death">
-                <div class="label">Deaths</div>
-                <div class="value">
-                    <span id="total-deaths" class="total"></span>
-                    <span id="round-deaths" class="round"></span>
-                </div>
+
 
             </div>
         </div>
         <div class="modal-footer">
+            <div id="tip"></div>
             <button id="deploy-button" class="btn btn-lg">Redeploy</button>
         </div>
     </div>

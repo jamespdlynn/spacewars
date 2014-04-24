@@ -1,6 +1,6 @@
-define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html',
-    'txt!tpl/disconnected.html', 'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
-    function (Constants, gameData, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
+define(['model/constants', 'model/game', 'txt!tpl/load', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
+        'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
+    function (Constants, gameData, loadTpl, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
         'use strict';
 
         var modal = document.getElementById("modal");
@@ -37,36 +37,45 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  return ModalsView;
              },
 
+             showLoadModal : function(){
+                 ModalsView.showModal(loadTpl);
+                 document.getElementById("tip").innerText = "Pro Tip: " + gameData.getTip();
+
+                 return ModalsView;
+             },
+
              showWelcomeModal : function(){
 
                  ModalsView.showModal(welcomeTpl);
 
-                 var usernameInput = document.getElementById("username-input");
-                 var deployButton = document.getElementById("deploy-button");
-
-                 var onSubmit = function(evt){
+                 var onWelcomeSubmit = function(evt){
                      if (evt.type == "click" || evt.which == 13){
                          if (usernameInput.value.length){
-                             document.removeEventListener('keydown', onSubmit);
-                             document.removeEventListener('keyup', onKeyUp);
+                             gameData.setUsername(usernameInput.value);
+                             document.removeEventListener('keydown', onWelcomeSubmit);
+                             document.removeEventListener('keyup', onWelcomeKeyUp);
                              document.addEventListener('keydown', onKeyDown);
-                             gameData.setUsername(usernameInput.value).trigger(Constants.Events.DEPLOY);
+
+                             onSubmit(evt);
                          }else{
                              usernameInput.focus();
                          }
                      }
                  };
 
-                 var onKeyUp = function(){
+                 var onWelcomeKeyUp = function(){
                      usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
                  };
 
+                 var usernameInput = document.getElementById("username-input");
                  usernameInput.focus();
-                 deployButton.addEventListener("click", onSubmit);
+
+                 var deployButton = document.getElementById("deploy-button");
+                 deployButton.addEventListener("click", onWelcomeSubmit);
 
                  document.removeEventListener('keydown', onKeyDown);
-                 document.addEventListener('keydown', onSubmit);
-                 document.addEventListener('keyup', onKeyUp);
+                 document.addEventListener('keydown', onWelcomeSubmit);
+                 document.addEventListener('keyup', onWelcomeKeyUp);
 
                  return ModalsView;
              },
@@ -96,16 +105,25 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
                  ModalsView.showModal(deathTpl);
 
                  if (gameData.slayer){
-                     document.getElementById("death-title").innerHTML = "Slain by "+gameData.slayer.username;
+                     document.getElementById("death-title").innerText = "Slain by "+gameData.slayer.username;
                  }
 
-                 document.getElementById("total-kills").innerHTML = gameData.user.kills;
-                 document.getElementById("total-deaths").innerHTML = gameData.user.deaths;
-                 document.getElementById("round-kills").innerHTML = "+"+gameData.roundKills;
+                 document.getElementById("round-kills").innterText = gameData.roundKills;
+
+                 if (gameData.newBest){
+                     document.getElementById("new-best").show();
+                 }else{
+                     document.getElementById("best").show();
+                     document.getElementById("best-kills").innerText = gameData.user.best;
+                 }
+
+                 document.getElementById("career-kills").innerText = gameData.user.kills;
+                 document.getElementById("career-deaths").innerText = gameData.user.deaths;
+
+                 document.getElementById("tip").innerText = "Pro Tip: " + gameData.getTip();
 
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
                  document.addEventListener('keydown', onSubmit);
-
 
                  return ModalsView;
              },
@@ -237,6 +255,7 @@ define(['model/constants', 'model/game', 'txt!tpl/welcome.html', 'txt!tpl/connec
         function onSubmit(evt){
             if (evt.type == "click" || evt.which == 13){
                 gameData.trigger(Constants.Events.DEPLOY);
+                ModalsView.removeModal();
             }
         }
 

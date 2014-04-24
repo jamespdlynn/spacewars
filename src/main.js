@@ -83,19 +83,24 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         'use strict';
 
         if ('ontouchstart' in document.documentElement){
-            return ModalsView.setConnecting(false).showUnsupportedDeviceModal();
+            return ModalsView.showUnsupportedDeviceModal();
         }
 
         if (!window.HTMLCanvasElement || typeof document.documentMode == "number" || eval("/*@cc_on!@*/!1")){
-            return ModalsView.setConnecting(false).showUnsupportedBrowserModal();
+            return ModalsView.showUnsupportedBrowserModal();
         }
 
         gameData.on(Constants.Events.DEPLOY, function(){
-            ModalsView.setConnecting(true).removeModal();
-            Client.run();
+            if (gameData.isUserInitialized()){
+                ModalsView.setConnecting(true);
+                Client.run();
+            }else{
+                ModalsView.showWelcomeModal();
+            }
         });
 
         gameData.on(Constants.Events.CONNECTED, function(){
+           ModalsView.removeModal().setConnecting(false);
            GameView.run();
         });
 
@@ -108,6 +113,9 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             }else{
                 ModalsView.setConnecting(false).showConnectionFailedModal();
             }
+
+            document.getElementById("version").show();
+            document.getElementById("view").hide();
 
             gameData.reset();
         });
@@ -122,20 +130,14 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             Client.stop();
             GameView.reset();
             ModalsView.showDeathModal();
-            gameData.reset();
+            gameData.incrementDeaths().reset();
 
             document.getElementById("version").show();
             document.getElementById("view").hide();
         });
 
+        ModalsView.showLoadModal();
         GameView.initialize();
-
-        if (!gameData.isUserInitialized()){
-            ModalsView.setConnecting(false).showWelcomeModal();
-        }else{
-            Client.run();
-        }
-
 
     }
 );

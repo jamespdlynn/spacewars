@@ -3,9 +3,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     'use strict';
 
     var PADDING = 15;
-
-    var initialized, autorun, gameEnding, updateTimeout, scrollDirection;
-    var background, stage, overlay, userShip, sprites;
+    var stage, background, overlay, userShip, sprites,  updateTimeout, scrollDirection, gameEnding;
 
     var GameView = {
 
@@ -14,20 +12,10 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         //Set up Game View
         initialize : function(){
 
-            initialized = false;
-
-            window.preloader = new createjs.LoadQueue(false, Constants.ASSETS_URL);
-            preloader.addEventListener("complete", function(){
-                initialized = true;
-                if (autorun) GameView.run();
-            });
-
-            createjs.Sound.alternateExtensions = ["mp3"];
-
-            preloader.installPlugin(createjs.Sound);
-            preloader.loadManifest(manifest);
+            //createjs.Sound.alternateExtensions = ["mp3"];
 
             window.getRelativeVolume = function(model){
+                if (!gameData.userPlayer) return 0;
                 var distance = gameData.userPlayer.getDistance(model);
                 return Math.max(1-(distance/(Math.max(window.innerWidth,window.innerHeight))), 0);
             };
@@ -43,15 +31,25 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                     sound.play({volume:getRelativeVolume(model)});
                 }
             };
+
+            window.preloader = new createjs.LoadQueue(false, Constants.ASSETS_URL);
+            preloader.installPlugin(createjs.Sound);
+
+            var progressBar = document.getElementById("progress-bar");
+            preloader.addEventListener("progress", function(evt){
+                progressBar.style.width = (evt.loaded*100)+"%"};
+            })
+
+            preloader.addEventListener("complete", function(){
+               preloader.removeAllEventListeners();
+               gameData.trigger(Constants.DEPLOY);
+            });
+
+            preloader.loadManifest(manifest);
         },
 
         run : function(){
             if (GameView.isRunning) return;
-
-            if (!initialized){
-                autorun = true;
-                return;
-            }
 
             createjs.Sound.setVolume(1);
             createjs.Sound.setMute(gameData.user.muted);

@@ -95,8 +95,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     player = gameData.players.get(dataObj.id);
 
                     if (player){
-                        dataObj = player.clone().set(dataObj).update(gameData.latency).toJSON();
-                        player.update().set(dataObj,{easing:true});
+                        dataObj = player.update().clone().set(dataObj).update(gameData.latency).toJSON();
+                        player.set(dataObj,{easing:true});
                     }else{
                         gameData.players.add(dataObj).update(gameData.latency);
                     }
@@ -105,16 +105,16 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "PlayerInfo":
                     if (!initialized) return;
-                    player = gameData.userPlayer;
-                    if (player.set(dataObj).hasChanged("kills")){
+                    dataObj = player.update().clone().set(dataObj).update(gameData.latency).toJSON();
+                    gameData.userPlayer.set({fuel:dataObj.fuel, shields: dataObj.shields, ammo:dataObj.ammo, kills: dataObj.kills});
+                    if (gameData.userPlayer.hasChanged("kills")){
                         gameData.updateKills();
                     }
                     break;
 
                 case "PlayerUpdate":
                     if (!initialized) return;
-                    player =  gameData.players.get(dataObj.id);
-                    if (player) player.set(dataObj);  //No need to ease on player update, as it contains only partial player data
+                    gameData.players.set(dataObj);  //No need to ease on player update, as it contains only partial player data
                     break;
 
                 case "Missile":
@@ -124,18 +124,14 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                     //New missile
                     if (!missile){
+                        missile = gameData.missiles.add(dataObj);
                         var missilePlayer = gameData.players.get(dataObj.playerId);
                         if (missilePlayer){
-                            var missileData = missilePlayer.update().fireMissile();
-                            missilePlayer.data.missiles++; //Hack
-                            missileData.id = dataObj.id;
-                            missile = gameData.missiles.add(missileData);
-                        }else{
-                            missile = gameData.missiles.add(dataObj);
+                            missile.set(missilePlayer.update().fireMissile());
                         }
                     }
 
-                    dataObj = missile.clone().set(dataObj).update(gameData.latency).toJSON();
+                    dataObj = missile.update().clone().set(dataObj).update(gameData.latency).toJSON();
                     missile.set(dataObj, {easing:true});
 
                     break;

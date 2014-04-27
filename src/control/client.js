@@ -69,13 +69,15 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             switch (type){
                 case "Ping":
                     if (dataObj.complete){
-                        gameData.latency = 0;
-
+                        var latency = 0;
                         var len = dataObj.timestamps.length-1;
+
                         var i = len;
                         while (i--){
-                            gameData.latency += (dataObj.timestamps[i+1]-dataObj.timestamps[i]) / len / 2;
+                            latency += (dataObj.timestamps[i+1]-dataObj.timestamps[i]) / len / 2;
                         }
+
+                        gameData.setLatency(latency);
                     }else{
                         wsClient.out.write(data);
                     }

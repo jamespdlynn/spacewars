@@ -14,7 +14,8 @@ global.extend = function(add){
 };
 
 requirejs.config({
-    nodeRequire : require
+    nodeRequire : require,
+    baseUrl : __dirname
 });
 
 requirejs(["control/server"], function(server){

@@ -137,6 +137,5 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         });
 
         GameView.initialize();
-
     }
 );

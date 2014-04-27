@@ -9,6 +9,7 @@ html
   body
     canvas#game
     #icons
+      #latency
       #view(title='Toggle Camera Mode (z)')
       #about(title='About (a)')
       #sound(title='Toggle Sound (s)')
@@ -23,5 +24,10 @@ html
                 .modal-body
                   #load-bar
                     #progress-bar
+
+    script.
+        var modalDialog = document.getElementsByClassName('modal-dialog')[0];
+        var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
+        modalDialog.setAttribute("style", "margin-top:"+padding+"px");
 
     script(data-main='#{mainPath}', src='/js/require.js')

@@ -87,6 +87,7 @@ html{
     border: none;
     pointer-events:none;
     display: block;
+    margin: 0;
 
     .modal-dialog{
       margin-top: 120px;
@@ -99,6 +100,7 @@ html{
         box-shadow: none;
         pointer-events:all;
         margin-top: -20px;
+        min-height: 185px;
 
 
         .modal-header{
@@ -138,7 +140,7 @@ html{
         height: 12px;
         margin: auto;
         background-color: #333333;
-        margin-top: 5px;
+        margin-top: 8px;
 
         #progress-bar{
           width: 0;
@@ -146,8 +148,6 @@ html{
          #gradient > .vertical(#5CBAFF, #0252fd);
         }
       }
-
-
     }
 
     #welcome-modal{
@@ -218,69 +218,67 @@ html{
         font-weight: bold;
 
         .modal-body{
-          padding: 15px 0;
+          padding: 30px 0;
         }
 
         .row{
+          margin: 0 auto 30px;
 
-          margin-top: 15px;
-
-
-
-          &#best, &#new-best{
-            display: none;
+          &:last-child{
+            margin-bottom: 0;
           }
 
           .label{
-            width: 140px;
-            font-size: 22px;
+            width: auto;
+            display: inline-block;
+            vertical-align: middle;
+            font-size: 26px;
             text-align: left;
             display: inline-block;
             vertical-align: middle;
             font-weight: normal;
+            margin-right: 5px;
+            margin-left: 10px;
+
+            &#new-best-label{
+              display: none;
+              color: lime;
+              font-size: 20px;
+              font-weight: bold;
+            }
           }
 
-          &#new-best .label{
-             color: #00ff00;
-             font-weight: bold;
-             width: 268px;
-             margin-top: -15px;
-          }
+
 
           .value{
             display: inline-block;
             vertical-align: middle;
             text-align: left;
-            width: 120px;
+            margin-right: 10px;
+            font-weight: bold;
+            padding-left: 30px;
+            font-size: 28px;
+            background-size: 22px 22px;
+            background-repeat: no-repeat;
+            background-position: left center;
 
-            > *{
-              display: inline-block;
-              vertical-align: middle;
-              font-size: 25px;
-              font-weight: bold;
-              padding-left: 28px;
-              margin-right: 15px;
+            &.kills{
+              color: lime;
+              background-image:url('@{assets}/target.png');
+            }
 
-              &.kills{
-                color: lime;
-                background:url('@{assets}/target.png') transparent no-repeat left center;;
-              }
+            &.deaths{
+              color: red;
+              background-image:url('@{assets}/skull.png');
 
-              &.deaths{
-                color: red;
-                background:url('@{assets}/skull.png') transparent no-repeat left center;;
-              }
             }
           }
-
         }
 
-
         #tip{
-          margin-top: -15px;
+          margin-top: 30px;
           font-size: 18px;
           font-weight: normal;
-          margin-bottom: 30px;
         }
 
     }
@@ -328,37 +326,55 @@ html{
       background-repeat: no-repeat;
       background-size: 32px;
       cursor: pointer;
-    }
 
-    #view{
-      background-image: url('@{assets}/view.png');
-      position: fixed;
-      bottom: 15px;
-      right: 15px;
-      display: none;
-      cursor: se-resize;
+      &#latency{
 
-      &.active{
-        background-image: url('@{assets}/view-lock.png');
-        cursor: pointer;
+        &.high{
+          background-image: url('@{assets}/latency-high.png');
+        }
+
+        &.medium{
+          background-image: url('@{assets}/latency-medium.png');
+        }
+
+        &.low{
+          background-image: url('@{assets}/latency-low.png');
+        }
+
+      }
+
+      &#view{
+        background-image: url('@{assets}/view.png');
+        position: fixed;
+        bottom: 15px;
+        right: 15px;
+        display: none;
+        cursor: se-resize;
+
+        &.active{
+          background-image: url('@{assets}/view-lock.png');
+          cursor: pointer;
+        }
+      }
+
+      &#about{
+        background-image: url('@{assets}/about.png');
+      }
+
+      &#sound{
+        background-image: url('@{assets}/sound.png');
+
+        &.active{
+          background-image: url('@{assets}/mute.png');
+        }
+      }
+
+      &#full-screen{
+        background-image: url('@{assets}/fullscreen.png');
       }
     }
 
-    #about{
-      background-image: url('@{assets}/about.png');
-    }
 
-    #sound{
-      background-image: url('@{assets}/sound.png');
-
-      &.active{
-        background-image: url('@{assets}/mute.png');
-      }
-    }
-
-    #full-screen{
-      background-image: url('@{assets}/fullscreen.png');
-    }
 
   }
 

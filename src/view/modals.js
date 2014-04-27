@@ -10,6 +10,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
         var viewIcon = document.getElementById("view");
+        var latencyIcon = document.getElementById("latency");
 
         var existingDialog;
 
@@ -27,6 +28,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
         viewIcon.addEventListener("click", toggleCameraMode);
 
         document.addEventListener("keydown", onKeyDown);
+        gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
 
         var ModalsView = {
 
@@ -102,16 +104,17 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
                  document.getElementById("round-kills").innerText = gameData.roundKills;
 
                  if (gameData.newBest){
-                     document.getElementById("new-best").show();
+                     document.getElementById("best-label").hide();
+                     document.getElementById("best-kills").hide();
+                     document.getElementById("new-best-label").show(true);
                  }else{
-                     document.getElementById("best").show();
                      document.getElementById("best-kills").innerText = gameData.user.best;
                  }
 
                  document.getElementById("career-kills").innerText = gameData.user.kills;
                  document.getElementById("career-deaths").innerText = gameData.user.deaths;
 
-                 document.getElementById("tip").innerText = "Pro Tip: " + gameData.getTip();
+                 document.getElementById("tip").innerHTML = "<strong>Pro Tip: </strong>" + gameData.getTip();
 
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
                  document.addEventListener('keydown', onSubmit);
@@ -155,7 +158,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
                  modal.show();
 
                  var modalDialog = document.getElementsByClassName('modal-dialog')[0];
-                 var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
+                 var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight) * 0.4, 0);
                  modalDialog.setAttribute("style", "margin-top:"+padding+"px");
 
                  return this;
@@ -188,6 +191,18 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
                     toggleFullScreen();
                     break;
             }
+        }
+
+        function onLatencyChanged(value){
+            if (value < 100){
+                latencyIcon.className = "high";
+            }else if (value < 200){
+                latencyIcon.className = "medium";
+            }else{
+                latencyIcon.className = "low";
+            }
+
+            latencyIcon.setAttribute("title", "Ping: "+Math.round(value)+" ms");
         }
 
 

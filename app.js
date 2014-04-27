@@ -72,4 +72,8 @@ http.createServer(app).listen(app.get('port'), function(){
     }
 });
 
-child.fork(__dirname+"/src/child.js");
+if (!process.env.DEBUG){
+    child.fork(__dirname+"/src/child.js");
+}else{
+    require('./src/child');
+}

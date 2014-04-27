@@ -3,6 +3,7 @@ define(function(){
     'use strict';
 
     return {
+       VERSION : "1.3",
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
@@ -75,6 +76,7 @@ define(function(){
            COLLISION : "collision",
            ZONE_CHANGED : "zoneChanged",
            USER_CHANGED : "userChanged",
+           LATENCY_CHANGED : "latencyChanged",
            UPDATE : "update",
            KEYDOWN : "keydown"
        }

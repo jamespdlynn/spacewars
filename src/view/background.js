@@ -27,8 +27,8 @@ define(['createjs','model/game'],function(createjs, gameData){
         },
 
         _tick : function(){
-            this.x = Math.round(gameData.offsetX);
-            this.y = Math.round(gameData.offsetY);
+            this.x = gameData.offsetX;
+            this.y = gameData.offsetY;
             this._cacheWidth = this.width;
             this._cacheHeight = this.height;
         }

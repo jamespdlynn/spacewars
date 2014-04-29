@@ -9,7 +9,6 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
         var aboutIcon = document.getElementById("about");
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
-        var viewIcon = document.getElementById("view");
         var latencyIcon = document.getElementById("latency");
 
         var existingDialog;
@@ -18,14 +17,10 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
             soundIcon.className = "active";
         }
 
-        if (gameData.user.cameraMode === 'auto'){
-            viewIcon.className = "active";
-        }
 
         aboutIcon.addEventListener("click", toggleAboutWindow);
         soundIcon.addEventListener("click", toggleSound);
         fullScreenIcon.addEventListener("click", toggleFullScreen);
-        viewIcon.addEventListener("click", toggleCameraMode);
 
         document.addEventListener("keydown", onKeyDown);
         gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
@@ -184,9 +179,6 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
                 case 83:
                     toggleSound();
                     break;
-                case 90:
-                    toggleCameraMode();
-                    break;
                 case 70:
                     toggleFullScreen();
                     break;
@@ -214,15 +206,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
             }
         }
 
-        function toggleCameraMode(){
-            if (gameData.user.cameraMode === 'auto'){
-                gameData.setCameraMode('manual');
-                viewIcon.className = null;
-            }else{
-                gameData.setCameraMode('auto');
-                viewIcon.className = "active";
-            }
-        }
+
 
         function toggleSound(){
             if (!gameData.user.muted){

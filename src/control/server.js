@@ -127,74 +127,88 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
         }
 
         function readData(buffer){
-            var data = micro.toJSON(buffer);
-            var type = data._type;
-            delete data._type;
 
-            var zone;
+            try {
+                var data = micro.toJSON(buffer);
+                var type = data._type;
+                delete data._type;
 
-            switch (type)
-            {
-                case "Ping" :
-                    if (ping(connection,data)){
-                        if (!initialized) initializeZone();
+                var zone;
 
-                        updated = false;
-                        pingTimeout = setTimeout(function(){
-                            if (!updated && !isDevelopment){
-                                connection.close();
-                                return;
-                            }
-                            ping(connection);
-                        }, PING_INTERVAL);
-                    }
-                    break;
+                switch (type)
+                {
+                    case "Ping" :
+                        if (ping(connection,data)){
+                            if (!initialized) initializeZone();
 
-                case "PlayerUpdate":
-                    if (!initialized) break;
+                            updated = false;
+                            pingTimeout = setTimeout(function(){
+                                if (!updated && !isDevelopment){
+                                    connection.close();
+                                    return;
+                                }
+                                ping(connection);
+                            }, PING_INTERVAL);
+                        }
+                        break;
 
-                    if(pm.updatePlayer(data)){
-                        updated = true;
-                    }
-                    break;
+                    case "PlayerUpdate":
+                        if (!initialized) break;
 
-                case "Collision":
-                    if (!initialized) break;
-                    if (zone = serverZones[data.zone]){
-                        zone.detectCollision(data.sprite1, data.sprite2);
-                    }
-                    break;
+                        if(pm.updatePlayer(data)){
+                            updated = true;
+                        }
+                        break;
 
-                case "OutOfBounds":
-                    if (!initialized) break;
-                    if (zone = serverZones[data.zone]){
-                        zone.checkZoneChange(data);
-                    }
-                    break;
+                    case "Collision":
+                        if (!initialized) break;
+                        if (zone = serverZones[data.zone]){
+                            zone.detectCollision(data.sprite1, data.sprite2);
+                        }
+                        break;
 
-                default:
-                    console.warn("Unexpected Schema Type Received: "+type);
-                    break;
+                    case "OutOfBounds":
+                        if (!initialized) break;
+                        if (zone = serverZones[data.zone]){
+                            zone.checkZoneChange(data);
+                        }
+                        break;
+
+                    default:
+                        console.warn("Unexpected Schema Type Received: "+type);
+                        break;
+                }
+            }catch (err){
+                console.error("Error reading data: "+err.stack);
+                connection.close();
             }
+
         }
 
         function initializeZone(){
-            var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
 
-            while(connectionCount > 1){
-                //Find a zone populated by a user
-                if (zone.getNumPlayers()){
-                    //Find an empty adjacent zone
-                    do {
-                        zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
-                    }while (zone.getNumPlayers());
-                    break;
+            try{
+                var zone = serverZones[Math.floor(Math.random()*NUM_ZONES)];
+
+                while(connectionCount > 1){
+                    //Find a zone populated by a user
+                    if (zone.getNumPlayers()){
+                        //Find an empty adjacent zone
+                        do {
+                            zone = zone.adjacentZones[Math.floor(Math.random()*zone.adjacentZones.length)];
+                        }while (zone.getNumPlayers());
+                        break;
+                    }
+                    zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
                 }
-                zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
+
+                zone.addPlayer(pm.player, true);
+                initialized = true;
+            }catch (err){
+                console.error("Error initializing zone: "+err.stack);
+                connection.close();
             }
 
-            zone.addPlayer(pm.player, true);
-            initialized = true;
         }
     }
 

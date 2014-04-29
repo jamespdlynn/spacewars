@@ -1,8 +1,8 @@
 define(['model/sprite','model/constants'],function(Sprite,Constants){
     'use strict';
 
-    var Missile = function(data, options){
-        this.initialize(data, options);
+    var Missile = function(data){
+        this.initialize(data);
     };
 
     extend.call(Missile.prototype, Sprite.prototype, Constants.Missile, {
@@ -10,9 +10,8 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Missile",
 
         defaults : {
-            id : -1,
-            playerId : -1,
-            zone : -1,
+            playerId : 0,
+            zone : 0,
             posX : 0,
             posY : 0,
             velocityX : 0,
@@ -23,6 +22,14 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         _updateData : function(deltaSeconds){
             this.data.posX += (this.data.velocityX * deltaSeconds);
             this.data.posY += (this.data.velocityY * deltaSeconds);
+        },
+
+        detectCollision : function(sprite){
+            if (!sprite || (sprite.type === 'Player' && sprite.id === this.get("playerId"))){
+                return false;
+            }
+
+            return Sprite.prototype.detectCollision.call(this, sprite);
         },
 
         hasExceededMaxDistance : function(){

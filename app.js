@@ -2,17 +2,15 @@
 // (c) 2014 James Lynn <james.lynn@aristobotgames.com>, Aristobot LLC.
 var http = require("http"),
     express = require("express"),
-    child = require("child_process"),
     pkg = require('./package.json');
-
 
 var app = express();
 app.set('env', process.argv[2] || process.env.NODE_ENV || 'production');
 app.set('port', process.argv[3] || process.env.PORT || '80');
 
-var isProd = ('production' == app.get('env'));
-
 app.configure(function(){
+
+    var isProd = ('production' == app.get('env'));
 
     if (!process.env.DEBUG){
         var fs = require('fs');
@@ -65,15 +63,23 @@ app.configure('production', function(){
 http.createServer(app).listen(app.get('port'), function(){
     console.log("Express "+app.get('env')+" server listening on port "+app.get('port'));
 
-    if (isProd){
-        process.on('uncaughtException', function(error) {
-            console.error("Uncaught Exception: "+error.stack);
-        });
-    }
+    process.on('uncaughtException', function(error) {
+        console.error("Uncaught Exception: "+error.stack);
+    });
 });
 
+var childPath = __dirname+"/src/child.js";
+
 if (!process.env.DEBUG){
-    child.fork(__dirname+"/src/child.js");
+    createChild();
 }else{
-    require('./src/child');
+    require(childPath);
+}
+
+function createChild(){
+    var child = require("child_process").fork(childPath);
+    child.once('exit', function(){
+        console.log("Restarting child process");
+        createChild();
+    });
 }

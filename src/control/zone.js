@@ -117,53 +117,20 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
          */
         removeSprite : function(sprite, send){
-            if (sprite.type === "Player"){
-                return this.removePlayer(sprite, send);
-            }else if (sprite.type === "Missile"){
-                return this.removeMissile(sprite, send);
-            }
-
-            return null;
-        },
-
-        /**
-         * Removes the given player from the zone
-         * @param {(object|number)} player Player model or id to remove
-         * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
-         */
-        removePlayer : function(player, send){
-            if (player = this.model.players.remove(player)){
-                clearTimeout(player.timeout);
+            if (sprite = this.model.remove(sprite)){
+                clearTimeout(sprite.timeout);
                 if (send){
-                    this.sendToAll("RemoveSprite", player);
+                    this.sendToAll("RemoveSprite",  {type:sprite.type,id:sprite.id});
                 }
-                player.zone = undefined;
+                sprite.zone = undefined;
                 return player;
             }
             return null;
         },
 
-        /**
-         * Removes the given player from the zone
-         * @param {object|number} missile Missile model or id to remove
-         * @param {boolean} [send=false] Flag that indicates whether send this remove to clients
-         */
-        removeMissile : function(missile, send){
-            if (missile = this.model.missiles.remove(missile)){
-                clearTimeout(missile.timeout);
-                if (send){
-                    this.sendToAll("RemoveSprite", missile);
-                }
-                missile.zone = undefined;
-
-                return missile;
-            }
-            return null;
-        },
-
         explodeSprite : function(sprite){
-             sprite.collide();
              if (this.removeSprite(sprite)){
+                 sprite.collide();
                  this.sendToAll("Collision", {
                      sprite1:{type:sprite.type,id:sprite.id}
                  }, 2);
@@ -256,7 +223,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             //Send sprite removal to clients of all adjacent zones that aren't shared with the new zone
             var i = this.adjacentZones.length;
-            var buffer = micro.toBinary(sprite, "RemoveSprite");
+            var buffer = micro.toBinary({type:sprite.type, id:sprite.id}, "RemoveSprite");
             while(i--){
                 var adjacentZone = this.adjacentZones[i];
                 if (adjacentZone !== newZone && newZone.adjacentZones.indexOf(adjacentZone) === -1){

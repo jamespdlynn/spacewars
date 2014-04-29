@@ -1,8 +1,8 @@
 define(['model/dispatcher','model/constants'],function(EventDispatcher, Constants){
     'use strict';
 
-    var Sprite = function(data, options){
-         this.initialize(data, options);
+    var Sprite = function(data){
+         this.initialize(data);
     };
 
     Sprite.getHypotenuse = function(x, y){
@@ -14,8 +14,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
         type : "Sprite",
 
         defaults : {
-            id : -1,
-            zone : -1,
+            zone : 0,
             angle : 0,
             posX : 0,
             posY : 0,
@@ -25,7 +24,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
         },
 
         initialize : function(data){
-            this.id = data.id || this.defaults.id;
+            this.id = data.id || 0;
             this.data = {};
             this.changed = {};
             this.created = this.lastUpdated = Date.now();
@@ -136,7 +135,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
         detectCollision : function(sprite){
 
-            if (this.data.isInvulnerable || sprite.data.isInvulnerable || this.equals(sprite) || this.data.zone !== sprite.data.zone){
+            if (!sprite ||  this.equals(sprite) || this.get("isInvulnerable") || sprite.get("isInvulnerable") || this.get("zone") !== sprite.get("zone")){
                 return false;
             }
 
@@ -144,7 +143,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             var dy = this.data.posY - sprite.data.posY;
             var radii = this.getRadius() + sprite.getRadius();
 
-            return (( dx * dx )  + ( dy * dy ) < radii * radii);
+            return ( dx * dx ) + ( dy * dy ) < (radii * radii);
         },
 
         getRadius : function(){

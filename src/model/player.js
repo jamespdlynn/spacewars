@@ -1,8 +1,8 @@
 define(['model/sprite','model/constants'],function(Sprite, Constants){
     'use strict';
 
-    var Player = function(data, options){
-        this.initialize(data, options);
+    var Player = function(data){
+        this.initialize(data);
     };
 
     extend.call(Player.prototype, Sprite.prototype, Constants.Player, {
@@ -10,8 +10,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         type : "Player",
 
         defaults : {
-            id : -1,
-            zone : -1,
+            zone : 0,
             username : "",
             posX : 0,
             posY : 0,
@@ -133,6 +132,14 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return this.data.isShielded ? this.width/2 + this.shieldPadding : this.width/2;
         },
 
+        detectCollision : function(sprite){
+            if (sprite && (sprite.get('playerId') === this.id)){
+                return false;
+            }
+
+            return Sprite.prototype.detectCollision.call(this, sprite);
+        },
+
         collide : function(sprite){
 
             if (!sprite || !this.data.isShielded){
@@ -203,7 +210,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         reShield : function(){
-            this.data.shields = this.maxShields;
+            this.data.shields = this.data.isShieldBroken ? this.maxShields : this.maxShields/5;
+            this.data.isShieldBroken = false;
             return this;
         },
 
@@ -220,16 +228,16 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
 
             var cos = Math.cos(data.angle);
             var sin = Math.sin(data.angle);
-            var velocity = Constants.Missile.velocity;
+            var velocity = Constants.Missile.velocity + (data.kills * 5);
 
             this.lastFired = this.lastUpdated;
             data.ammo--;
 
             return {
-                posX : data.posX ,
+                posX : data.posX,
                 posY : data.posY,
-                velocityX : (data.velocityX/4) + (cos * velocity),
-                velocityY : (data.velocityY/4) + (sin * velocity),
+                velocityX : (data.velocityX/2) + (cos * velocity),
+                velocityY : (data.velocityY/2) + (sin * velocity),
                 angle : data.angle,
                 playerId : data.id,
                 zone : data.zone

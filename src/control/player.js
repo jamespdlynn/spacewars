@@ -55,7 +55,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             if (!this.player) return;
 
             var zone = this.player.zone;
-            if (zone) zone.removePlayer(this.player,true);
+            if (zone) zone.removeSprite(this.player,true);
 
             clearTimeout(this.reloadTimeout);
             this.reloadTimeout = undefined;
@@ -105,8 +105,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             setTimeout(function(){
                 if (!self.zone || !self.get("isShieldBroken")) return;
 
-                self.set({shields:self.maxShields/5, isShieldBroken:false}).update();
-                self.zone.sendPlayerUpdate(self);
+                self.reShield().update();
             }, self.shieldDownTime);
         }
 

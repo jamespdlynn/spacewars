@@ -63,14 +63,12 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
                 this.shield.alpha = 1;
                 this.shield.scaleX = 1;
                 this.shield.scaleY = 1;
-                this.shield.visible = true;
-                this.shieldVisible = true;
+                this.shield.visible =  this.shieldVisible = true;
             }else{
                 this.shield.alpha = 0;
                 this.shield.scaleX = 0;
                 this.shield.scaleY = 0;
-                this.shield.visible = false;
-                this.shieldVisible = false;
+                this.shield.visible =  this.shieldVisible = false;
             }
 
         },
@@ -80,8 +78,7 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
             Sprite.prototype._tick.call(this,evt);
 
             var data = this.model.data;
-            var angle  = this.hasOwnProperty('angle') ? Math.toDegrees(this.angle) : Math.toDegrees(data.angle);
-            angle += 90;
+            var angle  = this.hasOwnProperty('angle') ? Math.toDegrees(this.angle) + 90 : Math.toDegrees(data.angle) + 90;
 
             if (this.rotation != angle){
                 var angleStep = ROTATION_RATE*(evt[0].delta/1000);
@@ -132,11 +129,8 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
                 this.shieldVisible = false;
             }
 
-            if (this.model.isShieldBroken()){
+            if (this.sparks.visible = (this.model.isShieldBroken() && !data.isShielded)){
                 this.sparks._tick(evt);
-                this.sparks.visible = true;
-            }else{
-                this.sparks.visible = false;
             }
 
             this.alpha = data.isInvulnerable ? 0.4 : 1;

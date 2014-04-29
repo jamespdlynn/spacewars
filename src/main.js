@@ -114,16 +114,12 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
                 ModalsView.setConnecting(false).showConnectionFailedModal();
             }
 
-            document.getElementById("version").show();
-            document.getElementById("view").hide();
-
             gameData.reset();
         });
 
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
             document.getElementById("version").hide();
-            document.getElementById("view").show();
         });
 
         gameData.on(Constants.Events.GAME_END, function(){
@@ -131,9 +127,6 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             GameView.reset();
             ModalsView.showDeathModal();
             gameData.incrementDeaths().reset();
-
-            document.getElementById("version").show();
-            document.getElementById("view").hide();
         });
 
         GameView.initialize();

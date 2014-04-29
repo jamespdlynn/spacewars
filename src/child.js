@@ -22,10 +22,9 @@ requirejs(["control/server"], function(server){
     server.run(!isProd);
 });
 
-if (isProd){
-    process.on('uncaughtException', function(error) {
-        console.error("Uncaught Exception: "+error.stack);
-    });
-}
+process.on('uncaughtException', function(error) {
+    console.error("Uncaught Exception: "+error.stack);
+    process.exit(1);
+});
 
 

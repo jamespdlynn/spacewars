@@ -1,12 +1,13 @@
 define(['model/dispatcher','model/zone','model/constants'], function(EventDispatcher,Zone,Constants){
 
     var TIPS = [
+        "Click the ? icon at the top of your screen for game information and a complete list of controls",
         "Your shield ( RMB ) will protect you from enemy fire, but direct hits will quickly deplete it!",
-        "Playing in full screen mode ( f ) gives you greater field of vision.",
-        "Press ( r ) at any time to manually reload your ship's missiles.",
+        "Playing in full screen mode ( F ) gives you greater field of vision.",
+        "Press ( R ) at any time to manually reload your ship's missiles.",
+        "Utilize the camera control keys ( Z ) and ( C ) to better position your ship.",
         "Destroying enemies increases your own ship's fuel, shields, ammo and max speed.",
-        "Press ( z ) to toggle between locked/free camera modes.",
-        "When in close vicinity of an enemy, you can use your shield ( RMB ) as a weapon!",
+        "When in close vicinity of an enemy, you can use your shield as a weapon!",
         "If your shield is depleted, protect yourself by targeting incoming enemy missiles.",
         "Always wear sunscreen when playing outside to protect yourself from harmful UV rays."
     ];
@@ -21,7 +22,11 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
 
             Zone.prototype.initialize.call(this);
 
-            this.reset();
+            this.latency = 0;
+            this.roundKills = 0;
+            this.userPlayer = undefined;
+            this.newBest = false;
+            this.cameraLocked = true;
 
             try{
                 this.user = JSON.parse(localStorage.getItem("user"));
@@ -36,7 +41,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
                     deaths : 0,
                     best : 0,
                     muted : false,
-                    cameraMode : "auto",
                     tipIndex : 0,
                     version : Constants.VERSION
                 };
@@ -60,6 +64,7 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             this.roundKills = 0;
             this.userPlayer = undefined;
             this.newBest = false;
+            this.cameraLocked = true;
 
             return this;
         },
@@ -125,12 +130,6 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
 
         setMuted : function (value){
             this.user.muted = !!value;
-            this.trigger(Constants.Events.USER_CHANGED);
-            return this;
-        },
-
-        setCameraMode : function(value){
-            this.user.cameraMode = value;
             this.trigger(Constants.Events.USER_CHANGED);
             return this;
         },

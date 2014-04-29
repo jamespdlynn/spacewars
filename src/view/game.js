@@ -3,7 +3,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     'use strict';
 
     var PADDING = 15;
-    var stage, background, overlay, userShip, sprites,  updateTimeout, scrollDirection, gameEnding;
+    var stage, background, overlay, userShip, sprites,  updateTimeout, scrollDirection, viewIcon, gameEnding;
 
     var GameView = {
 
@@ -46,6 +46,11 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             });
 
             preloader.loadManifest(manifest);
+
+
+            viewIcon = document.getElementById("view");
+
+
         },
 
         run : function(){
@@ -118,6 +123,10 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             GameView.isRunning = true;
             gameData.trigger(Constants.Events.GAME_START);
 
+            viewIcon.className = gameData.cameraLocked ? "active" : null;
+            viewIcon.addEventListener("click", toggleCameraMode);
+            viewIcon.show();
+
             /*setInterval(function(){
                 console.log(createjs.Ticker.getMeasuredFPS());
             }, 1000); */
@@ -160,6 +169,9 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             gameEnding = false;
             GameView.isRunning = false;
+
+            viewIcon.hide();
+            viewIcon.removeEventListener("click", toggleCameraMode);
         }
     };
 
@@ -240,16 +252,27 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             userShip.isFiring = false;
         }
 
-        if (gameData.user.cameraMode === "auto" || userShip.x < PADDING || userShip.y < PADDING || userShip.x >= window.innerWidth-PADDING || userShip.y >= window.innerHeight-PADDING){
+        if (userShip.x < PADDING || userShip.y < PADDING || userShip.x >= window.innerWidth-PADDING || userShip.y >= window.innerHeight-PADDING){
             scrollDirection = "center";
         }
 
-        scroll(evt);
+        if (gameData.cameraLocked && scrollDirection !== "center"){
+            var oldX = gameData.userPlayer.get("posX");
+            var oldY =  gameData.userPlayer.get("posY");
+
+            var userData = gameData.userPlayer.update().data;
+
+            gameData.offsetX += userData.posX - oldX;
+            gameData.offsetY += userData.posY - oldY;
+        }
+        else if (scrollDirection){
+           scroll(evt);
+        }
+
         stage.update(evt);
     }
 
     function scroll(evt){
-        if (!scrollDirection) return;
 
         var userData = gameData.userPlayer.update().data;
         var padding = PADDING*2;
@@ -321,26 +344,20 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
     function onZoneChange(data){
 
-        if (gameData.user.cameraMode === 'auto'){
-            gameData.offsetX = window.paddingX + (gameData.width/2 - gameData.userPlayer.get("posX"));
-            gameData.offsetY = window.paddingY + (gameData.height/2 - gameData.userPlayer.get("posY"));
+        var worldSize = Constants.WORLD_SIZE;
+
+        var colDiff = (data.newZone%worldSize) - (data.oldZone%worldSize);
+        if (Math.abs(colDiff) > worldSize/2){
+            colDiff = colDiff > 0 ? colDiff-worldSize : colDiff+worldSize;
         }
-        else{
-            var worldSize = Constants.WORLD_SIZE;
 
-            var colDiff = (data.newZone%worldSize) - (data.oldZone%worldSize);
-            if (Math.abs(colDiff) > worldSize/2){
-                colDiff = colDiff > 0 ? colDiff-worldSize : colDiff+worldSize;
-            }
-
-            var rowDiff = Math.floor(data.newZone/worldSize) - Math.floor(data.oldZone/worldSize);
-            if (Math.abs(rowDiff) > worldSize/2){
-                rowDiff = rowDiff > 0 ? rowDiff-worldSize : rowDiff+worldSize;
-            }
-
-            gameData.offsetX += (gameData.width*colDiff);
-            gameData.offsetY += (gameData.height*rowDiff);
+        var rowDiff = Math.floor(data.newZone/worldSize) - Math.floor(data.oldZone/worldSize);
+        if (Math.abs(rowDiff) > worldSize/2){
+            rowDiff = rowDiff > 0 ? rowDiff-worldSize : rowDiff+worldSize;
         }
+
+        gameData.offsetX += (gameData.width*colDiff);
+        gameData.offsetY += (gameData.height*rowDiff);
 
         background.cache();
 
@@ -425,7 +442,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             userShip.angle = Math.atan2(deltaY, deltaX);
         }
 
-        if (gameData.user.cameraMode !== 'auto' && scrollDirection !== "center"){
+        if (!gameData.cameraLocked && scrollDirection !== "center"){
             if (evt.stageY < padding){
                 if (evt.stageX < padding){
                     scrollDirection = "topleft"
@@ -470,17 +487,28 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     }
 
     function onKeyDown(evt){
-        if (!userShip.model) return;
+        switch (evt.keyCode){
+            case 32:
+                userShip.isFiring = true;
+                triggerUpdate();
+                break;
 
-        if (evt.keyCode == 32){
-            userShip.isFiring = true;
-            triggerUpdate();
+            case 67:
+                scrollDirection = "center";
+                break;
+
+            case 82:
+                if (!userShip.model || !userShip.model.canReload()) break;
+                userShip.isReloading = true;
+                triggerUpdate();
+                userShip.isReloading = false;
+                break;
+
+            case 90:
+                toggleCameraMode();
+                break;
         }
-        else if (evt.keyCode == 82 && userShip.model.canReload()){
-            userShip.isReloading = true;
-            triggerUpdate();
-            userShip.isReloading = false;
-        }
+
     }
 
     function onKeyUp(evt){
@@ -490,7 +518,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     }
 
     function triggerUpdate(){
-        if (userShip.model&& !document.isHidden()){
+        if (userShip.model && !document.isHidden()){
 
             if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
             if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;
@@ -523,6 +551,11 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
         gameData.offsetX = window.paddingX + (gameData.width/2 - userData.posX);
         gameData.offsetY = window.paddingY + (gameData.height/2 - userData.posY);
+    }
+
+    function toggleCameraMode(){
+        gameData.cameraLocked = !gameData.cameraLocked;
+        viewIcon.className = gameData.cameraLocked ? "active" : null;
     }
 
 

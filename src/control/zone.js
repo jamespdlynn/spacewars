@@ -123,7 +123,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                     this.sendToAll("RemoveSprite",  {type:sprite.type,id:sprite.id});
                 }
                 sprite.zone = undefined;
-                return player;
+                return sprite;
             }
             return null;
         },
@@ -172,15 +172,21 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 //send the collision data objects to the clients
                 this.sendToAll("Collision", data);
 
+                if (data.sprite1.survived && data.sprite2.survived){
+                    //We fast forward the sprite position as to not to have duplicate collisions
+                    sprite1.update(100);
+                    sprite2.update(100);
+                }
+
                 //Send updates or remove sprites as necessary
                 if (data.sprite1.survived){
-                    this.sendSprite(sprite1.update(100)); //We fast forward the sprite position as to not to have duplicate collisions
+                    this.sendSprite(sprite1);
                 }else{
                     this.removeSprite(sprite1);
                 }
 
                 if (data.sprite2.survived){
-                    this.sendSprite(sprite2.update(100));
+                    this.sendSprite(sprite2);
                 }else{
                     this.removeSprite(sprite2);
                 }

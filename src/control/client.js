@@ -150,7 +150,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 case "GameOver":
                     gameData.slayer = dataObj.slayer;
-                    gameData.incrementDeaths();
                     gameData.trigger(Constants.Events.GAME_ENDING);
                     break;
 

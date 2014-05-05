@@ -104,7 +104,6 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             setTimeout(function(){
                 if (!self.zone || !self.get("isShieldBroken")) return;
-
                 self.reShield().update();
             }, self.shieldDownTime);
         }

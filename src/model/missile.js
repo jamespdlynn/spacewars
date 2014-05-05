@@ -10,6 +10,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Missile",
 
         defaults : {
+            id : 0,
             playerId : 0,
             zone : 0,
             posX : 0,

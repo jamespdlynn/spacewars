@@ -10,6 +10,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         type : "Player",
 
         defaults : {
+            id : 0,
             zone : 0,
             username : "",
             posX : 0,
@@ -147,6 +148,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 return true;
             }
 
+
             var cos = Math.cos;
             var sin = Math.sin;
             var pi = Math.PI;
@@ -183,7 +185,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
 
             //Calculate new shield values
             d1.shields -= this.shieldHitDiscount;
-            d1.shields = Math.max(this.data.shields, 0);
+            d1.shields = Math.max(d1.shields, 0);
 
             this.trigger(Constants.Events.COLLISION, false, sprite);
             return false;
@@ -210,7 +212,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         reShield : function(){
-            this.data.shields = this.data.isShieldBroken ? this.maxShields : this.maxShields/5;
+            this.data.shields = this.data.isShieldBroken ?  this.maxShields/5 : this.maxShields;
             this.data.isShieldBroken = false;
             return this;
         },
@@ -282,10 +284,12 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             var kills = this.data.kills;
             if (kills < this.maxLevel){
                 this.maxVelocity = Constants.Player.maxVelocity + (kills*5);
-                this.maxFuel =  Constants.Player.maxFuel + (20*kills);
-                this.maxShields = Constants.Player.maxShields + (20*kills);
+                this.maxFuel =  Constants.Player.maxFuel + (100/this.maxLevel*kills);
+                this.maxShields = Constants.Player.maxShields + (100/this.maxLevel*kills);
                 this.maxAmmo = Constants.Player.maxAmmo + kills;
             }
+
+            console.log(this.maxFuel);
 
             return this;
         }

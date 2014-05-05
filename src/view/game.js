@@ -257,19 +257,16 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         }
 
         if (gameData.cameraLocked && scrollDirection !== "center"){
-            var oldX = gameData.userPlayer.get("posX");
-            var oldY =  gameData.userPlayer.get("posY");
-
             var userData = gameData.userPlayer.update().data;
-
-            gameData.offsetX += userData.posX - oldX;
-            gameData.offsetY += userData.posY - oldY;
+            gameData.offsetX = userShip.x - userData.posX;
+            gameData.offsetY = userShip.y - userData.posY;
         }
         else if (scrollDirection){
            scroll(evt);
         }
 
         stage.update(evt);
+
     }
 
     function scroll(evt){
@@ -548,6 +545,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         stage.canvas.height = background.height = height;
 
         overlay.setBounds(0, 0, width-(PADDING*2), height-(PADDING*2));
+
 
         gameData.offsetX = window.paddingX + (gameData.width/2 - userData.posX);
         gameData.offsetY = window.paddingY + (gameData.height/2 - userData.posY);

@@ -53,7 +53,7 @@ define(['createjs','model/constants','model/game'],function(createjs, Constants,
             this.killIcon.x = this.usernameLabel.x + this.usernameLabel.getMeasuredWidth() +  12;
             this.killIcon.y =  this.usernameLabel.y;
 
-            this.killLabel.text = gameData.userPlayer.get("kills");
+            this.killLabel.text = gameData.roundKills;
             this.killLabel.x =  this.killIcon.x + ICON_SIZE + 8;
             this.killLabel.y =   this.usernameLabel.y - 1;
 

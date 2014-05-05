@@ -14,6 +14,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
         type : "Sprite",
 
         defaults : {
+            id : 0,
             zone : 0,
             angle : 0,
             posX : 0,

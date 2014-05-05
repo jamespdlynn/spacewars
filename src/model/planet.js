@@ -10,7 +10,7 @@ define(['model/sprite','model/constants'],function(Sprite,Constants){
         type : "Planet",
 
         defaults : {
-            zone : -1,
+            zone : 0,
             key : "",
             posX : 0,
             posY : 0,

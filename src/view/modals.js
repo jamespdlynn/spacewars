@@ -194,7 +194,7 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
                 latencyIcon.className = "low";
             }
 
-            latencyIcon.setAttribute("title", "Ping: "+Math.round(value)+" ms");
+            latencyIcon.setAttribute("title", "Ping - "+Math.round(value));
         }
 
 

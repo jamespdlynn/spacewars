@@ -141,13 +141,11 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return Sprite.prototype.detectCollision.call(this, sprite);
         },
 
-        collide : function(sprite){
+        collide : function(sprite, options){
 
             if (!sprite || !this.data.isShielded){
-                this.trigger(Constants.Events.COLLISION, true, sprite);
-                return true;
+                return Sprite.prototype.collide.call(sprite, options);
             }
-
 
             var cos = Math.cos;
             var sin = Math.sin;
@@ -187,7 +185,6 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             d1.shields -= this.shieldHitDiscount;
             d1.shields = Math.max(d1.shields, 0);
 
-            this.trigger(Constants.Events.COLLISION, false, sprite);
             return false;
         },
 
@@ -212,7 +209,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         reShield : function(){
-            this.data.shields = this.data.isShieldBroken ?  this.maxShields/5 : this.maxShields;
+            this.data.shields = this.isShieldBroken() ? this.maxShields/5 : this.maxShields;
             this.data.isShieldBroken = false;
             return this;
         },

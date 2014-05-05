@@ -130,10 +130,9 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
-                 sprite.collide();
-                 this.sendToAll("Collision", {
-                     sprite1:{type:sprite.type,id:sprite.id}
-                 }, 2);
+                 sprite.trigger(Constants.Event.COLLISION);
+                 var data =  {sprite1:{type:sprite.type,id:sprite.id}};
+                 this.sendToAll("Collision",data, 2);
              }
         },
 
@@ -159,35 +158,33 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             sprite2 = this.model.get(sprite2);
 
             //Check if collision is valid
-            if (sprite1 && sprite2 && !sprite1.equals(sprite2) && sprite1.update().detectCollision(sprite2.update())){
+            if (sprite1 && sprite2 && sprite1.update({silent:true}).detectCollision(sprite2.update({silent:true}))){
 
                 //Save off current sprite data values
                 var sprite1Clone = sprite1.clone();
 
                 //Collide the two sprites
-                var data = {sprite1:sprite1, sprite2:sprite2};
-                data.sprite1.survived = !sprite1.collide(sprite2);
-                data.sprite2.survived = !sprite2.collide(sprite1Clone);
+                var data = {sprite1:{type:sprite1.type, id:sprite1.id}, sprite2:{type:sprite2.type, id:sprite2.id}};
+                data.sprite1.survived = !sprite1.collide(sprite2, {silent:true});
+                data.sprite2.survived = !sprite2.collide(sprite1Clone, {silent:true});
 
                 //send the collision data objects to the clients
-                this.sendToAll("Collision", data);
-
-                if (data.sprite1.survived && data.sprite2.survived){
-                    //We fast forward the sprite position as to not to have duplicate collisions
-                    sprite1.update(100);
-                    sprite2.update(100);
-                }
+                this.sendToAll("Collision", data, 6);
 
                 //Send updates or remove sprites as necessary
                 if (data.sprite1.survived){
+                    sprite1.update(100); //Fast forward the sprite position as to not to have duplicate collisions
                     this.sendSprite(sprite1);
                 }else{
+                    sprite1.trigger(Constants.Event.COLLISION, sprite2);
                     this.removeSprite(sprite1);
                 }
 
                 if (data.sprite2.survived){
+                    sprite2.update(100);   //Fast forward the sprite position as to not to have duplicate collisions
                     this.sendSprite(sprite2);
                 }else{
+                    sprite2.trigger(Constants.Event.COLLISION, sprite1);
                     this.removeSprite(sprite2);
                 }
 

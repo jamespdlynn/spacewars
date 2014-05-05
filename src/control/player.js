@@ -122,9 +122,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         sendPlayerInfo.call(this);
     }
 
-    function onPlayerCollision(exploded, sprite){
-
-        if (!exploded) return;
+    function onPlayerCollision(sprite){
 
         sprite = sprite || {};
 
@@ -141,15 +139,13 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         if (slayer){
-            slayer.update().incrementKills().refresh();
+            slayer.update({silent:true}).incrementKills().refresh();
             sendPlayerInfo.call(slayer);
         }
 
     }
 
-    function onMissileCollision(exploded){
-        if (!exploded) return;
-
+    function onMissileCollision(){
         this.off();
         delete missileMap[''+this.id];
     }

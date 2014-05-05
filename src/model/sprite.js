@@ -50,7 +50,7 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
             options = options || {};
 
-            this.changed = {};
+            if (!options.silent) this.changed = {};
 
             //Loop through the new object and set new attributes on the player
             for (var key in attrs){
@@ -60,7 +60,8 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
                 var value = attrs[key];
 
                 if (this.data[key] !== value){
-                    this.changed[key] = value;
+
+                    if (!options.silent) this.changed[key] = value;
 
                     if (key === "zone" && this.data.zone >= 0){
                         var adjustedPos = this.zoneAdjustedPosition(value);
@@ -99,11 +100,18 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return this;
         },
 
-        /**@param {number} [deltaTime]*/
-        update : function(deltaTime){
+        /**@param {number | object} [deltaTime], @param {object} [options] */
+        update : function(deltaTime, options){
 
             var currentTime = Date.now();
-            deltaTime = deltaTime || currentTime-this.lastUpdated;
+
+            if (typeof deltaTime === 'object'){
+                deltaTime = currentTime-this.lastUpdated;
+                options = deltaTime;
+            }else{
+                deltaTime = deltaTime || currentTime-this.lastUpdated;
+                options = options || {};
+            }
 
             //Ignore minor updates
             if (deltaTime >= 5){
@@ -117,13 +125,17 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
                 }
 
                 this.lastUpdated = currentTime;
-                this.trigger(Constants.Events.UPDATE);
+
+                if (!options.silent){
+                    this.trigger(Constants.Events.UPDATE);
+                }
+
             }
 
             return this;
         },
 
-        _updateData : function(){
+        _updateData : function(delta){
             return this;
         },
 
@@ -151,8 +163,10 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return Math.max(this.width,this.height)/2;
         },
 
-        collide : function(sprite){
-            this.trigger(Constants.Events.COLLISION, true, sprite);
+        collide : function(sprite, options){
+            if (!(options || {}).silent){
+                this.trigger(Constants.Events.COLLISION, sprite);
+            }
             return true;
         },
 

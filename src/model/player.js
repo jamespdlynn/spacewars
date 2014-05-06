@@ -144,7 +144,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         collide : function(sprite, options){
 
             if (!sprite || !this.data.isShielded){
-                return Sprite.prototype.collide.call(sprite, options);
+                return Sprite.prototype.collide.call(this, sprite, options);
             }
 
             var cos = Math.cos;
@@ -285,8 +285,6 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 this.maxShields = Constants.Player.maxShields + (100/this.maxLevel*kills);
                 this.maxAmmo = Constants.Player.maxAmmo + kills;
             }
-
-            console.log(this.maxFuel);
 
             return this;
         }

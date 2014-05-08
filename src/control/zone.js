@@ -130,7 +130,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
-                 sprite.trigger(Constants.Event.COLLISION);
+                 sprite.trigger(Constants.Events.COLLISION);
                  var data =  {sprite1:{type:sprite.type,id:sprite.id}};
                  this.sendToAll("Collision",data, 2);
              }
@@ -176,7 +176,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                     sprite1.update(100); //Fast forward the sprite position as to not to have duplicate collisions
                     this.sendSprite(sprite1);
                 }else{
-                    sprite1.trigger(Constants.Event.COLLISION, sprite2);
+                    sprite1.trigger(Constants.Events.COLLISION, sprite2);
                     this.removeSprite(sprite1);
                 }
 
@@ -184,7 +184,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                     sprite2.update(100);   //Fast forward the sprite position as to not to have duplicate collisions
                     this.sendSprite(sprite2);
                 }else{
-                    sprite2.trigger(Constants.Event.COLLISION, sprite1);
+                    sprite2.trigger(Constants.Events.COLLISION, sprite1);
                     this.removeSprite(sprite2);
                 }
 

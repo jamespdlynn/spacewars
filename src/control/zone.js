@@ -77,7 +77,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 while (!this._isValidPlayerPlacement(data));
                 player.set(data);
             }else{
-                player.update().set("zone", this.id);
+                player.update({silent:true}).set("zone", this.id);
             }
 
             //Send the new player to existing connections
@@ -314,10 +314,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         sendZoneData : function(player){
             if(!player.connection) return;
 
-            var gameData = this.model.update().toJSON();
+            var gameData = this.model.update({silent:true}).toJSON();
             var i = this.adjacentZones.length;
             while (i--){
-                this.adjacentZones[i].model.update().concat(gameData);
+                this.adjacentZones[i].model.update({silent:true}).concat(gameData);
             }
             gameData.playerId = player.id;
 

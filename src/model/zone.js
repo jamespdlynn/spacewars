@@ -16,9 +16,9 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
             this.planets = new SpriteCollection("Planet", data.planets, options);
         },
 
-        update : function(deltaTime){
-            this.players.update(deltaTime);
-            this.missiles.update(deltaTime);
+        update : function(deltaTime, options){
+            this.players.update(deltaTime, options);
+            this.missiles.update(deltaTime, options);
 
             return this;
         },

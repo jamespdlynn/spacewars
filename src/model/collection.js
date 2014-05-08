@@ -147,10 +147,10 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
             return model;
         },
 
-        update : function(deltaTime){
+        update : function(deltaTime, options){
             var i = this.length;
             while(i--){
-                this.models[i].update(deltaTime);
+                this.models[i].update(deltaTime, options);
             }
 
             return this;

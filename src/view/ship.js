@@ -63,12 +63,12 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
                 this.shield.alpha = 1;
                 this.shield.scaleX = 1;
                 this.shield.scaleY = 1;
-                this.shield.visible =  this.shieldVisible = true;
+                this.shield.visible = this.shieldVisible = true;
             }else{
                 this.shield.alpha = 0;
                 this.shield.scaleX = 0;
                 this.shield.scaleY = 0;
-                this.shield.visible =  this.shieldVisible = false;
+                this.shield.visible = this.shieldVisible = false;
             }
 
         },
@@ -115,12 +115,12 @@ define(['createjs','view/sprite','model/constants','model/game'],function(create
 
             if (data.isShielded && !this.shieldVisible){
                 this.shield.visible = true;
-                createjs.Tween.get(this.shield,{override:true}).to({alpha: 1, scaleX:1, scaleY:1}, 1000,createjs.Ease.backOut);
+                createjs.Tween.get(this.shield,{override:true}).to({alpha: 1, scaleX:1, scaleY:1}, 800,createjs.Ease.backOut);
                 playRelativeSound(this.shieldSound, this.model);
                 this.shieldVisible = true;
             }
             else if (!data.isShielded && this.shieldVisible){
-                createjs.Tween.get(this.shield,{override:true}).to({alpha: 0, scaleX:0, scaleY:0}, 500).call(function(){
+                createjs.Tween.get(this.shield,{override:true}).to({alpha: 0, scaleX:0, scaleY:0}, 400).call(function(){
                     this.visible = false;
                 });
                 if (this.model.isShieldBroken()){

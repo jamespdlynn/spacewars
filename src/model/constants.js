@@ -58,10 +58,10 @@ define(function(){
        },
 
        Missile : {
-           width : 10,
+           width : 12,
            height : 18,
            mass : 50,
-           velocity : 300,
+           velocity : 320,
            maxDistance : 1000
        },
 

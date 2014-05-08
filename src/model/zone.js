@@ -50,17 +50,17 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
         },
 
         remove : function(data){
-            if (data){
-                switch (data.type){
-                    case "Player":
-                        return this.players.remove(data.id);
+            if (!data) return null;
 
-                    case "Missile":
-                        return this.missiles.remove(data.id);
+            switch (data.type){
+                case "Player":
+                    return this.players.remove(data.id);
 
-                    case "Planet":
-                        return this.planets.remove(data.id);
-                }
+                case "Missile":
+                    return this.missiles.remove(data.id);
+
+                case "Planet":
+                    return this.planets.remove(data.id);
             }
 
             return null;

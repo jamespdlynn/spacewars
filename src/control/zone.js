@@ -269,8 +269,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         sendSprite : function(sprite, sendAll){
              if (sprite.type === "Player"){
                  this.sendPlayer(sprite, sendAll);
-             }
-             else if (sprite.type === "Missile"){
+             }else if (sprite.type === "Missile"){
                  this.sendMissile(sprite, sendAll);
              }
         },

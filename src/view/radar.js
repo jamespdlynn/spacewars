@@ -70,9 +70,6 @@ define(['createjs','model/game'],function(createjs,gameData){
             var rotationStep = 360 * (evt[0].delta/ROTATION_TIME);
             var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
             var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
-            var max = RADIUS-3;
-            var divider = gameData.height * 2 / max;
-
 
             this.revealer.rotation += rotationStep;
             this.revealer.rotation %= 360;
@@ -81,11 +78,12 @@ define(['createjs','model/game'],function(createjs,gameData){
             while (--i > 1){
                 var mark = this.getChildAt(i);
 
-                var data = mark.model.zoneAdjustedPosition(gameData.zone);
-                mark.x = Math.max(Math.min(-max, (data.posX - centerX) / divider), max);
-                mark.y = Math.max(Math.min(-max, (data.posY - centerY) / divider), max);
-
                 if (mark !== this.userMark){
+
+                    var data = mark.model.zoneAdjustedPosition(gameData.zone);
+                    mark.x = (data.posX - centerX) / (gameData.width * 2 / RADIUS);
+                    mark.y = (data.posY - centerY) /  (gameData.height * 2 / RADIUS);
+
                     var angle = Math.toDegrees(Math.atan2(mark.y, mark.x));
                     if (angle < 0) angle += 360;
 

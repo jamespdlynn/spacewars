@@ -106,11 +106,11 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             var currentTime = Date.now();
 
             if (typeof deltaTime === 'object'){
-                deltaTime = currentTime-this.lastUpdated;
                 options = deltaTime;
+                deltaTime = currentTime-this.lastUpdated;
             }else{
-                deltaTime = deltaTime || currentTime-this.lastUpdated;
                 options = options || {};
+                deltaTime = deltaTime || currentTime-this.lastUpdated;
             }
 
             //Ignore minor updates

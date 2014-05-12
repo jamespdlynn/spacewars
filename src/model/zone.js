@@ -38,6 +38,7 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
                     return this.planets.get(data.id);
             }
 
+            console.warn("Unable to retrieve sprite of type: "+data.type);
             return null;
         },
 
@@ -63,6 +64,7 @@ define(['model/collection','model/constants'], function(SpriteCollection, Consta
                     return this.planets.remove(data.id);
             }
 
+            console.warn("Unable to remove sprite of type: "+data.type);
             return null;
         },
 

@@ -72,7 +72,7 @@ app.configure('production', function(){
         console.log(req.header('X-Hub-Signature'));
 
         res.status(200).send('success');
-        cp.exec('bash reset-spacewars.sh');
+        //cp.exec('bash reset-spacewars.sh');
     });
 });
 

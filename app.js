@@ -2,9 +2,13 @@
 // (c) 2014 James Lynn <james.lynn@aristobotgames.com>, Aristobot LLC.
 var http = require("http"),
     express = require("express"),
-    pkg = require('./package.json');
+    cp = require('child_process'),
+    //crypto = require('crypto'),
+    pkg = require('./package.json'),
+    childPath = __dirname+"/src/child.js",
+    app = express();
 
-var app = express();
+
 app.set('env', process.argv[2] || process.env.NODE_ENV || 'production');
 app.set('port', process.argv[3] || process.env.PORT || '80');
 
@@ -50,13 +54,25 @@ app.configure('development', function() {
 });
 
 app.configure('production', function(){
-     require('requirejs').optimize({
+    require('requirejs').optimize({
         baseUrl : __dirname+"/src",
         name : 'main',
         mainConfigFile : __dirname+"/src/main.js",
         findNestedDependencies : true,
         out : __dirname+"/public/js/main-"+pkg.version+".js",
         preserveLicenseComments : false
+    });
+
+    app.post('/reset', function(req,res){
+        //Validate post using encrypted secret
+        //var hash = crypto.creatHmac('sha1', pkg.secret).update(req.body).digest('hex');
+
+        console.log("GITHUB EVENT RECEIVED");
+        console.log(req.header('X-Github-Event'));
+        console.log(req.header('X-Hub-Signature'));
+
+        res.status(200).send('success');
+        cp.exec('bash reset-spacewars.sh');
     });
 });
 
@@ -68,18 +84,15 @@ http.createServer(app).listen(app.get('port'), function(){
     });
 });
 
-var childPath = __dirname+"/src/child.js";
-
-if (!process.env.DEBUG){
-    createChild();
-}else{
+if (process.env.DEBUG){
     require(childPath);
+    return;
 }
 
-function createChild(){
-    var child = require("child_process").fork(childPath);
+(function createChild(){
+    var child = cp.fork(childPath);
     child.once('exit', function(){
         console.log("Restarting child process");
         createChild();
     });
-}
+})();

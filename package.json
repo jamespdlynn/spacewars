@@ -12,5 +12,6 @@
     "microjs" : "*",
     "requirejs" : "*",
     "jade" : "*"
-  }
+  },
+  "secret" : "h8t3rzG0nn@h8te"
 }

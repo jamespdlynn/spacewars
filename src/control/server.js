@@ -62,6 +62,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
             wsServer.on("connection", onConnection);
 
             isDevelopment = !!isDev;
+
         }
     };
 
@@ -229,5 +230,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
     function getZone(row, col){
        return serverZones[(row*Constants.WORLD_SIZE) + col];
     }
+
+
 
 });

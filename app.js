@@ -73,7 +73,7 @@ app.configure('production', function(){
         console.log(req.header('X-Github-Event'));
         console.log(req.header('X-Hub-Signature'));
 
-        cp.exec("/bin/bash /usr/bin/reset-spacewars.sh");
+        //cp.exec("/bin/bash /usr/bin/reset-spacewars.sh");
 
         res.status(200).send('success');
     });

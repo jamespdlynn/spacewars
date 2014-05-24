@@ -63,6 +63,7 @@ app.configure('production', function(){
         preserveLicenseComments : false
     });
 
+    app.use(express.bodyParser());
     app.post('/reset', function(req,res){
 
         console.log("GITHUB EVENT RECEIVED");

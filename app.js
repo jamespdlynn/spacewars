@@ -64,14 +64,15 @@ app.configure('production', function(){
     });
 
     app.post('/reset', function(req,res){
-        //Validate post using encrypted secret
-        var hash = crypto.createHmac('sha1', pkg.secret).update(req.body).digest('hex');
-
 
         console.log("GITHUB EVENT RECEIVED");
         console.log(pkg.secret);
         console.log(req.body);
         console.log(JSON.stringify(req.body));
+
+        //Validate post using encrypted secret
+        var hash = crypto.createHmac('sha1', pkg.secret).update(JSON.stringify(req.body)).digest('hex');
+
         console.log("HASH "+hash);
         console.log(req.header('X-Github-Event'));
         console.log(req.header('X-Hub-Signature'));

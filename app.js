@@ -3,7 +3,7 @@
 var http = require("http"),
     express = require("express"),
     cp = require('child_process'),
-    //crypto = require('crypto'),
+    crypto = require('crypto'),
     pkg = require('./package.json'),
     childPath = __dirname+"/src/child.js",
     app = express();

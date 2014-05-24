@@ -84,7 +84,6 @@ define(['createjs','model/game', 'model/constants'],function(createjs, gameData,
             diff = (player.get("shields")/100) - this.shieldsFill.scaleX;
             this.shieldsFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
-
             var isShieldBroken = gameData.userPlayer.get("isShieldBroken");
             if (isShieldBroken && !this.shieldsWarning.visible){
                 this.shieldsWarning.visible = true;

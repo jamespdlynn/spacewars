@@ -77,6 +77,8 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             var missile = missileMap[''+currentMissileId] = new Missile({id:currentMissileId});
             missile.set(this.player.fireMissile());
             missile.player = this.player;
+
+            missile.on(Constants.Events.UPDATE, onMissileUpdate);
             missile.on(Constants.Events.COLLISION, onMissileCollision);
 
             this.player.zone.addMissile(missile);
@@ -143,6 +145,12 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             sendPlayerInfo.call(slayer);
         }
 
+    }
+
+    function onMissileUpdate(){
+        if (this.hasExceededMaxDistance()){
+           this.zone.explodeSprite(this);
+        }
     }
 
     function onMissileCollision(){

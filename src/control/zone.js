@@ -130,9 +130,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
-                 sprite.trigger(Constants.Events.COLLISION);
-                 var data =  {sprite1:{type:sprite.type,id:sprite.id}};
-                 this.sendToAll("Collision",data, 2);
+                 this.sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 2);
              }
         },
 
@@ -199,7 +197,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var direction, newZone;
 
             //If sprite not in this zone or not out of zone bounds return false
-            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.update().outOfBounds())){
+            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.update({silent:true}).outOfBounds())){
                 return false;
             }
 
@@ -275,7 +273,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         sendPlayer : function(player, sendAll){
-            if (this.checkZoneChange(player)) return;
+            if (player.zone !== this || this.checkZoneChange(player)) return;
 
             clearTimeout(player.timeout);
 
@@ -294,7 +292,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         },
 
         sendMissile : function(missile, sendAll){
-            if (this.checkZoneChange(missile)) return;
+            if (missile.zone !== this || this.checkZoneChange(missile)) return;
 
             clearTimeout(missile.timeout);
             var byteLength = sendAll ? undefined : PARTIAL_MISSILE_SIZE;
@@ -302,21 +300,17 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var self = this;
             missile.timeout = setTimeout(function(){
-                if (missile.update().hasExceededMaxDistance()){
-                    self.explodeSprite(missile);
-                }else{
-                    self.sendMissile(missile);
-                }
+                self.sendMissile(missile.update());
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
 
         sendZoneData : function(player){
             if(!player.connection) return;
 
-            var gameData = this.model.update({silent:true}).toJSON();
+            var gameData = this.model.update().toJSON();
             var i = this.adjacentZones.length;
             while (i--){
-                this.adjacentZones[i].model.update({silent:true}).concat(gameData);
+                this.adjacentZones[i].model.update().concat(gameData);
             }
             gameData.playerId = player.id;
 

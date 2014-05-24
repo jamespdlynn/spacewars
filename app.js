@@ -65,9 +65,11 @@ app.configure('production', function(){
 
     app.post('/reset', function(req,res){
         //Validate post using encrypted secret
-        //var hash = crypto.creatHmac('sha1', pkg.secret).update(req.body).digest('hex');
+        var hash = crypto.creatHmac('sha1', pkg.secret).update(req.body).digest('hex');
+
 
         console.log("GITHUB EVENT RECEIVED");
+        console.log(hash);
         console.log(req.header('X-Github-Event'));
         console.log(req.header('X-Hub-Signature'));
 

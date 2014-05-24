@@ -69,7 +69,10 @@ app.configure('production', function(){
 
 
         console.log("GITHUB EVENT RECEIVED");
-        console.log(hash);
+        console.log(pkg.secret);
+        console.log(req.body);
+        console.log(JSON.stringify(req.body));
+        console.log("HASH "+hash);
         console.log(req.header('X-Github-Event'));
         console.log(req.header('X-Hub-Signature'));
 

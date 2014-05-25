@@ -3,7 +3,6 @@
 var http = require("http"),
     express = require("express"),
     cp = require('child_process'),
-    crypto = require('crypto'),
     pkg = require('./package.json'),
     childPath = __dirname+"/src/child.js",
     app = express();
@@ -63,24 +62,27 @@ app.configure('production', function(){
         preserveLicenseComments : false
     });
 
-    app.use(express.bodyParser());
     app.post('/reset', function(req,res){
+        //Validate this is a push event
+        if (req.header('X-Github-Event') !== "push"){
+            return res.status(304).send("ignored");
+        }
 
-        console.log("GITHUB EVENT RECEIVED");
-        console.log(pkg.secret);
-        console.log(req.body);
-        console.log(JSON.stringify(req.body));
-
-        //Validate post using encrypted secret
-        var hash = crypto.createHmac('sha1', pkg.secret).update(JSON.stringify(req.body)).digest('hex');
-
-        console.log("HASH "+hash);
-        console.log(req.header('X-Github-Event'));
-        console.log(req.header('X-Hub-Signature'));
-
-        //cp.exec("/bin/bash /usr/bin/reset-spacewars.sh");
-
-        res.status(200).send('success');
+        //Read in post body to generate cryptography key
+        var hmac = require('crypto').createHmac('sha1', pkg.secret);
+        req.setEncoding('utf8');
+        req.on('data', function(chunk){
+            hmac.update(chunk);
+        });
+        req.on('end', function(){
+            //Validate Signature header
+            if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
+               return res.status(400).send("unauthorized");
+            }
+            //Update and restart spacewars service
+            cp.exec("bash reset-spacewars.sh");
+            res.status(200).send("success");
+        });
     });
 });
 

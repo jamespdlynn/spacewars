@@ -64,14 +64,10 @@ app.configure('production', function(){
 
     app.post('/reset', function(req,res){
 
-        console.log("A");
         //Validate this is a push event
         if (req.header('X-Github-Event') !== "push"){
             return res.status(304).send("ignored");
         }
-
-        console.log("B");
-
         //Read in post body to generate cryptography key
         var hmac = require('crypto').createHmac('sha1', pkg.secret);
         req.setEncoding('utf8');
@@ -80,7 +76,6 @@ app.configure('production', function(){
         });
         req.on('end', function(){
 
-            console.log("C");
             //Validate Signature header
             if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
                return res.status(400).send("unauthorized");
@@ -88,7 +83,7 @@ app.configure('production', function(){
 
             console.log("RESETTING");
             //Update and restart spacewars service
-            cp.exec("bash reset-spacewars.sh", function (error, stdout, stderr){
+            cp.exec("sudo /bin/bash /usr/bin/reset-spacewars.sh", function (error, stdout, stderr){
                 console.log('stdout: ' + stdout);
                 console.log('stderr: ' + stderr);
                 if (error !== null) {

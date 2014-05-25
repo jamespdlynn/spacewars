@@ -63,10 +63,14 @@ app.configure('production', function(){
     });
 
     app.post('/reset', function(req,res){
+
+        console.log("A");
         //Validate this is a push event
         if (req.header('X-Github-Event') !== "push"){
             return res.status(304).send("ignored");
         }
+
+        console.log("B");
 
         //Read in post body to generate cryptography key
         var hmac = require('crypto').createHmac('sha1', pkg.secret);
@@ -75,6 +79,8 @@ app.configure('production', function(){
             hmac.update(chunk);
         });
         req.on('end', function(){
+
+            console.log("C");
             //Validate Signature header
             if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
                return res.status(400).send("unauthorized");

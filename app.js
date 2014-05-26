@@ -81,8 +81,15 @@ app.configure('production', function(){
                return res.status(400).send("unauthorized");
             }
 
+            console.log("RESETTING");
             //Update and restart spacewars service
-            cp.exec("bash reset-spacewars.sh");
+            cp.exec("bash reset-spacewars.sh", function (error, stdout, stderr){
+                console.log('stdout: ' + stdout);
+                console.log('stderr: ' + stderr);
+                if (error !== null) {
+                    console.log('exec error: ' + error);
+                }
+            });
             res.status(200).send("success");
         });
     });

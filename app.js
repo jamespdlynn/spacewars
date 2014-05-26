@@ -75,21 +75,12 @@ app.configure('production', function(){
             hmac.update(chunk);
         });
         req.on('end', function(){
-
             //Validate Signature header
             if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
                return res.status(400).send("unauthorized");
             }
-
-            console.log("RESETTING");
             //Update and restart spacewars service
-            cp.exec("sudo reset-spacewars.sh", function (error, stdout, stderr){
-                console.log('stdout: ' + stdout);
-                console.log('stderr: ' + stderr);
-                if (error !== null) {
-                    console.log('exec error: ' + error);
-                }
-            });
+            cp.exec("sudo reset-spacewars.sh");
             res.status(200).send("success");
         });
     });

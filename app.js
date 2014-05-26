@@ -83,7 +83,7 @@ app.configure('production', function(){
 
             console.log("RESETTING");
             //Update and restart spacewars service
-            cp.exec("bash reset-spacewars.sh", function (error, stdout, stderr){
+            cp.exec("sudo reset-spacewars.sh", function (error, stdout, stderr){
                 console.log('stdout: ' + stdout);
                 console.log('stderr: ' + stderr);
                 if (error !== null) {

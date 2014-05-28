@@ -35,6 +35,9 @@ define(function (){
          */
         getAllObjects : function(returnedObjects) {
             var i, len;
+
+            returnedObjects = returnedObjects || [];
+
             for (i = 0, len = this.nodes.length; i < len; i++) {
                 this.nodes[i].getAllObjects(returnedObjects);
             }
@@ -44,12 +47,14 @@ define(function (){
             return returnedObjects;
         },
 
-        findObjects : function(returnedObjects, obj) {
-            if (!obj) return;
+        findObjects : function(obj, returnedObjects) {
+            if (!obj) return null;
+
+            returnedObjects = returnedObjects || [];
 
             var index = this.getIndex(obj);
             if (index != -1 && this.nodes.length) {
-                this.nodes[index].findObjects(returnedObjects, obj);
+                this.nodes[index].findObjects(obj, returnedObjects);
             }
             for (var i = 0, len = this.objects.length; i < len; i++) {
                 returnedObjects.push(this.objects[i]);
@@ -105,15 +110,16 @@ define(function (){
          * object cannot completely fit within a node and is part
          * of the current node
          */
-        getIndex : function(obj) {
+        getIndex : function(sprite) {
             var index = -1;
             var verticalMidpoint = this.bounds.x + this.bounds.width / 2;
             var horizontalMidpoint = this.bounds.y + this.bounds.height / 2;
 
-            var topQuadrant = (obj.y < horizontalMidpoint && obj.y + obj.height < horizontalMidpoint);
-            var bottomQuadrant = (obj.y > horizontalMidpoint);
+            var topQuadrant = (data.posY < horizontalMidpoint && data.posY + sprite.height < horizontalMidpoint);
+            var bottomQuadrant = (data.posY > horizontalMidpoint);
+            var data = sprite.data;
 
-            if (obj.x < verticalMidpoint && obj.x + obj.width < verticalMidpoint) {
+            if (data.posX < verticalMidpoint && data.posX + sprite.width < verticalMidpoint) {
                 if (topQuadrant) {
                     index = 1;
                 }else if (bottomQuadrant) {

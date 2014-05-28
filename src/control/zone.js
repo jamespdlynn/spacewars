@@ -2,7 +2,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
     'use strict';
 
     var MAX_PLANETS = 5;
-    var PARTIAL_PLAYER_SIZE = 12;
+    var PARTIAL_PLAYER_SIZE = 13;
     var PARTIAL_MISSILE_SIZE = 5;
 
     /**
@@ -282,7 +282,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             var self = this;
             player.timeout = setTimeout(function(){
-                self.sendPlayer(player, PARTIAL_PLAYER_SIZE);
+                self.sendPlayer(player.update());
             }, Constants.SERVER_UPDATE_INTERVAL);
         },
 
@@ -295,6 +295,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             if (missile.zone !== this || this.checkZoneChange(missile)) return;
 
             clearTimeout(missile.timeout);
+
             var byteLength = sendAll ? undefined : PARTIAL_MISSILE_SIZE;
             this.sendToAll("Missile", missile.toJSON(), byteLength);
 

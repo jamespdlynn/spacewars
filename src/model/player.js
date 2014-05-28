@@ -76,38 +76,6 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             }
             else{
 
-                /*if (Math.abs(data.velocityX) > this.minVelocity){
-                    newVelocityX = data.velocityX + (Math.cos(data.angle) * this.deceleration * deltaSeconds);
-
-                    if (Math.abs(newVelocityX) < this.minVelocity){
-                        newVelocityX = (newVelocityX > 0) ? this.minVelocity : -this.minVelocity;
-                        deltaSeconds1 = getTime(data.velocityX, newVelocityX, this.deceleration);
-                        data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds1) + (newVelocityX*(deltaSeconds-deltaSeconds1));
-                    } else{
-                        data.posX += getDistance(data.velocityX, newVelocityX, deltaSeconds);
-                    }
-
-                    data.velocityX = newVelocityX;
-                }else{
-                    data.posX += data.velocityX * deltaSeconds;
-                }
-
-                if (Math.abs(data.velocityY) > this.minVelocity){
-                    newVelocityY = data.velocityY + (Math.sin(data.angle) * this.deceleration * deltaSeconds);
-
-                    if (Math.abs(newVelocityY) < this.minVelocity){
-                        newVelocityY = (newVelocityY > 0) ? this.minVelocity : -this.minVelocity;
-                        deltaSeconds1 = getTime(data.velocityY, newVelocityY, this.deceleration);
-                        data.posY += getDistance(data.velocityY, newVelocityY, deltaSeconds1) + (newVelocityY*(deltaSeconds-deltaSeconds1));
-                    } else{
-                        data.posY += getDistance(data.velocityY, newVelocityY, deltaSeconds);
-                    }
-
-                    data.velocityY = newVelocityY;
-                }else{
-                    data.posY += data.velocityY * deltaSeconds;
-                }   */
-
                 data.posX += data.velocityX * deltaSeconds;
                 data.posY += data.velocityY * deltaSeconds;
 
@@ -115,15 +83,13 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
                 data.fuel = Math.min(data.fuel, this.maxFuel);
             }
 
-            if (!this.isShieldBroken()){
-                if ( data.isShielded){
-                    data.shields -=  (this.shieldUseRate * deltaSeconds);
-                    data.shields = Math.max(data.shields, 0);
-                }
-                else{
-                    data.shields += (this.shieldRestoreRate * deltaSeconds);
-                    data.shields = Math.min(data.shields, this.maxShields);
-                }
+            if (data.isShielded){
+                data.shields -=  (this.shieldUseRate * deltaSeconds);
+                data.shields = Math.max(data.shields, 0);
+            }
+            else if (!this.isShieldBroken()){
+                data.shields += (this.shieldRestoreRate * deltaSeconds);
+                data.shields = Math.min(data.shields, this.maxShields);
             }
 
             return this;
@@ -204,18 +170,18 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return this;
         },
 
+        isShieldBroken : function(){
+            return this.data.isShieldBroken || this.data.shields === 0;
+        },
+
         canShield : function(){
-            return this.data.shields > 0;
+            return !this.isShieldBroken();
         },
 
         reShield : function(){
             this.data.shields = this.isShieldBroken() ? this.maxShields/5 : this.maxShields;
             this.data.isShieldBroken = false;
             return this;
-        },
-
-        isShieldBroken : function(){
-            return this.data.isShieldBroken || this.data.shields === 0;
         },
 
         canFire : function(){
@@ -278,12 +244,12 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         _powerUp : function(){
-            var kills = this.data.kills;
-            if (kills < this.maxLevel){
-                this.maxVelocity = Constants.Player.maxVelocity + (kills*5);
-                this.maxFuel =  Constants.Player.maxFuel + (100/this.maxLevel*kills);
-                this.maxShields = Constants.Player.maxShields + (100/this.maxLevel*kills);
-                this.maxAmmo = Constants.Player.maxAmmo + kills;
+            var level = this.data.kills;
+            if (level < this.maxLevel){
+                this.maxVelocity = Constants.Player.maxVelocity + level;
+                this.maxFuel =  Constants.Player.maxFuel + (10*level);
+                this.maxShields = Constants.Player.maxShields + (10*level);
+                this.maxAmmo = Constants.Player.maxAmmo + level;
             }
 
             return this;

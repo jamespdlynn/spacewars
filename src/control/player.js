@@ -27,9 +27,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             //data object validation
             if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
             if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
-            if (dataObj.isReloading && this.player.canReload()){
-                this.player.set('ammo', 0); //Setting ammo to 0 will trigger a reload on the player update
-            }
+            if (dataObj.isReloading && this.player.canReload()) this.player.set('ammo', 0); //Setting ammo to 0 will trigger a reload on the player update
 
             //Update player data and set new data object
             this.player.update().set(dataObj);
@@ -89,42 +87,47 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
     function onPlayerUpdate(){
 
-        var self = this;
+        var player = this;
+        var zone = player.zone;
 
-        if (this.get("isInvulnerable") && this.lastUpdated-this.created >= this.invulnerableTime){
-            this.set("isInvulnerable", false);
+        if (!zone) return;
+
+
+        if (player.get("isInvulnerable") && player.lastUpdated-self.created >= player.invulnerableTime){
+            player.set("isInvulnerable", false);
         }
 
-        if (this.get("isAccelerating") && !this.canAccelerate()){
-            this.set("isAccelerating", false);
-            this.zone.sendPlayer(this);
+        if (player.get("isAccelerating") && !player.canAccelerate()){
+            player.set("isAccelerating", false);
+            zone.sendPlayer(this);
         }
 
-        if (this.get("shields") === 0 && !this.get("isShieldBroken")){
-            this.set({isShielded:false, isShieldBroken:true});
-            this.zone.sendPlayerUpdate(this);
+        if (player.get("shields") === 0 && !player.get("isShieldBroken")){
+            player.set({isShielded:false, isShieldBroken:true});
+            zone.sendPlayerUpdate(self);
 
             setTimeout(function(){
-                if (!self.zone || !self.get("isShieldBroken")) return;
-                self.reShield().update();
-            }, self.shieldDownTime);
+                if (!player.zone || !player.get("isShieldBroken")) return;
+                player.reShield().update();
+            }, player.shieldDownTime);
         }
 
-        if (this.get("ammo") == 0 && !this.isReloading){
-            this.isReloading = true;
+        if (player.get("ammo") === 0 && !player.isReloading){
+            player.isReloading = true;
 
             setTimeout(function(){
-                if (!self.zone || !self.isReloading) return;
-
-                self.reload().update();
-                self.isReloading = false;
-            }, Constants.Player.reloadTime);
+                if (!player.zone || !player.isReloading) return;
+                player.reload().update();
+                delete player.isReloading;
+            }, player.reloadTime);
         }
 
-        sendPlayerInfo.call(this);
+        sendPlayerInfo.call(player);
     }
 
     function onPlayerCollision(sprite){
+
+        var player = this;
 
         sprite = sprite || {};
 
@@ -135,9 +138,9 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             slayer = sprite.player;
         }
 
-        if (this.connection){
+        if (player.connection){
             var buffer = micro.toBinary({slayer: slayer ? slayer.toJSON() : null}, "GameOver");
-            this.connection.out.write(buffer);
+            player.connection.out.write(buffer);
         }
 
         if (slayer){
@@ -148,7 +151,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
     }
 
     function onMissileUpdate(){
-        if (this.hasExceededMaxDistance()){
+        if (this.zone && this.hasExceededMaxDistance()){
            this.zone.explodeSprite(this);
         }
     }

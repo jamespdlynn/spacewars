@@ -26,6 +26,7 @@ define(['model/constants'],function(Constants){
            isShielded : "boolean",
            isInvulnerable : "boolean",
            isShieldBroken : "boolean",
+           kills : "uint8",
            username : "string",
            zone : "uint8"
        },

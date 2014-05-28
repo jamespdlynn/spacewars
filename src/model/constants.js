@@ -12,7 +12,7 @@ define(function(){
 
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
-       COLLISION_DETECT_INTERVAL : 100,
+       COLLISION_DETECT_INTERVAL : 50,
 
        PLANET_KEYS : ["nebula1", "nebula2", "nebula3", "sun", "mercury", "earth", "saturn", "neptune", "green", "purple"],
        ASSETS_URL : "http://dazx2ug0v9sfb.cloudfront.net/",
@@ -37,10 +37,8 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 300,
-           deceleration : -100,
-           maxVelocity : 150,
-           minVelocity : 50,
+           acceleration : 310,
+           maxVelocity : 155,
            maxAmmo : 6,
            fireInterval : 500,
            reloadTime : 3500,

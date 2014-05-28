@@ -2,9 +2,12 @@
 // (c) 2014 James Lynn <james.lynn@aristobotgames.com>, Aristobot LLC.
 var http = require("http"),
     express = require("express"),
-    pkg = require('./package.json');
+    cp = require('child_process'),
+    pkg = require('./package.json'),
+    childPath = __dirname+"/src/child.js",
+    app = express();
 
-var app = express();
+
 app.set('env', process.argv[2] || process.env.NODE_ENV || 'production');
 app.set('port', process.argv[3] || process.env.PORT || '80');
 
@@ -50,13 +53,36 @@ app.configure('development', function() {
 });
 
 app.configure('production', function(){
-     require('requirejs').optimize({
+    require('requirejs').optimize({
         baseUrl : __dirname+"/src",
         name : 'main',
         mainConfigFile : __dirname+"/src/main.js",
         findNestedDependencies : true,
         out : __dirname+"/public/js/main-"+pkg.version+".js",
         preserveLicenseComments : false
+    });
+
+    app.post('/reset', function(req,res){
+
+        //Validate this is a push event
+        if (req.header('X-Github-Event') !== "push"){
+            return res.status(304).send("ignored");
+        }
+        //Read in post body to generate cryptography key
+        var hmac = require('crypto').createHmac('sha1', pkg.secret);
+        req.setEncoding('utf8');
+        req.on('data', function(chunk){
+            hmac.update(chunk);
+        });
+        req.on('end', function(){
+            //Validate Signature header
+            if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
+               return res.status(400).send("unauthorized");
+            }
+            //Update and restart spacewars service
+            cp.exec("sudo reset-spacewars.sh");
+            res.status(200).send("success");
+        });
     });
 });
 
@@ -68,18 +94,15 @@ http.createServer(app).listen(app.get('port'), function(){
     });
 });
 
-var childPath = __dirname+"/src/child.js";
-
-if (!process.env.DEBUG){
-    createChild();
-}else{
+if (process.env.DEBUG){
     require(childPath);
+    return;
 }
 
-function createChild(){
-    var child = require("child_process").fork(childPath);
+(function createChild(){
+    var child = cp.fork(childPath);
     child.once('exit', function(){
         console.log("Restarting child process");
         createChild();
     });
-}
+})();

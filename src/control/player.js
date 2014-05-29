@@ -93,7 +93,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         if (!zone) return;
 
 
-        if (player.get("isInvulnerable") && player.lastUpdated-self.created >= player.invulnerableTime){
+        if (player.get("isInvulnerable") && player.lastUpdated-player.created >= player.invulnerableTime){
             player.set("isInvulnerable", false);
         }
 

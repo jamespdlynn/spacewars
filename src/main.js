@@ -70,16 +70,16 @@ require.config({
     };
 
     Math.getDistance = function(x1, y1, x2, y2){
-        var dx = x2 - x1;
-        var dy = y2 - y1;
+        var dx =  x1 - (x2 || 0);
+        var dy =  y1 - (y2 || 0);
         return Math.sqrt((dx*dx)+(dy*dy));
     };
 })();
 
 
 //Main require function
-require(['view/modals','view/game','control/client', 'model/constants','model/game'],
-    function( ModalsView, GameView, Client, Constants, gameData){
+require(['view/modals','view/game','control/client','model/constants','model/game'],
+    function( ModalsView, GameView, Client, Constants, GameData){
         'use strict';
 
         if ('ontouchstart' in document.documentElement){
@@ -90,10 +90,20 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
             return ModalsView.showUnsupportedBrowserModal();
         }
 
+        window.gameData = new GameData();
+
+        //Load user from local storage
+        gameData.user = JSON.parse(localStorage.getItem("user")) || gameData.user;
+        gameData.on(Constants.Events.USER_CHANGED, function(){
+            localStorage.setItem("user", JSON.stringify(gameData.user));
+        });
+
+        var client = new Client(gameData);
+
         gameData.on(Constants.Events.DEPLOY, function(){
             if (gameData.isUserInitialized()){
                 ModalsView.setConnecting(true);
-                Client.run();
+                client.run();
             }else{
                 ModalsView.showWelcomeModal();
             }
@@ -105,7 +115,7 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         });
 
         gameData.on(Constants.Events.DISCONNECTED, function(){
-            Client.stop();
+            client.stop();
 
             if (GameView.isRunning){
                 GameView.reset();
@@ -123,12 +133,14 @@ require(['view/modals','view/game','control/client', 'model/constants','model/ga
         });
 
         gameData.on(Constants.Events.GAME_END, function(){
-            Client.stop();
-            GameView.reset();
-            ModalsView.showDeathModal();
             gameData.incrementDeaths().reset();
+            client.stop();
+            GameView.reset();
+
+            ModalsView.showDeathModal();
         });
 
+        ModalsView.initialize();
         GameView.initialize();
     }
 );

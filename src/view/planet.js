@@ -1,4 +1,4 @@
-define(['createjs','view/sprite','model/game'],function(createjs, Sprite, gameData){
+define(['createjs','view/sprite'],function(createjs, Sprite){
     'use strict';
 
     var Bitmap = createjs.Bitmap;

@@ -1,5 +1,5 @@
-define(['createjs','graphics/lightmissile','model/game','model/constants'],
-    function(createjs,missileGraphic,gameData,Constants){
+define(['createjs','graphics/lightmissile','model/constants'],
+    function(createjs,missileGraphic,Constants){
         'use strict';
 
 

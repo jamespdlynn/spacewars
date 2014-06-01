@@ -10,7 +10,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
     var NUM_ZONES = Constants.WORLD_SIZE * Constants.WORLD_SIZE;
 
     var connectionCount = 0;
-    var maxConnectionCount = 0;
 
     var serverZones = [];
     var addressMap = {};
@@ -120,12 +119,7 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
         connection.out.readable = false;
 
         ping(connection);
-
         connectionCount++;
-        if (connectionCount > maxConnectionCount){
-            console.log(new Date().toUTCString()+ " connections: "+connectionCount+"\n");
-            maxConnectionCount = connectionCount;
-        }
 
         function readData(buffer){
 

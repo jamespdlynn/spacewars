@@ -1,5 +1,5 @@
-define(['createjs','view/sprite','graphics/lightmissile','graphics/darkmissile','model/game'],
-    function(createjs, Sprite, userMissileBody, enemyMissileBody, gameData){
+define(['createjs','view/sprite','graphics/lightmissile','graphics/darkmissile'],
+    function(createjs, Sprite, userMissileBody, enemyMissileBody){
         'use strict';
 
         var Missile = function (model){

@@ -2,8 +2,8 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
     'use strict';
 
     var MAX_PLANETS = 5;
-    var PARTIAL_PLAYER_SIZE = 13;
-    var PARTIAL_MISSILE_SIZE = 5;
+    var PARTIAL_PLAYER_SIZE = 14;
+    var PARTIAL_MISSILE_SIZE = 6;
 
     /**
      * @constructor
@@ -130,7 +130,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
-                 this.sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 2);
+                 this.sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 3);
              }
         },
 
@@ -167,7 +167,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 data.sprite2.survived = !sprite2.collide(sprite1Clone, {silent:true});
 
                 //send the collision data objects to the clients
-                this.sendToAll("Collision", data, 6);
+                this.sendToAll("Collision", data);
 
                 //Send updates or remove sprites as necessary
                 if (data.sprite1.survived){
@@ -295,6 +295,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             if (missile.zone !== this || this.checkZoneChange(missile)) return;
 
             clearTimeout(missile.timeout);
+
+            if (missile.data.posX > 2000 || missile.data.posY > 2000){
+                throw new Error("something went wrong");
+            }
 
             var byteLength = sendAll ? undefined : PARTIAL_MISSILE_SIZE;
             this.sendToAll("Missile", missile.toJSON(), byteLength);

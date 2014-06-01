@@ -68,6 +68,8 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         },
 
         _fireMissile : function(){
+            if (!this.player || !this.player.zone) return null;
+
             do{
                 currentMissileId = (currentMissileId+1)%Constants.MAX_MISSILES;
             } while (missileMap[''+currentMissileId]);
@@ -104,7 +106,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         if (player.get("shields") === 0 && !player.get("isShieldBroken")){
             player.set({isShielded:false, isShieldBroken:true});
-            zone.sendPlayerUpdate(self);
+            zone.sendPlayerUpdate(player);
 
             setTimeout(function(){
                 if (!player.zone || !player.get("isShieldBroken")) return;
@@ -157,6 +159,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
     }
 
     function onMissileCollision(){
+        this.zone = undefined;
         this.off();
         delete missileMap[''+this.id];
     }

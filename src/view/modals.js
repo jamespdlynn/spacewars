@@ -1,6 +1,6 @@
-define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
+define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
         'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
-    function (Constants, gameData, loadTpl, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
+    function (Constants, loadTpl, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
         'use strict';
 
         var modal = document.getElementById("modal");
@@ -13,19 +13,20 @@ define(['model/constants', 'model/game', 'txt!tpl/load.html', 'txt!tpl/welcome.h
 
         var existingDialog;
 
-        if (gameData.user.muted){
-            soundIcon.className = "active";
-        }
-
-
-        aboutIcon.addEventListener("click", toggleAboutWindow);
-        soundIcon.addEventListener("click", toggleSound);
-        fullScreenIcon.addEventListener("click", toggleFullScreen);
-
-        document.addEventListener("keydown", onKeyDown);
-        gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
-
         var ModalsView = {
+
+             initialize : function(){
+                 if (gameData.user.muted){
+                     soundIcon.className = "active";
+                 }
+
+                 aboutIcon.addEventListener("click", toggleAboutWindow);
+                 soundIcon.addEventListener("click", toggleSound);
+                 fullScreenIcon.addEventListener("click", toggleFullScreen);
+
+                 document.addEventListener("keydown", onKeyDown);
+                 gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
+             },
 
              setConnecting : function(value){
                  value ? connecting.show() : connecting.hide();

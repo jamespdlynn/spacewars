@@ -1,8 +1,10 @@
-define(['createjs','view/background','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/game','model/manifest'],
-function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, gameData, manifest){
+define(['createjs','view/background','view/overlay', 'view/planet','view/usership','view/enemyship','view/missile','view/explosion','model/constants','model/manifest'],
+function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Explosion, Constants, manifest){
     'use strict';
 
     var PADDING = 15;
+    var MAX_DISTANCE = Math.getDistance(Constants.Zone.width*2, Constants.Zone.height*2);
+
     var stage, background, overlay, userShip, sprites,  updateTimeout, scrollDirection, viewIcon, gameEnding;
 
     var GameView = {
@@ -15,9 +17,19 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             //createjs.Sound.alternateExtensions = ["mp3"];
 
             window.getRelativeVolume = function(model){
-                if (!gameData.userPlayer) return 0;
-                var distance = gameData.userPlayer.getDistance(model);
-                return Math.max(1-(distance/(Math.max(window.innerWidth,window.innerHeight))), 0);
+
+                var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
+                var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
+
+                var data = model.zoneAdjustedPosition(gameData.zone);
+                var distance = Math.getDistance(data.posX , data.posY, centerX, centerY);
+
+                if (distance > MAX_DISTANCE/2){
+                   return 0.2;
+                }else if (distance > MAX_DISTANCE/4){
+                   return  0.5;
+                }
+                return 1;
             };
 
             window.setRelativeVolume = function(sound, model){
@@ -285,7 +297,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         if (scrollDirection == "center"){
             var centerX = window.paddingX + (gameData.width/2 - userData.posX);
             var centerY = window.paddingY + (gameData.height/2 - userData.posY);
-            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
+            var distance = Math.getDistance(gameData.offsetX.offsetY, centerX, centerY);
 
             if(distance > scrollSpeed){
                 var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));

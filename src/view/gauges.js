@@ -1,4 +1,4 @@
-define(['createjs','model/game', 'model/constants'],function(createjs, gameData, Constants){
+define(['createjs', 'model/constants'],function(createjs, Constants){
     'use strict';
 
     var GAUGE_WIDTH = 200;

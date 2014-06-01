@@ -1,11 +1,19 @@
-define(['createjs','model/game'],function(createjs,gameData){
+define(['createjs','model/constants'],function(createjs, Constants){
     'use strict';
 
     var RADIUS = 90;
+    var SECTION = RADIUS/3;
+    var MARK_RADIUS = 4.5;
     var ROTATION_TIME = 2000;
+
+    var OUTER_DISTANCE =  Math.getDistance(Constants.Zone.width*2, Constants.Zone.height*2);
+    var MIDDLE_DISTANCE = OUTER_DISTANCE/2;
+    var INNER_DISTANCE = OUTER_DISTANCE/5;
 
     var Container = createjs.Container;
     var Shape = createjs.Shape;
+
+
 
     var Radar = function (){
         this.initialize();
@@ -36,14 +44,14 @@ define(['createjs','model/game'],function(createjs,gameData){
 
             this.userMark = new Shape();
             this.userMark.model = gameData.userPlayer;
-            this.userMark.graphics.beginFill("#3076C2").drawCircle(0,0,4.5);
+            this.userMark.graphics.beginFill("#3076C2").drawCircle(0,0,MARK_RADIUS);
             this.userMark.shadow = new createjs.Shadow("#3076C2", 0, 0, 2);
-            this.userMark.cache(-6, -6, 12, 12);
+            this.userMark.cache(-MARK_RADIUS-1, -MARK_RADIUS-1, MARK_RADIUS*2+2, MARK_RADIUS*2+2);
 
             this.enemyMark = new Shape();
-            this.enemyMark.graphics.beginFill("rgb(200,0,0)").drawCircle(0,0,4.5);
+            this.enemyMark.graphics.beginFill("rgb(200,0,0)").drawCircle(0,0,MARK_RADIUS);
             this.enemyMark.shadow = new createjs.Shadow("rgb(200,0,0)", 0, 0, 2);
-            this.enemyMark.cache(-6, -6, 12, 12);
+            this.enemyMark.cache(-MARK_RADIUS-1, -MARK_RADIUS-1, MARK_RADIUS*2+2, MARK_RADIUS*2+2);
 
             this.addChild(this.background, this.revealer, this.userMark);
             this.setBounds(0, 0, RADIUS*2, RADIUS*2);
@@ -52,6 +60,8 @@ define(['createjs','model/game'],function(createjs,gameData){
         addMark : function(model){
             var mark = new Shape();
             mark.cacheCanvas = this.enemyMark.cacheCanvas;
+            mark.regX = mark.regY = MARK_RADIUS;
+            mark.alpha = 0;
             mark.model = model;
             this.addChild(mark);
         },
@@ -67,30 +77,51 @@ define(['createjs','model/game'],function(createjs,gameData){
         },
 
         _tick : function(evt){
+
+            var revealer = this.revealer;
             var rotationStep = 360 * (evt[0].delta/ROTATION_TIME);
+
             var centerX = (gameData.width/2) - gameData.offsetX + window.paddingX;
             var centerY = (gameData.height/2) - gameData.offsetY + window.paddingY;
 
-            this.revealer.rotation += rotationStep;
-            this.revealer.rotation %= 360;
+            //Rotate Revealer
+            revealer.rotation += rotationStep;
+            revealer.rotation %= 360;
 
             var i = this.children.length;
             while (--i > 1){
                 var mark = this.getChildAt(i);
 
+                var data = mark.model.zoneAdjustedPosition(gameData.zone);
+                var distance = Math.getDistance(data.posX , data.posY, centerX, centerY);
+                var angle = Math.atan2(data.posY-centerY, data.posX-centerX);
+
+                //Calculate the actual mark distance from the center of the radar (this fluctuates depending on the section it falls in)
+                if (distance <= INNER_DISTANCE){
+                    distance =  distance / INNER_DISTANCE * SECTION;
+                }
+                else if (distance <= MIDDLE_DISTANCE){
+                    distance = SECTION + ((distance-INNER_DISTANCE) / (MIDDLE_DISTANCE-INNER_DISTANCE) * SECTION);
+                }
+                else{
+                    distance = (SECTION*2) + ((distance-MIDDLE_DISTANCE) / (OUTER_DISTANCE-MIDDLE_DISTANCE) * SECTION);
+                    distance = Math.min(distance, RADIUS);
+                }
+
+                //Position the mark
+                mark.x = Math.cos(angle) * distance
+                mark.y = Math.sin(angle) * distance;
+
                 if (mark !== this.userMark){
-
-                    var data = mark.model.zoneAdjustedPosition(gameData.zone);
-                    mark.x = (data.posX - centerX) / (gameData.width * 2 / RADIUS);
-                    mark.y = (data.posY - centerY) /  (gameData.height * 2 / RADIUS);
-
-                    var angle = Math.toDegrees(Math.atan2(mark.y, mark.x));
+                    //Translate mark angle to degrees
+                    angle = Math.toDegrees(angle);
                     if (angle < 0) angle += 360;
 
-                    if (angle >= this.revealer.rotation && angle <= this.revealer.rotation+45){
+                    //Set mark alpha to 1 if it is positioned within the revealer, otherwise fade it out
+                    if (angle >= revealer.rotation && angle <= revealer.rotation+45){
                         mark.alpha = 1;
                     }else{
-                        mark.alpha -= 1/(315/rotationStep);
+                        mark.alpha -= 1/(270/rotationStep);
                     }
                 }
             }

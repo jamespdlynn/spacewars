@@ -1,4 +1,4 @@
-define(['createjs','view/sprite','model/constants','model/game'],function(createjs, Sprite, Constants,gameData){
+define(['createjs','view/sprite','model/constants'],function(createjs, Sprite, Constants){
     'use strict';
 
     var ROTATION_RATE = 300;

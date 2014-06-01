@@ -12,11 +12,11 @@ define(['model/constants'],function(Constants){
            players : [{type:"object", schema:"Player"}],
            missiles : [{type:"object", schema:"Missile"}],
            planets : [{type:"object", schema:"Planet"}],
-           playerId : "uint8"
+           playerId : "uint16"
        },
 
        Player : {
-           id : "uint8",
+           id : "uint16",
            posX : {type:"float", byteLength:2, precision:1},
            posY : {type:"float", byteLength:2, precision:1},
            velocityX : {type:"float", byteLength:2, precision:1},
@@ -32,13 +32,13 @@ define(['model/constants'],function(Constants){
        },
 
        Missile : {
-          id : "uint8",
+          id : "uint16",
           posX : {type:"float", byteLength:2, precision:1},
           posY : {type:"float", byteLength:2, precision:1},
           velocityX : {type:"float", byteLength:2, precision:1},
           velocityY : {type:"float", byteLength:2, precision:1},
           angle : {type:"float", byteLength:2, precision:2},
-          playerId : "uint8",
+          playerId : "uint16",
           zone : "uint8"
        },
 
@@ -57,7 +57,7 @@ define(['model/constants'],function(Constants){
            isFiring : "boolean",
            isReloading : "boolean",
            isShieldBroken : "boolean",
-           id : "uint8"
+           id : "uint16"
        },
 
        PlayerInfo : {
@@ -68,15 +68,15 @@ define(['model/constants'],function(Constants){
        },
 
        RemoveSprite : {
-          type : {type:"enum", values:["Player","Missile","Planet"]},
-          id : "uint8"
+          type : {type:"enum", values:["Player","Missile"]},
+          id : "uint16"
        },
 
        Collision : {
            sprite1 : {
                type:"object", schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint8",
+                   id : "uint16",
                    survived : "boolean"
                }
 
@@ -84,7 +84,7 @@ define(['model/constants'],function(Constants){
            sprite2 : {
                type:"object", schema:{
                    type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint8",
+                   id : "uint16",
                    survived : "boolean"
                }
            },
@@ -94,7 +94,7 @@ define(['model/constants'],function(Constants){
        OutOfBounds : {
            zone : "uint8",
            type : {type:"enum", values:["Player","Missile","Planet"]},
-           id : "uint8"
+           id : "uint16"
        },
 
        GameOver : {

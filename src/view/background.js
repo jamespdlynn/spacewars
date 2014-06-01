@@ -1,4 +1,4 @@
-define(['createjs','model/game'],function(createjs, gameData){
+define(['createjs'],function(createjs){
     'use strict';
 
     var Container = createjs.Container;

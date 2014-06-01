@@ -89,20 +89,20 @@ app.configure('production', function(){
 http.createServer(app).listen(app.get('port'), function(){
     console.log("Express "+app.get('env')+" server listening on port "+app.get('port'));
 
-    process.on('uncaughtException', function(error) {
+    /*process.on('uncaughtException', function(error) {
         console.error("Uncaught Exception: "+error.stack);
-    });
+    }); */
 });
 
-if (process.env.DEBUG){
+//if (process.env.DEBUG){
     require(childPath);
-    return;
-}
+    //return;
+//}
 
-(function createChild(){
+/*(function createChild(){
     var child = cp.fork(childPath);
     child.once('exit', function(){
         console.log("Restarting child process");
         createChild();
     });
-})();
+})();*/

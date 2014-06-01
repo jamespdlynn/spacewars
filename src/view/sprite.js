@@ -1,4 +1,4 @@
-define(['model/constants','model/game'],function(Constants,gameData){
+define(['model/constants'],function(Constants){
     'use strict';
 
     var Sprite = function (){};

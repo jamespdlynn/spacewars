@@ -28,31 +28,14 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             this.newBest = false;
             this.cameraLocked = true;
 
-            try{
-                this.user = JSON.parse(localStorage.getItem("user"));
-            }catch(e){
-                console.warn("Could not load user from local storage: "+e.msg);
-            }
-
-            if (!this.user || this.user.version !== Constants.VERSION){
-                this.user = {
-                    username : "",
-                    kills : 0,
-                    deaths : 0,
-                    best : 0,
-                    muted : false,
-                    tipIndex : 0,
-                    version : Constants.VERSION
-                };
-            }
-
-            this.on(Constants.Events.USER_CHANGED, function(){
-                try{
-                    localStorage.setItem("user", JSON.stringify(this.user));
-                }catch(e){
-                    console.warn("Could not save user to local storage: "+e.msg);
-                }
-            });
+            this.user = {
+                username : "",
+                kills : 0,
+                deaths : 0,
+                best : 0,
+                muted : false,
+                tipIndex : 0
+            };
 
             return this;
         },
@@ -145,5 +128,5 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
         }
     });
 
-    return new GameData();
+    return GameData;
 });

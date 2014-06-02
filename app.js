@@ -68,20 +68,29 @@ app.configure('production', function(){
         if (req.header('X-Github-Event') !== "push"){
             return res.status(304).send("ignored");
         }
-        //Read in post body to generate cryptography key
-        var hmac = require('crypto').createHmac('sha1', pkg.secret);
+
+        var data = "";
         req.setEncoding('utf8');
         req.on('data', function(chunk){
-            hmac.update(chunk);
+            data += 'chunk';
         });
         req.on('end', function(){
-            //Validate Signature header
-            if (req.header('X-Hub-Signature').indexOf(hmac.digest('hex')) == -1){
-               return res.status(400).send("unauthorized");
+
+            //Ignore pushes that don't include changes to the package.json file
+            if (data.indexOf('package.json') ==  -1){
+                return res.status(304).send("ignored");
             }
+
+            //Use the post body as a cryptography key and check the hash output against the signature in the packet header
+            var hash = require('crypto').createHmac('sha1', pkg.secret).update(data).digest('hex');
+            if (req.header('X-Hub-Signature').indexOf(hash) == -1){
+                return res.status(400).send("unauthorized");
+            }
+
             //Update and restart spacewars service
             cp.exec("sudo reset-spacewars.sh");
             res.status(200).send("success");
+
         });
     });
 });

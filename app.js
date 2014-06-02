@@ -91,7 +91,7 @@ app.configure('production', function(){
             res.status(200).send("success");
 
             //Update and restart spacewars service
-            cp.exec("sudo bash reset.sh");
+            cp.exec("sudo reset-spacewars.sh");
         });
     });
 });

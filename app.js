@@ -15,6 +15,7 @@ app.configure(function(){
 
     var isProd = ('production' == app.get('env'));
 
+    //Don't rebuild html file in debug mode as there's a bug with the jade library
     if (!process.env.DEBUG){
         var fs = require('fs');
 
@@ -87,10 +88,10 @@ app.configure('production', function(){
                 return res.status(400).send("unauthorized");
             }
 
-            //Update and restart spacewars service
-            cp.exec("sudo reset-spacewars.sh");
             res.status(200).send("success");
 
+            //Update and restart spacewars service
+            cp.exec("sudo bash reset.sh");
         });
     });
 });
@@ -100,6 +101,9 @@ http.createServer(app).listen(app.get('port'), function(){
 
     process.on('uncaughtException', function(error) {
         console.error("Uncaught Exception: "+error.stack);
+        setTimeout(function(){
+            cp.exec("sudo restart spacewars"); //Restart spacewars service
+        }, 1000);
     });
 });
 

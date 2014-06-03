@@ -91,7 +91,7 @@ app.configure('production', function(){
 
 
             //Update and restart spacewars service
-            cp.exec("sudo bash reset.sh", function(a, b, c){
+            cp.exec("sudo reset-spacewars.sh", function(a, b, c){
                 console.log(a);
                 console.log(b);
                 if (c) console.log(c);

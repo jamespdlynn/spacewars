@@ -10,11 +10,21 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         } while (playerMap[''+currentPlayerId]);
 
 
-        this.player = playerMap[''+currentPlayerId] = new Player({id:currentPlayerId,username:username});
-        this.player.connection = connection;
-        this.player.zone = null;
-        this.player.on(Constants.Events.UPDATE, onPlayerUpdate);
-        this.player.on(Constants.Events.COLLISION, onPlayerCollision);
+        var player = new Player({id:currentPlayerId,username:username});
+        player.connection = connection;
+        player.zone = null;
+
+        player.on(Constants.Events.UPDATE, onPlayerUpdate);
+        player.on(Constants.Events.COLLISION, onPlayerCollision);
+
+        player.interval = setInterval(function(){
+           var zone = player.update().zone;
+           zone.sendPlayer(player);
+
+           sendPlayerInfo.call(player);
+        }, Constants.SERVER_UPDATE_INTERVAL);
+
+        this.player = playerMap[''+currentPlayerId]
     };
 
 
@@ -55,15 +65,13 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             var zone = this.player.zone;
             if (zone) zone.removeSprite(this.player,true);
 
-            clearTimeout(this.reloadTimeout);
-            this.reloadTimeout = undefined;
-
+            clearInterval(this.player.interval);
             this.player.off();
             delete playerMap[''+this.player.id];
 
             this.player.connection = undefined;
             this.player.zone = undefined;
-            this.player.timeout = undefined;
+            this.player.interval = undefined;
             this.player = undefined;
         },
 
@@ -78,10 +86,22 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             missile.set(this.player.fireMissile());
             missile.player = this.player;
 
-            missile.on(Constants.Events.UPDATE, onMissileUpdate);
+            missile.interval = setInterval(function(){
+                var zone = missile.update().zone;
+
+                if (missile.hasExceededMaxDistance()){
+                    zone.explodeSprite(missile);
+                }else{
+                    zone.sendMissile(missile);
+                }
+
+            }, Constants.SERVER_UPDATE_INTERVAL);
+
             missile.on(Constants.Events.COLLISION, onMissileCollision);
 
             this.player.zone.addMissile(missile);
+
+            return missile;
         }
 
     });
@@ -97,6 +117,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         if (player.get("isInvulnerable") && player.lastUpdated-player.created >= player.invulnerableTime){
             player.set("isInvulnerable", false);
+            zone.sendPlayerUpdate(this);
         }
 
         if (player.get("isAccelerating") && !player.canAccelerate()){
@@ -111,20 +132,20 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             setTimeout(function(){
                 if (!player.zone || !player.get("isShieldBroken")) return;
                 player.reShield().update();
+                sendPlayerInfo.call(player);
             }, player.shieldDownTime);
         }
 
         if (player.get("ammo") === 0 && !player.isReloading){
             player.isReloading = true;
-
             setTimeout(function(){
                 if (!player.zone || !player.isReloading) return;
                 player.reload().update();
+                sendPlayerInfo.call(player);
+
                 delete player.isReloading;
             }, player.reloadTime);
         }
-
-        sendPlayerInfo.call(player);
     }
 
     function onPlayerCollision(sprite){
@@ -146,29 +167,35 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         if (slayer){
-            slayer.update({silent:true}).incrementKills().refresh();
+            slayer.update().incrementKills().refresh();
             sendPlayerInfo.call(slayer);
         }
 
-    }
+        clearInterval(player.interval);
+        player.off();
 
-    function onMissileUpdate(){
-        if (this.zone && this.hasExceededMaxDistance()){
-           this.zone.explodeSprite(this);
-        }
     }
 
     function onMissileCollision(){
-        this.zone = undefined;
-        this.off();
-        delete missileMap[''+this.id];
+
+        var missile = this;
+
+        clearInterval(missile.interval);
+        missile.off();
+        delete missileMap[''+missile.id];
+
+        missile.player = undefined;
+        missile.zone = undefined;
+        missile.interval = undefined;
     }
 
     function sendPlayerInfo(){
-        if (!this.connection) return;
+        var player = this;
+
+        if (!player.connection) return;
 
         var buffer = micro.toBinary(this.toJSON(), "PlayerInfo");
-        this.connection.out.write(buffer);
+        player.connection.out.write(buffer);
     }
 
     return PlayerManager;

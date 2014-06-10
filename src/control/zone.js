@@ -20,8 +20,9 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
         //Set by parent
         this.adjacentZones = [];
 
-        var numKeys = Constants.PLANET_KEYS.length;
+        this._updateInteval = null;
 
+        var numKeys = Constants.PLANET_KEYS.length;
         var planetWidth = Constants.Planet.width;
         var planetHeight = Constants.Planet.height;
         var minScale = Constants.Planet.minScale;
@@ -89,8 +90,16 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             //Send all necessary zone data to the player
             this.sendZoneData(player);
 
+
             if (!place){
                 this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
+            }
+
+            if (!this._updateInteval){
+                var self = this;
+                this._updateInteval = setInterval(function(){
+                    self.updateZone();
+                }, Constants.COLLISION_DETECT_INTERVAL);
             }
 
 
@@ -108,8 +117,19 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
             this.sendMissile(missile,true);
 
+            this.model.update();
+            this.detectCollision(missile);
+
+            if (!this._updateInteval){
+                var self = this;
+                this._updateInteval = setInterval(function(){
+                    self.updateZone();
+                }, Constants.COLLISION_DETECT_INTERVAL);
+            }
+
             return missile;
         },
+
 
         /**
          * Removes a sprite or missile from the zone
@@ -118,11 +138,16 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
          */
         removeSprite : function(sprite, send){
             if (sprite = this.model.remove(sprite)){
-                clearTimeout(sprite.timeout);
                 if (send){
-                    this.sendToAll("RemoveSprite",  {type:sprite.type,id:sprite.id});
+                    this._sendToAll("RemoveSprite",  {type:sprite.type,id:sprite.id});
                 }
                 sprite.zone = undefined;
+
+                if (this._updateInteval && !this.getNumSprites()){
+                    clearInterval(this._updateInteval);
+                    this._updateInteval = null;
+                }
+
                 return sprite;
             }
             return null;
@@ -130,33 +155,76 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
 
         explodeSprite : function(sprite){
              if (this.removeSprite(sprite)){
-                 this.sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 3);
+                 this._sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 3);
+                 sprite.trigger(Constants.Events.COLLISION);
              }
+        },
+
+
+
+        updateZone : function(){
+
+            this.model.update();
+
+            var players = this.model.players.models;
+            var missiles = this.model.missiles.models;
+            var player, missile, matched, i, j;
+
+            i = missiles.length;
+            while (i--){
+                missile = missiles[i];
+                matched = false;
+
+                if (!this.checkZoneChange(missile)){
+                    j = players.length;
+                    while (j-- && !matched){
+                        matched = this.detectCollision(players[j], missile);
+                    }
+
+                    j = i-1;
+                    while (j-- && !matched){
+                        matched = this.detectCollision(missiles[j], missile);
+                    }
+                }
+            }
+
+            i = players.length;
+            while (i--){
+                player = players[i];
+                matched = false;
+
+                if (!this.checkZoneChange(player)){
+                    j = i-1;
+                    while (j-- && !matched){
+                        matched = this.detectCollision(players[j], player);
+                    }
+                }
+
+            }
         },
 
         detectCollision : function(sprite1, sprite2){
 
-            if (!sprite1) return false;
-
-            //If second sprite is not specified then check for a collision with every other applicable sprite
             if (!sprite2){
-                var i = this.model.players.length;
+
+                var players = this.model.players.models;
+                var missiles = this.model.missiles.models;
+
+                var i = players.length;
                 while (i--){
-                    if (this.detectCollision(sprite1, this.model.players.at(i))) return true;
+                    if (this.detectCollision(sprite1, players[i])) return true;
                 }
-                i = this.model.missiles.length;
+                i = missiles.length;
                 while (i--){
-                    if (this.detectCollision(sprite1, this.model.missiles.at(i))) return true;
+                    if (this.detectCollision(sprite1, missiles[i])) return true;
                 }
+
                 return false;
             }
 
-            //Validate these sprites are in the zone
-            sprite1 = this.model.get(sprite1);
-            sprite2 = this.model.get(sprite2);
 
             //Check if collision is valid
-            if (sprite1 && sprite2 && sprite1.update({silent:true}).detectCollision(sprite2.update({silent:true}))){
+            if (sprite1.detectCollision(sprite2)){
 
                 //Save off current sprite data values
                 var sprite1Clone = sprite1.clone();
@@ -167,7 +235,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
                 data.sprite2.survived = !sprite2.collide(sprite1Clone, {silent:true});
 
                 //send the collision data objects to the clients
-                this.sendToAll("Collision", data);
+                this._sendToAll("Collision", data);
 
                 //Send updates or remove sprites as necessary
                 if (data.sprite1.survived){
@@ -197,7 +265,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             var direction, newZone;
 
             //If sprite not in this zone or not out of zone bounds return false
-            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.update({silent:true}).outOfBounds())){
+            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.outOfBounds())){
                 return false;
             }
 
@@ -228,7 +296,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             while(i--){
                 var adjacentZone = this.adjacentZones[i];
                 if (adjacentZone !== newZone && newZone.adjacentZones.indexOf(adjacentZone) === -1){
-                    adjacentZone.sendToZone(buffer);
+                    adjacentZone._sendToZone(buffer);
                 }
             }
 
@@ -241,10 +309,19 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             return this.model.players.length;
         },
 
-        sendToAll : function(type, json, byteLength){
+        getNumMissiles: function(){
+            return this.model.missiles.length;
+        },
+
+        getNumSprites : function(){
+            return this.getNumPlayers() + this.getNumMissiles();
+        },
+
+
+        _sendToAll : function(type, json, byteLength){
             //Send to all connections attached this zone
             var buffer = micro.toBinary(json, type, byteLength);
-            this.sendToZone(buffer);
+            this._sendToZone(buffer);
 
             //Send to all connections attached to adjacent zones
             var i = this.adjacentZones.length;
@@ -253,7 +330,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             }
         },
 
-        sendToZone : function(buffer){
+        _sendToZone : function(buffer){
             var players = this.model.players.models;
             var connection;
             var i = players.length;
@@ -264,6 +341,10 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             }
         },
 
+        /**
+         * @param {object} sprite
+         * @param {boolean} [sendAll]
+         */
         sendSprite : function(sprite, sendAll){
              if (sprite.type === "Player"){
                  this.sendPlayer(sprite, sendAll);
@@ -272,41 +353,30 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
              }
         },
 
+        /**
+         * @param {object} player
+         * @param {boolean} [sendAll]
+         */
         sendPlayer : function(player, sendAll){
-            if (player.zone !== this || this.checkZoneChange(player)) return;
-
-            clearTimeout(player.timeout);
-
             var byteLength = sendAll ? undefined : PARTIAL_PLAYER_SIZE;
-            this.sendToAll("Player", player.toJSON(), byteLength);
-
-            var self = this;
-            player.timeout = setTimeout(function(){
-                self.sendPlayer(player.update());
-            }, Constants.SERVER_UPDATE_INTERVAL);
+            this._sendToAll("Player", player.toJSON(), byteLength);
         },
 
+        /**
+         * @param {object} player
+         */
         sendPlayerUpdate : function(player){
             //if (this.checkZoneChange(player)) return;
-            this.sendToAll("PlayerUpdate", player.toJSON());
+            this._sendToAll("PlayerUpdate", player.toJSON());
         },
 
+        /**
+         * @param {object} missile
+         * @param {boolean} [sendAll]
+         */
         sendMissile : function(missile, sendAll){
-            if (missile.zone !== this || this.checkZoneChange(missile)) return;
-
-            clearTimeout(missile.timeout);
-
-            if (missile.data.posX > 2000 || missile.data.posY > 2000){
-                throw new Error("something went wrong");
-            }
-
             var byteLength = sendAll ? undefined : PARTIAL_MISSILE_SIZE;
-            this.sendToAll("Missile", missile.toJSON(), byteLength);
-
-            var self = this;
-            missile.timeout = setTimeout(function(){
-                self.sendMissile(missile.update());
-            }, Constants.SERVER_UPDATE_INTERVAL);
+            this._sendToAll("Missile", missile.toJSON(), byteLength);
         },
 
         sendZoneData : function(player){

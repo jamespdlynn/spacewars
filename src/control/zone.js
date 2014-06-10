@@ -1,4 +1,4 @@
-define(["microjs","model/zone","model/constants","model/dispatcher"], function(micro, Zone, Constants, EventDispatcher){
+define(["microjs","model/zone","model/constants"], function(micro, Zone, Constants){
     'use strict';
 
     var MAX_PLANETS = 5;
@@ -326,7 +326,7 @@ define(["microjs","model/zone","model/constants","model/dispatcher"], function(m
             //Send to all connections attached to adjacent zones
             var i = this.adjacentZones.length;
             while (i--){
-                this.adjacentZones[i].sendToZone(buffer);
+                this.adjacentZones[i]._sendToZone(buffer);
             }
         },
 

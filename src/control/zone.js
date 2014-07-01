@@ -95,7 +95,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
             }
 
-            if (!this._updateInteval){
+            if (!this._updateInteval && this.getNumSprites() > 1){
                 var self = this;
                 this._updateInteval = setInterval(function(){
                     self.updateZone();
@@ -120,7 +120,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
             this.model.update();
             this.detectCollision(missile);
 
-            if (!this._updateInteval){
+            if (!this._updateInteval && this.getNumSprites() > 1){
                 var self = this;
                 this._updateInteval = setInterval(function(){
                     self.updateZone();
@@ -143,7 +143,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 }
                 sprite.zone = undefined;
 
-                if (this._updateInteval && !this.getNumSprites()){
+                if (this._updateInteval && this.getNumSprites() <= 1){
                     clearInterval(this._updateInteval);
                     this._updateInteval = null;
                 }
@@ -181,7 +181,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                         matched = this.detectCollision(players[j], missile);
                     }
 
-                    j = i-1;
+                    j = i;
                     while (j-- && !matched){
                         matched = this.detectCollision(missiles[j], missile);
                     }
@@ -194,7 +194,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 matched = false;
 
                 if (!this.checkZoneChange(player)){
-                    j = i-1;
+                    j = i;
                     while (j-- && !matched){
                         matched = this.detectCollision(players[j], player);
                     }

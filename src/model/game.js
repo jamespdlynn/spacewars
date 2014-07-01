@@ -1,7 +1,7 @@
 define(['model/dispatcher','model/zone','model/constants'], function(EventDispatcher,Zone,Constants){
 
     var TIPS = [
-        "Click the ? icon at the top of your screen for game information and a complete list of controls",
+        "Click the ? icon at the top of your screen for game info and complete list of controls",
         "Your shield ( RMB ) will protect you from enemy fire, but direct hits will quickly deplete it!",
         "Playing in full screen mode ( F ) gives you greater field of vision.",
         "Press ( R ) at any time to manually reload your ship's missiles.",

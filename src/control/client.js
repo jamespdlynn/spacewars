@@ -21,7 +21,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                 var self = this;
                 var gameData = this.gameData;
-                var url = "ws://localhost:"+Constants.WS_PORT;
+                var url = "ws://"+window.location.hostname+":"+Constants.WS_PORT;
                 var wsClient;
 
                 if (binary){

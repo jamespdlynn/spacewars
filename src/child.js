@@ -24,7 +24,9 @@ requirejs(["control/server"], function(server){
 
 process.on('uncaughtException', function(error) {
     console.error("Uncaught Exception: "+error.stack);
-    process.exit(1);
+    setTimeout(function(){
+        process.exit(-1);
+    }, 1000);
 });
 
 

@@ -24,7 +24,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
            sendPlayerInfo.call(player);
         }, Constants.SERVER_UPDATE_INTERVAL);
 
-        this.player = playerMap[''+currentPlayerId]
+        this.player = playerMap[''+currentPlayerId] = player;
     };
 
 

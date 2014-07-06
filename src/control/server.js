@@ -128,8 +128,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
                 var type = data._type;
                 delete data._type;
 
-                var zone;
-
                 switch (type)
                 {
                     case "Ping" :
@@ -152,20 +150,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
                         if(pm.updatePlayer(data)){
                             updated = true;
-                        }
-                        break;
-
-                    case "Collision":
-                        if (!initialized) break;
-                        if (zone = serverZones[data.zone]){
-                            zone.detectCollision(data.sprite1, data.sprite2);
-                        }
-                        break;
-
-                    case "OutOfBounds":
-                        if (!initialized) break;
-                        if (zone = serverZones[data.zone]){
-                            zone.checkZoneChange(data);
                         }
                         break;
 

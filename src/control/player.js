@@ -1,16 +1,26 @@
 define(['microjs','model/constants','model/player','model/missile'],function (micro, Constants, Player, Missile){
         'use strict';
 
-    var currentPlayerId = 0, currentMissileId = 0;
-    var playerMap = {}, missileMap = {};
+    var MAX_SPRITES = 65536;
+    var currentId = 0, spriteMap = {};
+
+    function createSprite(SpriteClass){
+        do{
+            currentId = (currentId+1)% MAX_SPRITES;  //Increment id
+        } while (spriteMap[currentId.toString()]);
+
+        spriteMap[currentId.toString()] = true;
+
+        return new SpriteClass({id:currentId});
+    }
+
+    function removeSprite(id){
+        delete spriteMap[id.toString()];
+    }
 
     var PlayerManager = function(connection,username){
-        do{
-            currentPlayerId = (currentPlayerId+1)%Constants.MAX_PLAYERS;
-        } while (playerMap[''+currentPlayerId]);
-
-
-        var player = new Player({id:currentPlayerId,username:username});
+        var player = createSprite(Player);
+        player.set("username", username);
         player.connection = connection;
         player.zone = null;
 
@@ -19,12 +29,12 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         player.interval = setInterval(function(){
            var zone = player.update().zone;
-           zone.sendPlayer(player);
+           if (zone) zone.sendPlayer(player);
 
            sendPlayerInfo.call(player);
         }, Constants.SERVER_UPDATE_INTERVAL);
 
-        this.player = playerMap[''+currentPlayerId] = player;
+        this.player = player;
     };
 
 
@@ -62,27 +72,21 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         destroy : function(){
             if (!this.player) return;
 
-            var zone = this.player.zone;
-            if (zone) zone.removeSprite(this.player,true);
+            if (this.player.zone){
+                this.player.zone.removeSprite(this.player,true);
+            }
 
             clearInterval(this.player.interval);
             this.player.off();
-            delete playerMap[''+this.player.id];
+            removeSprite(this.player.id);
 
-            this.player.connection = undefined;
-            this.player.zone = undefined;
-            this.player.interval = undefined;
-            this.player = undefined;
+            delete this.player;
         },
 
         _fireMissile : function(){
             if (!this.player || !this.player.zone) return null;
 
-            do{
-                currentMissileId = (currentMissileId+1)%Constants.MAX_MISSILES;
-            } while (missileMap[''+currentMissileId]);
-
-            var missile = missileMap[''+currentMissileId] = new Missile({id:currentMissileId});
+            var missile = createSprite(Missile);
             missile.set(this.player.fireMissile());
             missile.player = this.player;
 
@@ -182,11 +186,11 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         clearInterval(missile.interval);
         missile.off();
-        delete missileMap[''+missile.id];
+        removeSprite(missile.id);
 
-        missile.player = undefined;
-        missile.zone = undefined;
-        missile.interval = undefined;
+        delete missile.player;
+        delete missile.zone;
+        delete missile.interval;
     }
 
     function sendPlayerInfo(){

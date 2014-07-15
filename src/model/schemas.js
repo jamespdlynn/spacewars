@@ -68,7 +68,7 @@ define(['model/constants'],function(Constants){
        },
 
        RemoveSprite : {
-          type : {type:"enum", values:["Player","Missile"]},
+          type : {type:"enum", values:["Player","Missile","Planet"]},
           id : "uint16"
        },
 
@@ -89,12 +89,6 @@ define(['model/constants'],function(Constants){
                }
            },
            zone : "uint8"
-       },
-
-       OutOfBounds : {
-           zone : "uint8",
-           type : {type:"enum", values:["Player","Missile","Planet"]},
-           id : "uint16"
        },
 
        GameOver : {

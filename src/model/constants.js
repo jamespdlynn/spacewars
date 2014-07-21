@@ -18,7 +18,7 @@ define(function(){
        //ASSETS_URL : "/assets/",
 
        FPS : 60,
-       SCROLL_SPEED : 640,
+       SCROLL_SPEED : 600,
        GAUGE_WIDTH : 200,
 
        Zone : {

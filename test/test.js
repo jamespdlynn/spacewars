@@ -1,8 +1,9 @@
 var fs = require("fs"),
     requirejs = require("requirejs");
 
-var NUM_CONNECTIONS = 250;
+var NUM_CONNECTIONS = 300;
 var NAMES = fs.readFileSync(__dirname+'/names.txt').toString().replace(" ","").replace("\r","").split("\n");
+var HOST_NAME = process.argv[2] || "localhost";
 
 global.extend = function(add){
     for (var i=0; i < arguments.length; i++){
@@ -41,7 +42,7 @@ requirejs(["control/client","model/game","model/constants"], function(Client, Ga
             sendUpdate(client);
         });
 
-        client.run();
+        client.run(HOST_NAME);
 
         if (++clientCount >= NUM_CONNECTIONS){
             console.log(clientCount +" clients created");
@@ -61,7 +62,7 @@ requirejs(["control/client","model/game","model/constants"], function(Client, Ga
             data.isFiring = Math.random() > 0.1,
             data.isShielded = Math.random() > 0.8;
 
-            client.sendData(data)
+            client.sendData(data);
 
             sendUpdate(client);
         }, duration);

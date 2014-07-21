@@ -90,18 +90,9 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
             //Send all necessary zone data to the player
             this.sendZoneData(player);
 
+            if (!place) this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
 
-            if (!place){
-                this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
-            }
-
-            if (!this._updateInteval && this.getNumSprites() >= 2){
-                var self = this;
-                this._updateInteval = setInterval(function(){
-                    self.updateZone();
-                }, Constants.COLLISION_DETECT_INTERVAL);
-            }
-
+            this.toggleUpdateInterval();
 
             return player;
         },
@@ -120,16 +111,10 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
             this.model.update();
             this.detectCollision(missile);
 
-            if (!this._updateInteval && this.getNumSprites() >= 2){
-                var self = this;
-                this._updateInteval = setInterval(function(){
-                    self.updateZone();
-                }, Constants.COLLISION_DETECT_INTERVAL);
-            }
+            this.toggleUpdateInterval();
 
             return missile;
         },
-
 
         /**
          * Removes a sprite or missile from the zone
@@ -143,10 +128,7 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 }
                 sprite.zone = undefined;
 
-                if (this._updateInteval && this.getNumSprites() < 2){
-                    clearInterval(this._updateInteval);
-                    this._updateInteval = null;
-                }
+                this.toggleUpdateInterval();
 
                 return sprite;
             }
@@ -160,6 +142,19 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
              }
         },
 
+        toggleUpdateInterval : function(){
+            var numSprites = this.getNumSprites();
+            if (!this._updateInteval && numSprites){
+                var self = this;
+                this._updateInteval = setInterval(function(){
+                    self.updateZone();
+                }, Constants.COLLISION_DETECT_INTERVAL);
+            }
+            else if (this._updateInteval && !numSprites){
+                clearInterval(this._updateInteval);
+                this._updateInteval = null;
+            }
+        },
 
 
         updateZone : function(){

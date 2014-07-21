@@ -297,7 +297,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         if (scrollDirection == "center"){
             var centerX = window.paddingX + (gameData.width/2 - userData.posX);
             var centerY = window.paddingY + (gameData.height/2 - userData.posY);
-            var distance = Math.getDistance(gameData.offsetX.offsetY, centerX, centerY);
+            var distance = Math.getDistance(gameData.offsetX, gameData.offsetY, centerX, centerY);
 
             if(distance > scrollSpeed){
                 var angle = Math.atan2((centerY-gameData.offsetY), (centerX-gameData.offsetX));

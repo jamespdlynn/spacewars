@@ -9,7 +9,6 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             currentPlayerId = (currentPlayerId+1)%Constants.MAX_PLAYERS;
         } while (playerMap[''+currentPlayerId]);
 
-
         var player = new Player({id:currentPlayerId,username:username});
         player.connection = connection;
         player.zone = null;
@@ -19,9 +18,10 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         player.interval = setInterval(function(){
            var zone = player.update().zone;
-           zone.sendPlayer(player);
-
-           sendPlayerInfo.call(player);
+           if (zone){
+               zone.sendPlayer(player);
+               sendPlayerInfo.call(player);
+           }
         }, Constants.SERVER_UPDATE_INTERVAL);
 
         this.player = playerMap[''+currentPlayerId] = player;

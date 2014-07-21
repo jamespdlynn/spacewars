@@ -15,12 +15,14 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
         extend.call(Client.prototype, {
             
-            run : function(){
+            run : function(hostname){
                 if (this.isRunning) return;
+
+                hostname = hostname || window.location.hostname;
 
                 var self = this;
                 var gameData = this.gameData;
-                var url = "ws://"+window.location.hostname+":"+Constants.WS_PORT;
+                var url = "ws://"+hostname+":"+Constants.WS_PORT;
                 var wsClient;
 
                 if (binary){

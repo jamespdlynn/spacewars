@@ -133,11 +133,13 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         });
 
         gameData.on(Constants.Events.GAME_END, function(){
-            gameData.incrementDeaths().reset();
+            gameData.incrementDeaths();
             client.stop();
             GameView.reset();
 
             ModalsView.showDeathModal();
+
+            gameData.reset();
         });
 
         ModalsView.initialize();

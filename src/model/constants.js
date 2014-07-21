@@ -6,8 +6,7 @@ define(function(){
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
-       MAX_PLAYERS : 256,
-       MAX_MISSILES : 65536,
+       MAX_PLAYERS : 5000,
 
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,

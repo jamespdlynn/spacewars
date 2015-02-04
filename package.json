@@ -11,7 +11,8 @@
     "less-middleware" : "0.1.15",
     "microjs" : "*",
     "requirejs" : "*",
-    "jade" : "*"
+    "jade" : "*",
+    "memwatch" : "*"
   },
   "secret" : "h8t3rzG0nn@h8te"
 }

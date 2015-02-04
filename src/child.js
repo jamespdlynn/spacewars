@@ -20,6 +20,13 @@ requirejs.config({
 
 requirejs(["control/server"], function(server){
     server.run(!isProd);
+
+    if (!isProd){
+        var memwatch = require('memwatch');
+        memwatch.on('leak', function(info){
+            console.error("Memory Leak Detected: "+info.reason);
+        });
+    }
 });
 
 process.on('uncaughtException', function(error) {

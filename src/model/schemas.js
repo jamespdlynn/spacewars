@@ -8,13 +8,6 @@ define(['model/constants'],function(Constants){
           complete : "boolean"
        },
 
-       GameData : {
-           players : [{type:"object", schema:"Player"}],
-           missiles : [{type:"object", schema:"Missile"}],
-           planets : [{type:"object", schema:"Planet"}],
-           playerId : "uint16"
-       },
-
        Player : {
            id : "uint16",
            posX : {type:"float", byteLength:2, precision:1},
@@ -49,6 +42,13 @@ define(['model/constants'],function(Constants){
            scale : {type:"float", byteLength:1, precision:2},
            zone : "uint8"
         },
+
+       GameData : {
+           players : [{type:"object", schema:"Player"}],
+           missiles : [{type:"object", schema:"Missile"}],
+           planets : [{type:"object", schema:"Planet"}],
+           playerId : "uint16"
+       },
 
        PlayerUpdate : {
            angle :  {type:"float", byteLength:2, precision:4},

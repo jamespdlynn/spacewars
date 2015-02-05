@@ -387,7 +387,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
         if ((!survived1 && !survived2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
         {
-            var model, explosion, slayer;
+            var model, explosion;
 
             if (!model2 || model1.height > model2.height){
                 model = model1;
@@ -496,6 +496,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     }
 
     function onKeyDown(evt){
+
         switch (evt.keyCode){
             case 32:
                 userShip.isFiring = true;
@@ -506,11 +507,23 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 scrollDirection = "center";
                 break;
 
+            case 69:
+                if (!userShip.model.canShield()) break;
+                userShip.isShielded = true;
+                triggerUpdate();
+                break;
+
             case 82:
-                if (!userShip.model || !userShip.model.canReload()) break;
+                if (!userShip.model.canReload()) break;
                 userShip.isReloading = true;
                 triggerUpdate();
                 userShip.isReloading = false;
+                break;
+
+            case 87:
+                if (!userShip.model.canAccelerate()) break;
+                userShip.isAccelerating = true;
+                triggerUpdate();
                 break;
 
             case 90:
@@ -521,8 +534,20 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     }
 
     function onKeyUp(evt){
-        if (userShip.model && evt.keyCode == 32){
-            userShip.isFiring = false;
+
+        switch (evt.keyCode){
+            case 32:
+                userShip.isFiring = false;
+                break;
+
+            case 69:
+                userShip.isShielded = false;
+                break;
+
+            case 87:
+                userShip.isAccelerating = false;
+                break;
+
         }
     }
 

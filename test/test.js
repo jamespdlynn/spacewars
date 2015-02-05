@@ -19,7 +19,7 @@ global.extend = function(add){
 
 requirejs.config({
     nodeRequire : require,
-    baseUrl : 'src'
+    baseUrl : '../src'
 });
 
 requirejs(["control/client","model/game","model/constants"], function(Client, GameData, Constants){

@@ -246,10 +246,10 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         _powerUp : function(){
             var level = this.data.kills;
             if (level < this.maxLevel){
-                this.maxVelocity = Constants.Player.maxVelocity + level;
-                this.maxFuel =  Constants.Player.maxFuel + (10*level);
-                this.maxShields = Constants.Player.maxShields + (10*level);
-                this.maxAmmo = Constants.Player.maxAmmo + level;
+                //this.maxVelocity = Constants.Player.maxVelocity + level;
+                this.maxFuel =  Constants.Player.maxFuel + (5*level);
+                this.maxShields = Constants.Player.maxShields + (5*level);
+                //this.maxAmmo = Constants.Player.maxAmmo + level;
             }
 
             return this;

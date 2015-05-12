@@ -1,7 +1,7 @@
 var fs = require("fs"),
     requirejs = require("requirejs");
 
-var NUM_CONNECTIONS = 300;
+var NUM_CONNECTIONS = 50;
 var NAMES = fs.readFileSync(__dirname+'/names.txt').toString().replace(" ","").replace("\r","").split("\n");
 var HOST_NAME = process.argv[2] || "localhost";
 

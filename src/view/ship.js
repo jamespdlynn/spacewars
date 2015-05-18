@@ -1,7 +1,6 @@
 define(['createjs','view/sprite','model/constants'],function(createjs, Sprite, Constants){
     'use strict';
 
-    var ROTATION_RATE = 300;
     var Container =  createjs.Container;
 
     var StarShip = function(){};
@@ -81,7 +80,7 @@ define(['createjs','view/sprite','model/constants'],function(createjs, Sprite, C
             var angle  = this.hasOwnProperty('angle') ? Math.toDegrees(this.angle) + 90 : Math.toDegrees(data.angle) + 90;
 
             if (this.rotation != angle){
-                var angleStep = ROTATION_RATE*(evt[0].delta/1000);
+                var angleStep = Math.toDegrees(this.model.rotationRate)*(evt[0].delta/1000);
                 var deltaAngle = angleDiff(this.rotation, angle);
                 if (deltaAngle > angleStep){
                     if (angleDiff(this.rotation+angleStep, angle) < deltaAngle){

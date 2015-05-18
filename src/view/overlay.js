@@ -15,19 +15,19 @@ define(['createjs','view/user','view/gauges','view/ammo','view/radar'],
             initialize : function(){
                 Container.prototype.initialize.call(this);
 
-                this.userContainer = new UserContainer();
+                this.user = new UserContainer();
                 this.gauges = new Gauges();
                 this.ammo = new Ammo();
                 this.radar = new Radar();
 
-                this.addChild(this.gauges, this.userContainer, this.ammo, this.radar);
+                this.addChild(this.gauges, this.user, this.ammo, this.radar);
             },
 
             setBounds : function(x, y, width, height){
                 Container.prototype.setBounds.call(this, x, y, width, height);
 
-                this.userContainer.x = 0;
-                this.userContainer.y = 0;
+                this.user.x = 0;
+                this.user.y = 0;
 
                 this.gauges.x = 0;
                 this.gauges.y = height- this.gauges.getBounds().height;

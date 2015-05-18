@@ -94,6 +94,7 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
         //Load user from local storage
         gameData.user = JSON.parse(localStorage.getItem("user")) || gameData.user;
+        gameData.user.id = getCookie('userId');
         gameData.on(Constants.Events.USER_CHANGED, function(){
             localStorage.setItem("user", JSON.stringify(gameData.user));
         });
@@ -101,12 +102,9 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         var client = new Client(gameData);
 
         gameData.on(Constants.Events.DEPLOY, function(){
-            if (gameData.isUserInitialized()){
                 ModalsView.setConnecting(true);
                 client.run();
-            }else{
-                ModalsView.showWelcomeModal();
-            }
+
         });
 
         gameData.on(Constants.Events.CONNECTED, function(){
@@ -130,19 +128,40 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
             document.getElementById("version").hide();
+
+            if (!gameData.user.hasPlayed){
+                ModalsView.showAboutModal();
+                gameData.user.hasPlayed = true;
+                gameData.trigger(Constants.Events.USER_CHANGED);
+            }
         });
 
         gameData.on(Constants.Events.GAME_END, function(){
-            gameData.incrementDeaths();
             client.stop();
             GameView.reset();
-
             ModalsView.showDeathModal();
-
             gameData.reset();
         });
 
         ModalsView.initialize();
         GameView.initialize();
     }
+
+
 );
+
+function getCookie(c_name)
+{
+    var i,x,y,ARRcookies=document.cookie.split(";");
+
+    for (i=0;i<ARRcookies.length;i++)
+    {
+        x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
+        y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
+        x=x.replace(/^\s+|\s+$/g,"");
+        if (x==c_name)
+        {
+            return unescape(y);
+        }
+    }
+}

@@ -48,10 +48,21 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
         },
 
         _tick : function(evt){
+
             StarShip.prototype._tick.call(this, evt);
+
+            if (this.rotateDirection == "left") {
+                this.angle -= this.model.rotationRate * (evt[0].delta / 1000);
+                if (this.angle < -Math.PI) this.angle += Math.PI * 2;
+            }
+            else if (this.rotateDirection == "right"){
+                this.angle += this.model.rotationRate * (evt[0].delta / 1000);
+                if (this.angle > Math.PI) this.angle -= Math.PI * 2;
+            }
 
             this.reloadBar.scaleX = Math.min((this.model.lastUpdated - this.model.lastFired) / this.model.reloadTime, 1);
             this.reloadBar.visible = this.model.get("ammo") == 0;
+
         }
 
     });

@@ -20,8 +20,9 @@ define(['model/constants'],function(Constants){
            isInvulnerable : "boolean",
            isShieldBroken : "boolean",
            kills : "uint8",
-           username : "string",
-           zone : "uint8"
+           zone : "uint8",
+           name : "string",
+           icon : "string"
        },
 
        Missile : {

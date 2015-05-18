@@ -45,7 +45,7 @@ define(['createjs','view/ship','graphics/darkship'],function(createjs,StarShip,e
 
         setModel : function(model){
             StarShip.prototype.setModel.call(this, model);
-            this.nameLabel.text = model.get("username");
+            this.nameLabel.text = model.get("name").split(" ")[0];
         },
 
         _tick : function(evt){

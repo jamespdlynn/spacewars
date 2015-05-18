@@ -18,11 +18,15 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         delete spriteMap[id.toString()];
     }
 
-    var PlayerManager = function(connection,username){
+    var PlayerManager = function(connection,user){
         var player = createSprite(Player);
-        player.set("username", username);
+
         player.connection = connection;
+        player.user = user;
         player.zone = null;
+
+        player.set("icon", user.icon);
+        player.set("name", user.fullName);
 
         player.on(Constants.Events.UPDATE, onPlayerUpdate);
         player.on(Constants.Events.COLLISION, onPlayerCollision);

@@ -7,27 +7,22 @@ html
     title Space Wars 3014
     link(rel='stylesheet', href='/css/style.css?v=#{version}')
   body
-    canvas#game
-    #icons
-      #latency
-      #view(title='Toggle Camera Mode (z)')
-      #about(title='About (a)')
-      #sound(title='Toggle Sound (s)')
-      #full-screen(title='Toggle Full Screen (f)')
-    #connecting Connecting
     #version Alpha #{version}
     #modal.modal
-        #load-modal.modal-dialog
+        #login-modal.modal-dialog
+
             .modal-content
                 .modal-header
-                  h3.modal-title Space Wars 3014
+                   h3.modal-title Hyper Galatic
                 .modal-body
-                  #load-bar
-                    #progress-bar
+                  a(class='btn btn-social btn-facebook',href='/auth/facebook')
+                    i.icon
+                    | Sign in with Facebook
+                  a(class='btn btn-social btn-google',href='/auth/google')
+                    i.icon
+                    | Sign in with Google Plus
 
     script.
         var modalDialog = document.getElementsByClassName('modal-dialog')[0];
         var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
         modalDialog.setAttribute("style", "margin-top:"+padding+"px");
-
-    script(data-main='#{mainPath}', src='/js/require.js')

@@ -1,7 +1,7 @@
 define(['createjs','model/constants'],function(createjs, Constants){
     'use strict';
 
-    var RADIUS = 90;
+    var RADIUS = 84;
     var SECTION = RADIUS/3;
     var MARK_RADIUS = 4.5;
     var ROTATION_TIME = 2000;
@@ -12,7 +12,6 @@ define(['createjs','model/constants'],function(createjs, Constants){
 
     var Container = createjs.Container;
     var Shape = createjs.Shape;
-
 
 
     var Radar = function (){

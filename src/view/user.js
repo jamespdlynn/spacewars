@@ -1,23 +1,23 @@
-define(['createjs','model/constants'],function(createjs, Constants){
+define(['createjs'],function(createjs){
     'use strict';
 
     var WIDTH = 240;
     var HEIGHT = 55;
-    var ICON_SIZE = 20;
+    var USER_ICON_SIZE = 50;
+    var KILL_ICON_SIZE = 20;
 
     var Container = createjs.Container;
 
     var UserContainer = function (){
 
-        this.zoneLabel =  new createjs.Text("","16px Arkitech", "#fff");
-        this.usernameLabel = new createjs.Text("","15px Arkitech", "#fff");
-        this.killLabel =  new createjs.Text("","bold 19px Helvetica", "#00FF00");
+        this.userLabel = new createjs.Text("","14px Arkitech", "#fff");
+        this.killLabel =  new createjs.Text("","bold 19px Helvetica");
         this.killIcon = new createjs.Bitmap(preloader.getResult('killIcon'));
 
-        this.tickEnabled = false;
         this.tickChildren = false;
 
         this.initialize();
+        this.render();
     };
 
     UserContainer.prototype = new Container();
@@ -28,10 +28,12 @@ define(['createjs','model/constants'],function(createjs, Constants){
 
             Container.prototype.initialize.call(this);
 
-            this.addChild(this.usernameLabel, this.deathLabel, this.killLabel, this.deathIcon, this.killIcon, this.zoneLabel);
+            this.addChild(this.userLabel, this.killLabel, this.killIcon);
             this.setBounds(0, 0, WIDTH, HEIGHT);
 
-            var self = this;
+            this.alpha = 0.95;
+
+            /*(var self = this;
 
             self.updateUser();
             gameData.on(Constants.Events.USER_CHANGED, function(){
@@ -41,32 +43,60 @@ define(['createjs','model/constants'],function(createjs, Constants){
             self.updateZone();
             gameData.on(Constants.Events.ZONE_CHANGED, function(){
                 self.updateZone();
-            });
+            });*/
         },
 
-        updateUser : function(){
+        render : function(player){
 
-            this.usernameLabel.text = gameData.userPlayer.get("username");
-            this.usernameLabel.x = 0;
-            this.usernameLabel.y = 0;
+            player = player || gameData.userPlayer;
 
-            this.killIcon.x = this.usernameLabel.x + this.usernameLabel.getMeasuredWidth() +  12;
-            this.killIcon.y =  this.usernameLabel.y;
+            if (this.player && this.player.id === player.id){
+                return;
+            }
 
-            this.killLabel.text = gameData.roundKills;
-            this.killLabel.x =  this.killIcon.x + ICON_SIZE + 8;
-            this.killLabel.y =   this.usernameLabel.y - 1;
+            this.player = player;
+
+            this.userLabel.x = USER_ICON_SIZE + 10;
+            this.userLabel.y = 2;
+            this.userLabel.text = player.get('name');
+
+            this.killIcon.x = this.userLabel.x;
+            this.killIcon.y =  this.userLabel.getMeasuredLineHeight() + 8;
+
+            this.killLabel.text = player.get('kills');
+            this.killLabel.color = player.equals(gameData.userPlayer) ? "#00FF00" : "#FF0000";
+            this.killLabel.x =  this.killIcon.x + KILL_ICON_SIZE + 8;
+            this.killLabel.y =  this.killIcon.y - 1;
 
             this.cache(0, 0, WIDTH, HEIGHT);
+
+            var self = this;
+
+            if (this.userIcon){
+                this.removeChild(this.userIcon);
+            }
+            this.userIcon = new createjs.Bitmap(player.get('icon'));
+            this.userIcon.image.onload = function(){
+                self.addChild(self.userIcon);
+                self.cache(0, 0, WIDTH, HEIGHT);
+            }
+
         },
 
+        _tick : function(){
+            if (this.player.hasChanged('kills')){
+                this.killLabel.text = this.player.get('kills');
+                this.cache(0, 0, WIDTH, HEIGHT);
+            }
+        }/*,
+
         updateZone : function(){
-            this.zoneLabel.text = "Sector "+gameData.getZoneString();
+         his.zoneLabel.text = "Sector "+gameData.getZoneString();
             this.zoneLabel.x = 0;
             this.zoneLabel.y = ICON_SIZE + 12;
 
             this.cache(0, 0, WIDTH, HEIGHT);
-        }
+        }*/
 
     });
 

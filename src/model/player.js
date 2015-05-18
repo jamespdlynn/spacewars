@@ -11,8 +11,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
 
         defaults : {
             id : 0,
+            name: "",
+            icon : "",
             zone : 0,
-            username : "",
             posX : 0,
             posY : 0,
             velocityX : 0,

@@ -64,6 +64,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                                 gameData.update().set(dataObj,{easing:true, remove:true});
                                 if (!self.initialized && gameData.userPlayer){
                                     self.initialize();
+                                    console.log(gameData.userPlayer.user);
                                 }
                                 break;
 
@@ -85,9 +86,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                                 if (!self.initialized) return;
                                 dataObj = gameData.userPlayer.update().clone().set(dataObj).update(gameData.latency).toJSON();
                                 gameData.userPlayer.set({fuel:dataObj.fuel, shields: dataObj.shields, ammo:dataObj.ammo, kills: dataObj.kills});
-                                if (gameData.userPlayer.hasChanged("kills")){
-                                    gameData.updateKills();
-                                }
                                 break;
 
                             case "PlayerUpdate":
@@ -135,7 +133,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                         }
                     });
 
-                    wsClient.out = wsClient.createStream(gameData.user.username);
+                    wsClient.out = wsClient.createStream(gameData.user.id);
                     wsClient.out.readable = false;
                 });
 
@@ -186,7 +184,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                     data.isFiring = false;
                 }
 
-                if (data.isFiring || data.isReloading || data.isAccelerating != userPlayer.get("isAccelerating") || data.isShielded != userPlayer.get("isShielded") || userPlayer.angleDifference(data.angle) >= 0.1){
+                if (data.isFiring || data.isReloading || data.isAccelerating != userPlayer.get("isAccelerating") || data.isShielded != userPlayer.get("isShielded") || userPlayer.angleDifference(data.angle) >= 0.2){
                     var buffer = micro.toBinary(data, "PlayerUpdate",3);
                     this.wsClient.out.write(buffer);
                 }

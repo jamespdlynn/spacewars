@@ -7,407 +7,484 @@
   src: url('../fonts/spaceranger.ttf');
 }
 
-@font-face{
+@font-face {
   font-family: Arkitech;
   src: url('../fonts/Arkitech Bold.ttf');
 }
 
-html{
+@font-face{
+  font-family: Soldier;
+  src: url('../fonts/soldiercond.ttf');
+}
+
+@font-face {
+  font-family: 'si';
+  src: url('../fonts/socicon.eot');
+  src: url('../fonts/socicon.eot?#iefix') format('embedded-opentype'),
+  url('../fonts/socicon.woff') format('woff'),
+  url('../fonts/socicon.ttf') format('truetype'),
+  url('../fonts/socicon.svg#icomoonregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+
+}
+
+html {
   min-width: 768px;
-  padding:0;
-  margin:0;
+  padding: 0;
+  margin: 0;
   overflow: hidden;
   text-align: center;
   background-color: #000;
   color: #ffffff;
   font-family: 'Helvetica';
-  background:url('@{assets}/background.png');
+  background: url('@{assets}/background.png');
+}
 
-  .btn{
-    border-radius: 50px;
+.btn{
+  border-radius: 5px;
+  color: #ffffff;
+  #gradient > .vertical(#357DC9,#2365AF);
+  border: 1px solid #357DC9;
+  padding: 8px 24px;
+  font-size: 22px;
+  font-family: "SpaceRanger";
+  font-weight: normal;
+
+  &:active{
+    #gradient > .vertical(#2365AF,#357DC9);
+    border-color:  #2365AF;
+  }
+
+  &:hover{
+    color: #eaeaea;
+  }
+
+  &:focus{
+    color: inherit;
+    outline: none;
+  }
+}
+
+.btn-social{
+  display: block;
+  width: 400px;
+  margin: 20px auto ;
+
+  i{
+    font-family:si!important;
+    font-style:normal;
+    font-weight:400;
+    -webkit-font-smoothing:antialiased;
+    -moz-osx-font-smoothing:grayscale;
     color: #ffffff;
-    #gradient > .vertical(#357DC9,#2365AF);
-    border: 1px solid #357DC9;
-    padding: 8px 24px;
-    font-size: 22px;
-    font-family: "SpaceRanger";
-    font-weight: normal;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 8px;
+    font-size: 26px;
+  }
+
+  &.btn-facebook{
+    #gradient > .vertical(#3e5b98, #3c4883);
+    border-color: #3e5b98;
 
     &:active{
-      #gradient > .vertical(#2365AF,#357DC9);
-      border-color:  #2365AF;
-      padding-top: 10px;
-      padding-bottom: 8px;
+      #gradient > .vertical(#3c4883, #3e5b98);
+      border-color: #3c4883;
     }
 
-    &:hover{
-      color: #eaeaea;
-    }
-
-    &:focus{
-      color: inherit;
-      outline: none;
+    i:before{
+       content: 'b';
     }
   }
 
-  a{
-    color: red;
-    text-decoration: none;
-  }
+  &.btn-google{
 
-  a:hover{
-    color: #E20000;
-  }
+    #gradient > .vertical(#e24422, #9d2309);
+    border-color: #e24422;
 
-  p{
-    margin-top: 0;
+    &:active{
+      #gradient > .vertical(#9d2309, #e24422);
+      border-color: #9d2309;
+    }
 
-    &:last-child{
-      margin-bottom: 0;
+    i:before{
+      content:'c';
     }
   }
 
-  #background{
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 0;
+
+}
+
+a{
+  color: red;
+  text-decoration: none;
+}
+
+a:hover{
+  color: #E20000;
+}
+
+p{
+  margin-top: 0;
+
+  &:last-child{
+    margin-bottom: 0;
+  }
+}
+
+#background{
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+}
+
+#game{
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+.modal{
+  z-index:2;
+  overflow: hidden;
+  border: none;
+  pointer-events:none;
+  display: block;
+  margin: 0;
+
+  .modal-dialog{
+    min-width: 720px;
+    margin-top: 120px;
+    font-size: 17px;
+    line-height: 28px;
+
+    .modal-content{
+      background: none;
+      border: none;
+      box-shadow: none;
+      pointer-events:all;
+      margin-top: -20px;
+      min-height: 185px;
+
+
+      .modal-header{
+        padding: 0;
+        margin:0;
+        border: none;
+        min-height: 0;
+
+        .modal-title{
+          font-size: 42px;
+          text-shadow: 1px 1px 1px #000;
+          font-family: 'SpaceRanger';
+          font-weight: normal;
+          line-height: 42px;
+        }
+      }
+
+      .modal-body{
+        padding: 20px;
+      }
+
+      .modal-footer{
+        border: none;
+        text-align: center;
+        padding: 0;
+        min-height: 48px;
+      }
+
+    }
   }
 
-  #game{
-    position: fixed;
-    left: 0;
-    top: 0;
-    z-index: 1;
+  #load-modal{
+
+    #load-bar{
+      position: relative;
+      width: 300px;
+      height: 12px;
+      margin: auto;
+      background-color: #333333;
+      margin-top: 8px;
+
+      #progress-bar{
+        width: 0;
+        height: 100%;
+       #gradient > .vertical(#5CBAFF, #0252fd);
+      }
+    }
   }
 
-  .modal{
-    z-index:2;
-    overflow: hidden;
-    border: none;
-    pointer-events:none;
-    display: block;
-    margin: 0;
 
-    .modal-dialog{
-      margin-top: 120px;
-      font-size: 17px;
-      line-height: 28px;
+
+  #about-modal{
+
+    width: 800px;
 
       .modal-content{
-        background: none;
-        border: none;
-        box-shadow: none;
-        pointer-events:all;
-        margin-top: -20px;
-        min-height: 185px;
 
-
-        .modal-header{
-          padding: 0;
-          margin:0;
-          border: none;
-          min-height: 0;
-
-          .modal-title{
-            font-size: 42px;
-            text-shadow: 1px 1px 1px #000;
-            font-family: 'SpaceRanger';
-            font-weight: normal;
-            line-height: 42px;
-          }
-        }
+        pointer-events:none;
 
         .modal-body{
-          padding: 20px;
+          text-align: left;
         }
 
-        .modal-footer{
-          border: none;
+        a{
+          pointer-events:all;
+        }
+
+        #close-button{
+          position: absolute;
+          top: 0;
+          right: 0;
+          width: 24px;
+          height: 24px;
           text-align: center;
-          padding: 0;
-          min-height: 48px;
+          font-size: 28px;
+          font-weight: bold;
+          cursor: pointer;
+          pointer-events: all;
         }
 
-      }
-    }
 
-    #load-modal{
+        #how-to-play{
+          background:url('@{assets}/how-to-play.png') no-repeat center center;
+          width: auto;
+          height: 190px;
+          margin-top: 20px;
+        }
 
-      #load-bar{
-        position: relative;
-        width: 300px;
-        height: 12px;
-        margin: auto;
-        background-color: #333333;
-        margin-top: 8px;
+        #keymap{
+          width: 100%;
+          text-align: center;
+          position: relative;
 
-        #progress-bar{
-          width: 0;
-          height: 100%;
-         #gradient > .vertical(#5CBAFF, #0252fd);
+          .key{
+            margin-top: 15px;
+            display: inline-block;
+            width: 30%;
+            text-align: center;
+          }
         }
       }
-    }
 
-    #welcome-modal{
+  }
 
-      #username-input{
-        font-family: 'Arkitech';
-        font-size: 28px;
-        letter-spacing: 4px;
-        color: #fafafa;
-        text-shadow: 1px 1px 1px #000;
-        background: none;
-        border: none;
-        outline: none;
-        width: 100%;
-        text-align: center;
-      }
-
-      .btn{
-        display: none;
-      }
-
-    }
-
-    #about-modal{
+  #death-modal{
 
       width: 800px;
+      line-height: 28px;
+      font-size: 20px;
+      font-weight: bold;
 
-        .modal-content{
+      .modal-body{
+        padding: 30px 0;
+      }
 
-          pointer-events:none;
+      .row{
+        margin: 0 auto 30px;
 
-          .modal-body{
-            text-align: left;
-          }
-
-          a{
-            pointer-events:all;
-          }
-
-          #close-button{
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 24px;
-            height: 24px;
-            text-align: center;
-            font-size: 28px;
-            font-weight: bold;
-            cursor: pointer;
-            pointer-events: all;
-          }
-
-          #how-to-play{
-            background:url('@{assets}/how-to-play.png') no-repeat center center;
-            width: auto;
-            height: 190px;
-            margin-top: -20px;
-          }
-
-          #keymap{
-            width: 100%;
-
-            position: relative;
-
-            .key{
-                margin-top: 10px;
-                display: inline-block;
-                width: 30%;
-                text-align: center;
-            }
-          }
+        &:last-child{
+          margin-bottom: 0;
         }
 
-    }
-
-    #death-modal{
-
-        width: 800px;
-        line-height: 28px;
-        font-size: 20px;
-        font-weight: bold;
-
-        .modal-body{
-          padding: 30px 0;
-        }
-
-        .row{
-          margin: 0 auto 30px;
-
-          &:last-child{
-            margin-bottom: 0;
-          }
-
-          .label{
-            width: auto;
-            display: inline-block;
-            vertical-align: middle;
-            font-size: 26px;
-            text-align: left;
-            display: inline-block;
-            vertical-align: middle;
-            font-weight: normal;
-            margin-right: 5px;
-            margin-left: 10px;
-
-            &#new-best-label{
-              display: none;
-              color: lime;
-              font-size: 20px;
-              font-weight: bold;
-            }
-          }
-
-
-
-          .value{
-            display: inline-block;
-            vertical-align: middle;
-            text-align: left;
-            margin-right: 10px;
-            font-weight: bold;
-            padding-left: 30px;
-            font-size: 28px;
-            background-size: 22px 22px;
-            background-repeat: no-repeat;
-            background-position: left center;
-
-            &.kills{
-              color: lime;
-              background-image:url('@{assets}/target.png');
-            }
-
-            &.deaths{
-              color: red;
-              background-image:url('@{assets}/skull.png');
-
-            }
-          }
-        }
-
-        #tip{
-          margin-top: 30px;
-          font-size: 18px;
+        .label{
+          width: auto;
+          display: inline-block;
+          vertical-align: middle;
+          font-size: 26px;
+          text-align: left;
+          display: inline-block;
+          vertical-align: middle;
           font-weight: normal;
+          margin-right: 5px;
+          margin-left: 10px;
+
+          &#new-best-label{
+            display: none;
+            color: lime;
+            font-size: 20px;
+            font-weight: bold;
+          }
         }
 
-    }
 
-  }
 
-  #connecting {
-    font-family: "SpaceRanger";
-    font-size: 14px;
-    position: fixed;
-    bottom: 20px;
-    left: 15px;
-    z-index: 3;
-    padding-right: 25px;
-    background-image: url('@{assets}/loader.gif');
-    background-position: right center;
-    background-repeat: no-repeat;
-    display: none;
-  }
+        .value{
+          display: inline-block;
+          vertical-align: middle;
+          text-align: left;
+          margin-right: 10px;
+          font-weight: bold;
+          padding-left: 30px;
+          font-size: 28px;
+          background-size: 22px 22px;
+          background-repeat: no-repeat;
+          background-position: left center;
 
-  #version{
-    font-size: 8px;
-    position: fixed;
-    bottom: 15px;
-    right: 15px;
-    z-index: 0;
-    font-family: 'Arkitech';
-  }
+          &.kills{
+            color: lime;
+            background-image:url('@{assets}/target.png');
+          }
 
-  #icons{
+          &.deaths{
+            color: red;
+            background-image:url('@{assets}/skull.png');
 
-    position: fixed;
-    top: 15px;
-    right: 15px;
-    text-align: right;
-    z-index: 3;
-    opacity: 0.7;
-
-    > *{
-      display: inline-block;
-      margin-left: 20px;
-      width: 32px;
-      height: 32px;
-
-      background-repeat: no-repeat;
-      background-size: 32px;
-      cursor: pointer;
-
-      &#latency{
-
-        &.high{
-          background-image: url('@{assets}/latency-high.png');
-        }
-
-        &.medium{
-          background-image: url('@{assets}/latency-medium.png');
-        }
-
-        &.low{
-          background-image: url('@{assets}/latency-low.png');
-        }
-
-      }
-
-      &#view{
-        background-image: url('@{assets}/view.png');
-        position: fixed;
-        bottom: 15px;
-        right: 15px;
-        display: none;
-        cursor: se-resize;
-
-        &.active{
-          background-image: url('@{assets}/view-lock.png');
-          cursor: pointer;
+          }
         }
       }
 
-      &#about{
-        background-image: url('@{assets}/about.png');
+      #tip{
+        margin-top: 30px;
+        font-size: 18px;
+        font-weight: normal;
       }
 
-      &#sound{
-        background-image: url('@{assets}/sound.png');
-
-        &.active{
-          background-image: url('@{assets}/mute.png');
-        }
-      }
-
-      &#full-screen{
-        background-image: url('@{assets}/fullscreen.png');
-      }
-    }
-
-  }
-
-
-
-  &:-webkit-full-screen #full-screen{
-    background-image: url('@{assets}/exit-fullscreen.png');
-  }
-
-  &:-moz-full-screen #full-screen{
-    background-image: url('@{assets}/exit-fullscreen.png');
-  }
-
-  &:-ms-fullscreen {
-    background-image: url('@{assets}/exit-fullscreen.png');
-  }
-
-  &:full-screen #full-screen{
-    background-image: url('@{assets}/exit-fullscreen.png');
   }
 
 }
+
+
+
+#connecting {
+  font-family: "SpaceRanger";
+  font-size: 14px;
+  position: fixed;
+  bottom: 20px;
+  left: 15px;
+  z-index: 3;
+  padding-right: 25px;
+  background-image: url('@{assets}/loader.gif');
+  background-position: right center;
+  background-repeat: no-repeat;
+  display: none;
+}
+
+#version{
+  font-size: 8px;
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  z-index: 0;
+  font-family: 'Arkitech';
+}
+
+#user{
+  position: fixed;
+  top: 12px;
+  left: 15px;
+  opacity: 0.9;
+  z-index: 3;
+
+  > #userIcon{
+    display: inline-block;
+    vertical-align: middle;
+
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  > #username{
+    display: inline-block;
+    vertical-align: middle;
+    font-family: soldier;
+    font-szie: 22px;
+    margin-left: 10px;
+    line-height: 48px;
+  }
+}
+
+#icons{
+
+  position: fixed;
+  top: 22px;
+  right: 15px;
+  text-align: right;
+  z-index: 3;
+  opacity: 0.7;
+
+  > *{
+    display: inline-block;
+    margin-left: 20px;
+    width: 32px;
+    height: 32px;
+
+    background-repeat: no-repeat;
+    background-size: 32px;
+    cursor: pointer;
+
+    &#latency{
+
+      &.high{
+        background-image: url('@{assets}/latency-high.png');
+      }
+
+      &.medium{
+        background-image: url('@{assets}/latency-medium.png');
+      }
+
+      &.low{
+        background-image: url('@{assets}/latency-low.png');
+      }
+
+    }
+
+    &#view{
+      background-image: url('@{assets}/view.png');
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      display: none;
+      cursor: se-resize;
+
+      &.active{
+        background-image: url('@{assets}/view-lock.png');
+        cursor: pointer;
+      }
+    }
+
+    &#about{
+      background-image: url('@{assets}/about.png');
+    }
+
+    &#sound{
+      background-image: url('@{assets}/sound.png');
+
+      &.active{
+        background-image: url('@{assets}/mute.png');
+      }
+    }
+
+    &#full-screen{
+      background-image: url('@{assets}/fullscreen.png');
+    }
+  }
+
+}
+
+
+
+&:-webkit-full-screen #full-screen{
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+&:-moz-full-screen #full-screen{
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+&:-ms-fullscreen {
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+&:full-screen #full-screen{
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+
 
 
 

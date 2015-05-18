@@ -1,8 +1,9 @@
-define(["binaryjs","microjs","model/schemas","model/constants","control/zone","control/player"],
-    function(binary, micro, schemas, Constants, ServerZone, PlayerManager){
+define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","control/zone","control/player"],
+    function(binary, micro, mongoose, schemas, Constants, ServerZone, PlayerManager){
     'use strict';
 
     var BinaryServer = binary.BinaryServer;
+    var User = mongoose.model("User");
 
     //Constants
     var PING_INTERVAL = 30000;
@@ -75,22 +76,32 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
 
         var remoteKey, pingTimeout, updated, initialized, pm;
 
-        connection.on("stream", function(stream, meta) {
+        connection.on("stream", function(stream, userId) {
 
-            remoteKey = connection._socket._socket.remoteAddress + ":" + meta;
-
-            if (addressMap[remoteKey] && !isDevelopment){
-                remoteKey = undefined;
+            if (addressMap[userId] && !isDevelopment){
                 connection.close();
                 return;
             }
 
-            connection.in = stream;
-            connection.in.writeable = false;
-            connection.in.on('data', readData);
-            addressMap[remoteKey] = 1;
+            User.findById(userId, function(err, user){
+                if (err || !user){
+                    console.error("Unable to connect user: "+userId +" "+err);
+                    connection.close();
+                    return;
+                }
 
-            pm = new PlayerManager(connection, meta);
+                connection.in = stream;
+                connection.in.writeable = false;
+                connection.in.on('data', readData);
+                addressMap[userId] = 1;
+
+                pm = new PlayerManager(connection, user);
+
+
+
+                ping(connection);
+                connectionCount++;
+            });
         });
 
         connection.on("error", function(error){
@@ -118,8 +129,6 @@ define(["binaryjs","microjs","model/schemas","model/constants","control/zone","c
         connection.out = connection.createStream();
         connection.out.readable = false;
 
-        ping(connection);
-        connectionCount++;
 
         function readData(buffer){
 

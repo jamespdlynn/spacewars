@@ -25,16 +25,12 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             this.latency = 0;
             this.roundKills = 0;
             this.userPlayer = undefined;
-            this.newBest = false;
             this.cameraLocked = true;
 
             this.user = {
-                username : "",
-                kills : 0,
-                deaths : 0,
-                best : 0,
                 muted : false,
-                tipIndex : 0
+                tipIndex : 0,
+                hasPlayed : false
             };
 
             return this;
@@ -44,9 +40,7 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             Zone.prototype.reset.call(this);
 
             this.latency = 0;
-            this.roundKills = 0;
             this.userPlayer = undefined;
-            this.newBest = false;
             this.cameraLocked = true;
 
             return this;
@@ -70,45 +64,11 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             return this;
         },
 
-        isUserInitialized : function(){
-            return this.user.username.length > 0;
-        },
-
         getTip : function(){
             var tip = TIPS[this.user.tipIndex];
             this.user.tipIndex = (this.user.tipIndex+1)%TIPS.length;
             this.trigger(Constants.Events.USER_CHANGED);
             return tip;
-        },
-
-        setUsername : function(value){
-            this.user.username = value;
-            this.trigger(Constants.Events.USER_CHANGED);
-
-            return this;
-        },
-
-        updateKills : function(){
-            var kills = this.userPlayer.get("kills");
-
-            this.user.kills += (kills-this.roundKills);
-            this.roundKills = kills;
-
-            if (kills > this.user.best){
-                this.user.best = kills;
-                this.newBest = true;
-            }
-
-            this.trigger(Constants.Events.USER_CHANGED);
-
-            return this;
-        },
-
-        incrementDeaths : function(){
-            this.user.deaths++;
-            this.trigger(Constants.Events.USER_CHANGED);
-
-            return this;
         },
 
         setMuted : function (value){

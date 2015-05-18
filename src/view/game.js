@@ -258,6 +258,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             return;
         }
 
+
         if (!stage.mouseInBounds){
             userShip.isAccelerating = false;
             userShip.isShielded = false;
@@ -276,6 +277,9 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         else if (scrollDirection){
            scroll(evt);
         }
+
+
+
 
         stage.update(evt);
 
@@ -345,9 +349,9 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             }
         }
 
-
         gameData.offsetX += scrollX;
         gameData.offsetY += scrollY;
+
 
     }
 
@@ -422,7 +426,12 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         if (which == 1 && userShip.model.canAccelerate()){
             userShip.isAccelerating = true;
             triggerUpdate();
-        }else if (which == 3 && userShip.model.canShield()){
+        }
+        else if (which == 2 && userShip.model.canFire()){
+            userShip.isFiring = true;
+            triggerUpdate();
+        }
+        else if (which == 3 && userShip.model.canShield()){
             userShip.isShielded = true;
             triggerUpdate();
         }
@@ -434,7 +443,11 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         var which = evt.nativeEvent.which;
         if (which == 1){
             userShip.isAccelerating= false;
-        }else if (which == 3){
+        }
+        else if (which == 2){
+            userShip.isFiring = false;
+        }
+        else if (which == 3){
             userShip.isShielded = false;
         }
     }
@@ -486,11 +499,28 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             }
             else{
                 scrollDirection = "";
+            }
+        }
+
+        if (!scrollDirection){
+            for (var i=1; i < stage.children.length-1; i++){
+                var sprite = stage.getChildAt(i);
+                if (EnemyShip.prototype.isPrototypeOf(sprite) &&
+                  Math.abs(evt.stageX - sprite.x) <= sprite._bounds.width &&
+                  Math.abs(evt.stageY - sprite.y) <= sprite._bounds.height){
+                    overlay.user.render(sprite.model);
+                    stage.canvas.style.cursor = "help";
+                    break;
+                }
+            }
+            if (i >= stage.children.length-1){
+                overlay.user.render();
                 stage.canvas.style.cursor = "crosshair";
             }
-        }else{
-            stage.canvas.style.cursor = "crosshair";
         }
+
+
+
 
 
     }
@@ -507,7 +537,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 scrollDirection = "center";
                 break;
 
-            case 69:
+            case 16:
                 if (!userShip.model.canShield()) break;
                 userShip.isShielded = true;
                 triggerUpdate();
@@ -520,10 +550,23 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 userShip.isReloading = false;
                 break;
 
+            case 37:
+            case 65:
+                if (userShip.rotateDirection) break;
+                userShip.rotateDirection = "left";
+                break;
+
+            case 38:
             case 87:
                 if (!userShip.model.canAccelerate()) break;
                 userShip.isAccelerating = true;
                 triggerUpdate();
+                break;
+
+            case 39:
+            case 68:
+                if (userShip.rotateDirection) break;
+                userShip.rotateDirection = "right";
                 break;
 
             case 90:
@@ -540,14 +583,26 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 userShip.isFiring = false;
                 break;
 
-            case 69:
+            case 16:
                 userShip.isShielded = false;
                 break;
 
             case 87:
+            case 38:
                 userShip.isAccelerating = false;
                 break;
 
+            case 37:
+            case 65:
+                if (userShip.rotateDirection == "right") break;
+                userShip.rotateDirection = null;
+                break;
+
+            case 39:
+            case 68:
+                if (userShip.rotateDirection == "left") break;
+                userShip.rotateDirection = null;
+                break;
         }
     }
 

@@ -1,6 +1,6 @@
-define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
+define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
         'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
-    function (Constants, loadTpl, welcomeTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
+    function (Constants, loadTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
         'use strict';
 
         var modal = document.getElementById("modal");
@@ -33,42 +33,6 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl
                  return ModalsView;
              },
 
-             showWelcomeModal : function(){
-
-                 ModalsView.showModal(welcomeTpl);
-
-                 var onWelcomeSubmit = function(evt){
-                     if (evt.type == "click" || evt.which == 13){
-                         if (usernameInput.value.length){
-                             gameData.setUsername(usernameInput.value);
-                             document.removeEventListener('keydown', onWelcomeSubmit);
-                             document.removeEventListener('keyup', onWelcomeKeyUp);
-                             document.addEventListener('keydown', onKeyDown);
-
-                             onSubmit(evt);
-                         }else{
-                             usernameInput.focus();
-                         }
-                     }
-                 };
-
-                 var onWelcomeKeyUp = function(){
-                     usernameInput.value.length ? deployButton.show(true) : deployButton.hide();
-                 };
-
-                 var usernameInput = document.getElementById("username-input");
-                 usernameInput.focus();
-
-                 var deployButton = document.getElementById("deploy-button");
-                 deployButton.addEventListener("click", onWelcomeSubmit);
-
-                 document.removeEventListener('keydown', onKeyDown);
-                 document.addEventListener('keydown', onWelcomeSubmit);
-                 document.addEventListener('keyup', onWelcomeKeyUp);
-
-                 return ModalsView;
-             },
-
              showConnectionFailedModal : function(){
 
                  ModalsView.showModal(connectionFailedTpl);
@@ -94,7 +58,7 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl
                  ModalsView.showModal(deathTpl);
 
                  if (gameData.slayer){
-                     document.getElementById("death-title").innerText = "Slain by "+gameData.slayer.username;
+                     document.getElementById("death-title").innerText = "Slain by "+gameData.slayer.name;
                  }
 
                  document.getElementById("round-kills").innerText = gameData.roundKills;
@@ -173,7 +137,7 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl
         };
 
         function onKeyDown(evt){
-            switch (evt.keyCode){
+            /*switch (evt.keyCode){
                 case 65:
                     toggleAboutWindow();
                     break;
@@ -183,7 +147,7 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/welcome.html', 'txt!tpl
                 case 70:
                     toggleFullScreen();
                     break;
-            }
+            }*/
         }
 
         function onLatencyChanged(value){

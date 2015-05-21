@@ -121,6 +121,10 @@ define(['model/dispatcher','model/sprite','model/player','model/missile','model/
             return model;
         },
 
+        forEach : function(func){
+            this.models.forEach(func);
+        },
+
         remove : function(data){
 
             if (!data) return null;

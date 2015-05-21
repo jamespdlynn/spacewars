@@ -127,18 +127,35 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                     this._sendToAll("RemoveSprite",  {type:sprite.type,id:sprite.id});
                 }
                 sprite.zone = undefined;
-
                 this.toggleUpdateInterval();
 
                 return sprite;
+            }else{
+                console.log("HERE");
             }
+
+
             return null;
         },
 
         explodeSprite : function(sprite){
-             if (this.removeSprite(sprite)){
-                 this._sendToAll("Collision",{sprite1:{type:sprite.type,id:sprite.id}}, 3);
+             if (this.model.get(sprite)){
+                 if (!sprite.collide().isAlive()){
+                     this.removeSprite(sprite);
+                 }
+
+                 this._sendToAll("Collision", {
+                     sprites: [{
+                         id: sprite.id,
+                         type: sprite.type,
+                         alive: sprite.isAlive()
+                     }]
+                 });
+
                  sprite.trigger(Constants.Events.COLLISION);
+             }
+             else{
+                 console.error("Could not find sprite "+sprite.type+" : "+sprite.id +" in zone");
              }
         },
 
@@ -199,6 +216,10 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
 
         detectCollision : function(sprite1, sprite2){
 
+            if (!sprite1){
+                return false;
+            }
+
             if (!sprite2){
 
                 var players = this.model.players.models;
@@ -216,37 +237,38 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 return false;
             }
 
-
             //Check if collision is valid
             if (sprite1.detectCollision(sprite2)){
 
                 //Save off current sprite data values
                 var sprite1Clone = sprite1.clone();
-
-                //Collide the two sprites
-                var data = {sprite1:{type:sprite1.type, id:sprite1.id}, sprite2:{type:sprite2.type, id:sprite2.id}};
-                data.sprite1.survived = !sprite1.collide(sprite2, {silent:true});
-                data.sprite2.survived = !sprite2.collide(sprite1Clone, {silent:true});
+                sprite1.collide(sprite2);
+                sprite2.collide(sprite1Clone);
 
                 //send the collision data objects to the clients
-                this._sendToAll("Collision", data);
+                this._sendToAll("Collision", {
+                    sprites : [
+                        {id:sprite1.id, type:sprite1.type, alive:sprite1.isAlive()},
+                        {id:sprite2.id, type:sprite2.type, alive:sprite2.isAlive()},
+                    ]
+                });
+
 
                 //Send updates or remove sprites as necessary
-                if (data.sprite1.survived){
-                    sprite1.update(100); //Fast forward the sprite position as to not to have duplicate collisions
+                if (sprite1.isAlive()){
                     this.sendSprite(sprite1);
                 }else{
-                    sprite1.trigger(Constants.Events.COLLISION, sprite2);
-                    this.removeSprite(sprite1);
+                    this.removeSprite(sprite1, true);
                 }
 
-                if (data.sprite2.survived){
-                    sprite2.update(100);   //Fast forward the sprite position as to not to have duplicate collisions
+                if (sprite2.isAlive()){
                     this.sendSprite(sprite2);
-                }else{
-                    sprite2.trigger(Constants.Events.COLLISION, sprite1);
-                    this.removeSprite(sprite2);
+                }else {
+                    this.removeSprite(sprite2, true);
                 }
+
+                sprite1.trigger(Constants.Events.COLLISION, sprite2);
+                sprite2.trigger(Constants.Events.COLLISION, sprite1);
 
                 return true;
             }

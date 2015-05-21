@@ -1,5 +1,6 @@
 'use strict';
 
+//noinspection Annotator
 require.config({
     paths : {
         'tpl' : 'templates',
@@ -8,6 +9,7 @@ require.config({
         'binaryjs' : 'vendor/binary.min',
         'microjs' : 'vendor/micro',
         'browser-buffer' : 'vendor/browser-buffer',
+        'handlebars' : 'vendor/handlebars-v3.0.3',
 
         'createjs' : 'vendor/easeljs-0.7.1.combined',
         'preloadjs' : 'vendor/preloadjs-0.4.1',
@@ -22,6 +24,9 @@ require.config({
         },
         'browser-buffer' : {
             exports : 'Buffer'
+        },
+        'handlebars' : {
+            exports : 'Handlebars'
         }
     },
 
@@ -82,11 +87,7 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
     function( ModalsView, GameView, Client, Constants, GameData){
         'use strict';
 
-        if ('ontouchstart' in document.documentElement){
-            return ModalsView.showUnsupportedDeviceModal();
-        }
-
-        if (!window.HTMLCanvasElement || typeof document.documentMode == "number" || eval("/*@cc_on!@*/!1")){
+        if (!window.HTMLCanvasElement){
             return ModalsView.showUnsupportedBrowserModal();
         }
 
@@ -94,7 +95,7 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
         //Load user from local storage
         gameData.user = JSON.parse(localStorage.getItem("user")) || gameData.user;
-        gameData.user.id = getCookie('userId');
+        gameData.user.id = getCookie('userId') || gameData.user.id;
         gameData.on(Constants.Events.USER_CHANGED, function(){
             localStorage.setItem("user", JSON.stringify(gameData.user));
         });
@@ -102,9 +103,8 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         var client = new Client(gameData);
 
         gameData.on(Constants.Events.DEPLOY, function(){
-                ModalsView.setConnecting(true);
-                client.run();
-
+            ModalsView.setConnecting(true);
+            client.run(window.location.hostname);
         });
 
         gameData.on(Constants.Events.CONNECTED, function(){
@@ -134,12 +134,18 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
                 gameData.user.hasPlayed = true;
                 gameData.trigger(Constants.Events.USER_CHANGED);
             }
+
         });
+
+        gameData.on(Constants.Events.GAME_ENDING, function(slayer){
+           GameView.end();
+           ModalsView.showDeathModal(slayer);
+        });
+
 
         gameData.on(Constants.Events.GAME_END, function(){
             client.stop();
             GameView.reset();
-            ModalsView.showDeathModal();
             gameData.reset();
         });
 
@@ -150,18 +156,14 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
 );
 
-function getCookie(c_name)
-{
+function getCookie(c_name) {
     var i,x,y,ARRcookies=document.cookie.split(";");
-
-    for (i=0;i<ARRcookies.length;i++)
-    {
+    for (i=0;i<ARRcookies.length;i++) {
         x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
         y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
         x=x.replace(/^\s+|\s+$/g,"");
-        if (x==c_name)
-        {
-            return unescape(y);
+        if (x==c_name) {
+            return decodeURI(y);
         }
     }
 }

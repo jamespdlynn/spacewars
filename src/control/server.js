@@ -18,10 +18,12 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
     var wsServer;
     var isDevelopment;
 
-    //Register our schemas
+    micro.maxBufferLength = Constants.MAX_BUFFER_LENGTH;
     micro.register(schemas);
 
     return {
+
+
 
         run : function(isDev){
             //Initialize zones
@@ -96,8 +98,6 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
                 addressMap[userId] = 1;
 
                 pm = new PlayerManager(connection, user);
-
-
 
                 ping(connection);
                 connectionCount++;

@@ -4,30 +4,20 @@ html
     meta(charset='utf-8')
     meta(http-equiv='X-UA-Compatible', content='IE=edge,chrome=1')
     meta(name='viewport', content='width=device-width,initial-scale=1.0,user-scalable=no')
-    title Hyper Galatic
-    link(rel='stylesheet', href='/css/game.css?v=#{version}')
+    title Unsupported Device
+    link(rel='stylesheet', href='/css/style.css?v=#{version}')
   body
-    canvas#game
-    #icons
-      #latency
-      #view(title='Toggle Camera Mode (z)')
-      #about(title='About (a)')
-      #sound(title='Toggle Sound (s)')
-      #full-screen(title='Toggle Full Screen (f)')
-    #connecting Connecting
     #version Alpha #{version}
     #modal.modal
-        #load-modal.modal-dialog
+        #login-modal.modal-dialog
+
             .modal-content
                 .modal-header
-                  h3.modal-title Hyper Galatic
+                   h3.modal-title Unsupported Device
                 .modal-body
-                  #load-bar
-                    #progress-bar
+                | Hyper Galatic does not currently support touch screen devices.
 
     script.
         var modalDialog = document.getElementsByClassName('modal-dialog')[0];
         var padding = Math.max((window.innerHeight - modalDialog.children[0].offsetHeight)/2, 0);
         modalDialog.setAttribute("style", "margin-top:"+padding+"px");
-
-    script(data-main='main.js?v=#{version}', src='/js/require.js')

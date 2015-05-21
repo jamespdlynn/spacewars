@@ -1,0 +1,245 @@
+@import "style";
+
+#background {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 0;
+}
+
+#game {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 1;
+}
+
+#load-modal {
+
+  #load-bar {
+    position: relative;
+    width: 300px;
+    height: 12px;
+    margin: auto;
+    background-color: #333333;
+    margin-top: 8px;
+
+    #progress-bar {
+      width: 0;
+      height: 100%;
+      #gradient > .vertical(#5CBAFF, #0252fd);
+    }
+  }
+}
+
+#about-modal {
+
+  width: 800px;
+
+  .modal-content {
+
+    pointer-events: none;
+
+    .modal-body {
+      text-align: left;
+    }
+
+    a {
+      pointer-events: all;
+    }
+
+    #close-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24px;
+      height: 24px;
+      text-align: center;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+      pointer-events: all;
+    }
+
+    #how-to-play {
+      background: url('@{assets}/how-to-play.png') no-repeat center center;
+      width: auto;
+      height: 190px;
+      margin-top: 20px;
+    }
+
+    #keymap {
+      width: 100%;
+      text-align: center;
+      position: relative;
+
+      .key {
+        margin-top: 15px;
+        display: inline-block;
+        width: 30%;
+        text-align: center;
+      }
+    }
+  }
+
+}
+
+#death-modal {
+
+  .icon{
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 12px;
+  }
+
+  .modal-title{
+    display: inline-block;
+    vertical-align: middle;
+    font-size: 36px;
+    padding-top: 10px;
+  }
+
+}
+
+#tip {
+  margin-top: 30px;
+  font-size: 18px;
+  font-weight: normal;
+}
+
+#connecting {
+  font-family: "SpaceRanger";
+  font-size: 14px;
+  position: fixed;
+  bottom: 20px;
+  left: 15px;
+  z-index: 3;
+  padding-right: 25px;
+  background-image: url('@{assets}/loader.gif');
+  background-position: right center;
+  background-repeat: no-repeat;
+  display: none;
+}
+
+#user {
+  position: fixed;
+  top: 12px;
+  left: 15px;
+  opacity: 0.9;
+  z-index: 3;
+
+  > #userIcon {
+    display: inline-block;
+    vertical-align: middle;
+
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  > #username {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: soldier;
+    font-szie: 22px;
+    margin-left: 10px;
+    line-height: 48px;
+  }
+}
+
+#icons {
+
+  position: fixed;
+  top: 22px;
+  right: 15px;
+  text-align: right;
+  z-index: 3;
+  opacity: 0.7;
+
+  > * {
+    display: inline-block;
+    margin-left: 20px;
+    width: 32px;
+    height: 32px;
+
+    background-repeat: no-repeat;
+    background-size: 32px;
+    cursor: pointer;
+
+    &#latency {
+
+      &.high {
+        background-image: url('@{assets}/latency-high.png');
+      }
+
+      &.medium {
+        background-image: url('@{assets}/latency-medium.png');
+      }
+
+      &.low {
+        background-image: url('@{assets}/latency-low.png');
+      }
+
+    }
+
+    &#view {
+      background-image: url('@{assets}/view.png');
+      position: fixed;
+      bottom: 15px;
+      right: 15px;
+      display: none;
+      cursor: se-resize;
+
+      &.active {
+        background-image: url('@{assets}/view-lock.png');
+        cursor: pointer;
+      }
+    }
+
+    &#about {
+      background-image: url('@{assets}/about.png');
+    }
+
+    &#sound {
+      background-image: url('@{assets}/sound.png');
+
+      &.active {
+        background-image: url('@{assets}/mute.png');
+      }
+    }
+
+    &#full-screen {
+      background-image: url('@{assets}/fullscreen.png');
+    }
+  }
+
+}
+
+:-webkit-full-screen #full-screen {
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+:-moz-full-screen #full-screen {
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+:-ms-fullscreen {
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+:full-screen #full-screen {
+  background-image: url('@{assets}/exit-fullscreen.png');
+}
+
+
+
+
+
+
+
+
+
+
+
+
+

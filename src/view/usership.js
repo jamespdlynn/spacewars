@@ -63,6 +63,13 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
             this.reloadBar.scaleX = Math.min((this.model.lastUpdated - this.model.lastFired) / this.model.reloadTime, 1);
             this.reloadBar.visible = this.model.get("ammo") == 0;
 
+            if (!this.model.canAccelerate()){
+                this.isAccelerating = false;
+            }
+
+            if (!this.model.canShield()){
+                this.isShielded = false;
+            }
         }
 
     });

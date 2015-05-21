@@ -7,6 +7,7 @@ define(function(){
 
        WORLD_SIZE : 16,
        MAX_PLAYERS : 5000,
+       MAX_BUFFER_LENGTH : 5000,
 
        SERVER_UPDATE_INTERVAL : 1000, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
@@ -35,11 +36,11 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 310,
-           maxVelocity : 155,
+           acceleration : 350,
+           maxVelocity : 170,
            rotationRate : 5.8,
            maxAmmo : 6,
-           fireInterval : 500,
+           fireInterval : 600,
            reloadTime : 3500,
            maxFuel : 100,
            fuelUseRate : 30,
@@ -48,8 +49,8 @@ define(function(){
            shieldUseRate : 12,
            shieldRestoreRate : 3,
            shieldPadding : 12,
-           shieldHitDiscount : 50,
-           shieldDownTime : 10000,
+           shieldHitDiscount : 35,
+           shieldDownTime : 8000,
            invulnerableTime : 2000,
            maxLevel : 6
        },

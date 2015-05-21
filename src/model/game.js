@@ -23,11 +23,11 @@ define(['model/dispatcher','model/zone','model/constants'], function(EventDispat
             Zone.prototype.initialize.call(this);
 
             this.latency = 0;
-            this.roundKills = 0;
             this.userPlayer = undefined;
             this.cameraLocked = true;
 
             this.user = {
+                id : "",
                 muted : false,
                 tipIndex : 0,
                 hasPlayed : false

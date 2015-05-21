@@ -21,7 +21,8 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             posY : 0,
             velocityX :0,
             velocityY: 0,
-            isInvulnerable : false
+            isInvulnerable : false,
+            alive : true
         },
 
         initialize : function(data){
@@ -163,11 +164,9 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             return Math.max(this.width,this.height)/2;
         },
 
-        collide : function(sprite, options){
-            if (!(options || {}).silent){
-                this.trigger(Constants.Events.COLLISION, sprite);
-            }
-            return true;
+        collide : function(){
+            this.set('alive', false);
+            return this;
         },
 
         getRect : function(){
@@ -207,8 +206,8 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
             var data = this.zoneAdjustedPosition(sprite.get("zone"));
 
-            var deltaX = data.posX - this.data.posX;
-            var deltaY = data.posY - this.data.posY;
+            var deltaX = data.posX - sprite.data.posX;
+            var deltaY = data.posY - sprite.data.posY;
 
             return Sprite.getHypotenuse(deltaX, deltaY);
         },
@@ -277,6 +276,14 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
             }
 
             return clone;
+        },
+
+        is : function(type){
+            return this.type.toLowerCase() == type.toLowerCase();
+        },
+
+        isAlive : function(){
+            return !!this.get('alive');
         },
 
         reset : function(){

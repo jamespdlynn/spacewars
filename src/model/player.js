@@ -27,7 +27,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             isInvulnerable : true,
             isAccelerating : false,
             isShielded : false,
-            isShieldBroken : false
+            isShieldBroken : false,
+            alive : true
         },
 
         set: function() {
@@ -41,6 +42,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         _updateData : function(deltaSeconds){
+
             var data = this.data;
 
             var deltaSeconds1 = 0;
@@ -108,10 +110,10 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return Sprite.prototype.detectCollision.call(this, sprite);
         },
 
-        collide : function(sprite, options){
+        collide : function(sprite){
 
             if (!sprite || !this.data.isShielded){
-                return Sprite.prototype.collide.call(this, sprite, options);
+                return Sprite.prototype.collide.call(this, sprite);
             }
 
             var cos = Math.cos;
@@ -152,7 +154,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             d1.shields -= this.shieldHitDiscount;
             d1.shields = Math.max(d1.shields, 0);
 
-            return false;
+            d1.isAccelerating = false;
+
+            return this.update(200);
         },
 
         angleDifference : function(angle){

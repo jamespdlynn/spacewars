@@ -31,19 +31,6 @@ define(['createjs'],function(createjs){
             this.addChild(this.userLabel, this.killLabel, this.killIcon);
             this.setBounds(0, 0, WIDTH, HEIGHT);
 
-            this.alpha = 0.95;
-
-            /*(var self = this;
-
-            self.updateUser();
-            gameData.on(Constants.Events.USER_CHANGED, function(){
-                self.updateUser();
-            });
-
-            self.updateZone();
-            gameData.on(Constants.Events.ZONE_CHANGED, function(){
-                self.updateZone();
-            });*/
         },
 
         render : function(player){
@@ -88,15 +75,7 @@ define(['createjs'],function(createjs){
                 this.killLabel.text = this.player.get('kills');
                 this.cache(0, 0, WIDTH, HEIGHT);
             }
-        }/*,
-
-        updateZone : function(){
-         his.zoneLabel.text = "Sector "+gameData.getZoneString();
-            this.zoneLabel.x = 0;
-            this.zoneLabel.y = ICON_SIZE + 12;
-
-            this.cache(0, 0, WIDTH, HEIGHT);
-        }*/
+        }
 
     });
 

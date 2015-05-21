@@ -1,6 +1,6 @@
-define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
-        'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html', 'txt!tpl/unsupported-device.html'],
-    function (Constants, loadTpl, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl, unsupportedDeviceTpl){
+define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
+        'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html'],
+    function (Constants, Handlebars, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl){
         'use strict';
 
         var modal = document.getElementById("modal");
@@ -10,6 +10,8 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/connection-failed.html'
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
         var latencyIcon = document.getElementById("latency");
+
+        var deathTpl = Handlebars.compile(deathTpl);
 
         var existingDialog;
 
@@ -53,32 +55,10 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/connection-failed.html'
                  return ModalsView;
              },
 
-             showDeathModal : function(){
-
-                 ModalsView.showModal(deathTpl);
-
-                 if (gameData.slayer){
-                     document.getElementById("death-title").innerText = "Slain by "+gameData.slayer.name;
-                 }
-
-                 document.getElementById("round-kills").innerText = gameData.roundKills;
-
-                 if (gameData.newBest){
-                     document.getElementById("best-label").hide();
-                     document.getElementById("best-kills").hide();
-                     document.getElementById("new-best-label").show(true);
-                 }else{
-                     document.getElementById("best-kills").innerText = gameData.user.best;
-                 }
-
-                 document.getElementById("career-kills").innerText = gameData.user.kills;
-                 document.getElementById("career-deaths").innerText = gameData.user.deaths;
-
-                 document.getElementById("tip").innerHTML = "<strong>Pro Tip: </strong>" + gameData.getTip();
-
+             showDeathModal : function(slayer){
+                 console.log("HERE: "+deathTpl({slayer:slayer}));
+                 ModalsView.showModal(deathTpl({slayer:slayer}));
                  document.getElementById("deploy-button").addEventListener("click", onSubmit);
-                 document.addEventListener('keydown', onSubmit);
-
                  return ModalsView;
              },
 
@@ -109,9 +89,6 @@ define(['model/constants', 'txt!tpl/load.html', 'txt!tpl/connection-failed.html'
                  return ModalsView.showModal(unsupportedBrowserTpl);
              },
 
-             showUnsupportedDeviceModal : function(){
-                 return ModalsView.showModal(unsupportedDeviceTpl);
-             },
 
              showModal : function(template){
                  modal.innerHTML = template;

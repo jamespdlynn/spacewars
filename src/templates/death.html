@@ -1,29 +1,15 @@
 <div  id="death-modal" class="modal-dialog">
     <div class="modal-content">
         <div class="modal-header">
-            <h3 id="death-title" class="modal-title">You Died</h3>
-        </div>
-        <div class="modal-body">
-
-            <div class="row">
-                <div class="label">Score</div>
-                <div id="round-kills" class="value kills"></div>
-                <div id="best-label" class="label">Best</div>
-                <div id="best-kills" class="value kills"></div>
-                <div id="new-best-label" class="label">New Personal Best!</div>
-            </div>
-
-            <div class="row">
-                <div class="label">Career</div>
-                <div id="career-kills" class="value kills"></div>
-                <div id="career-deaths" class="value deaths"></div>
-            </div>
-
+            {{#if slayer}}
+                <img class="icon" src="{{slayer.icon}}"/>
+                <h3 class="modal-title">Slain By {{slayer.name}}</h3>
+            {{else}}
+                 <h3 class="modal-title">You have been slain</h3>
+            {{/if}}
         </div>
         <div class="modal-footer">
-
-            <button id="deploy-button" class="btn btn-lg">Redeploy</button>
-            <div id="tip"></div>
+            <button id="deploy-button" class="btn btn-lg">Retry</button>
         </div>
     </div>
 </div>

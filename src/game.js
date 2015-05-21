@@ -32,6 +32,9 @@ if (isDev){
     memwatch.on('leak', function(info){
         console.error("Memory Leak Detected: "+info.reason);
     });
+    memwatch.on('stats', function(stats){
+        console.log(JSON.stringify(stats));
+    });
 
     process.on('uncaughtException', function(error) {
         console.error("Uncaught Exception: "+error.stack);

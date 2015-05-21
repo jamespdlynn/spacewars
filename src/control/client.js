@@ -18,8 +18,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             run : function(hostname){
                 if (this.isRunning) return;
 
-                hostname = hostname || window.location.hostname;
-
                 var self = this;
                 var gameData = this.gameData;
                 var url = "ws://"+hostname+":"+Constants.WS_PORT;
@@ -64,7 +62,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                                 gameData.update().set(dataObj,{easing:true, remove:true});
                                 if (!self.initialized && gameData.userPlayer){
                                     self.initialize();
-                                    console.log(gameData.userPlayer.user);
                                 }
                                 break;
 
@@ -114,7 +111,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
                             case "Collision":
                                 if (!self.initialized) return;
-                                gameData.trigger(Constants.Events.COLLISION, dataObj);
+                                gameData.trigger(Constants.Events.COLLISION, dataObj.sprites);
                                 break;
 
                             case "RemoveSprite":
@@ -123,8 +120,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                                 break;
 
                             case "GameOver":
-                                gameData.slayer = dataObj.slayer;
-                                gameData.trigger(Constants.Events.GAME_ENDING);
+                                gameData.trigger(Constants.Events.GAME_ENDING, dataObj.slayer);
                                 break;
 
                             default:
@@ -165,26 +161,28 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
             },
 
             initialize : function(){
-
-                var self = this;
-
-                self.gameData.on(Constants.Events.PLAYER_UPDATE, function(data){
-                    self.sendData(data);
-                });
-
-                self.initialized = true;
-                self.gameData.trigger(Constants.Events.CONNECTED);
+                this.initialized = true;
+                this.gameData.on(Constants.Events.PLAYER_UPDATE, this.sendData.bind(this));
+                this.gameData.trigger(Constants.Events.CONNECTED);
             },
 
             sendData : function(data){
 
                 var userPlayer = this.gameData.userPlayer.update();
 
-                if (data.isFiring && !userPlayer.canFire()){
-                    data.isFiring = false;
-                }
+                data.isFiring = data.isFiring && userPlayer.canFire();
+                data.isAccelerating = data.isAccelerating && userPlayer.canAccelerate();
+                data.isShielded = data.isShielded && userPlayer.canShield();
+                data.isReloading = data.isReloading && userPlayer.canReload();
 
-                if (data.isFiring || data.isReloading || data.isAccelerating != userPlayer.get("isAccelerating") || data.isShielded != userPlayer.get("isShielded") || userPlayer.angleDifference(data.angle) >= 0.2){
+                var angleDiff = userPlayer.angleDifference(data.angle);
+
+                if (data.isFiring
+                    || data.isReloading
+                    || data.isAccelerating != userPlayer.get("isAccelerating")
+                    || data.isShielded != userPlayer.get("isShielded")
+                    || angleDiff > 0.01 && data.isAccelerating
+                    || angleDiff > 0.2){
                     var buffer = micro.toBinary(data, "PlayerUpdate",3);
                     this.wsClient.out.write(buffer);
                 }

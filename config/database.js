@@ -29,7 +29,9 @@ module.exports = function() {
 			kills : {type:Number, default:0},
 			deaths : {type:Number, default:0},
 			highScore : {type:Number, default:0}
-		}
+		},
+
+		isTest : {type:Boolean, default:false}
 
 	});
 
@@ -38,4 +40,6 @@ module.exports = function() {
 	});
 
 	mongoose.model('User', userSchema);
+
+	return mongoose;
 };

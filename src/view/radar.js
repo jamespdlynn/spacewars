@@ -25,7 +25,6 @@ define(['createjs','model/constants'],function(createjs, Constants){
         initialize : function(){
             Container.prototype.initialize.call(this);
 
-            this.alpha = 0.8;
             //this.regX = this.regY = -RADIUS;
 
             this.background = new Shape();

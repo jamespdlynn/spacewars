@@ -1,7 +1,7 @@
 var fs = require("fs"),
     requirejs = require("requirejs");
 
-var NUM_CONNECTIONS = 50;
+var NUM_BOTS = 1;
 var NAMES = fs.readFileSync(__dirname+'/names.txt').toString().replace(" ","").replace("\r","").split("\n");
 var HOST_NAME = process.argv[2] || "localhost";
 
@@ -17,55 +17,47 @@ global.extend = function(add){
     return this;
 };
 
+var User = require('../config/database')().model("User");
+
+
 requirejs.config({
     nodeRequire : require,
     baseUrl : '../src'
 });
 
-requirejs(["control/client","model/game","model/constants"], function(Client, GameData, Constants){
+requirejs(["control/bot"], function(Bot){
 
-    var clientCount = 0;
 
-    for (var i=0; i < NUM_CONNECTIONS; i++){
-        setTimeout(createClient, i);
-    }
-
-    function createClient(){
-
-        var gameData = new GameData();
-        var client = new Client(gameData);
-        var username = NAMES[clientCount%NAMES.length];
-
-        gameData.setUsername(username);
-        gameData.on(Constants.Events.CONNECTED, function(){
-            gameData.off(Constants.Events.CONNECTED);
-            sendUpdate(client);
-        });
-
-        client.run(HOST_NAME);
-
-        if (++clientCount >= NUM_CONNECTIONS){
-            console.log(clientCount +" clients created");
+    User.remove({isTest:true}, function(err){
+        if (err){
+            console.error(err);
         }
-    }
 
-    function sendUpdate(client){
+        var botCount = 0;
 
-        var duration = (Math.random() * Constants.SERVER_UPDATE_INTERVAL) + Constants.CLIENT_UPDATE_INTERVAL;
-        setTimeout(function(){
+        for (var i=0; i < NUM_BOTS; i++){
+            var user = new User();
+            user.firstName = NAMES[i].trim();
+            user.lastName = "Bot";
+            user.email = user.firstName+"@test.com";
+            user.icon = "http://graph.facebook.com/"+Math.floor(Math.random()*1000)+10+"/picture";
+            user.isTest = true;
 
-            if (!client.isRunning) return;
+            user.save(function(err, res){
+                if (err){
+                    console.error(err);
+                    return;
+                }
 
-            var data = {};
-            data.angle = (Math.random() * Math.PI*2) - Math.PI;
-            data.isAccelerating = Math.random() > 0.5;
-            data.isFiring = Math.random() > 0.1,
-            data.isShielded = Math.random() > 0.8;
+                var bot = new Bot(res.id);
+                bot.run(HOST_NAME);
 
-            client.sendData(data);
+                if (++botCount >= NUM_BOTS){
+                    console.log(botCount +" bots created");
+                }
+            });
+        }
+    });
 
-            sendUpdate(client);
-        }, duration);
-    }
 });
 

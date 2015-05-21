@@ -84,6 +84,10 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             this.player.off();
             removeSprite(this.player.id);
 
+            delete this.player.connection;
+            delete this.player.user;
+            delete this.player.interval;
+
             delete this.player;
         },
 
@@ -116,12 +120,10 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
 
     function onPlayerUpdate(){
-
         var player = this;
         var zone = player.zone;
 
         if (!zone) return;
-
 
         if (player.get("isInvulnerable") && player.lastUpdated-player.created >= player.invulnerableTime){
             player.set("isInvulnerable", false);
@@ -162,48 +164,57 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         sprite = sprite || {};
 
-        var slayer = null;
-        if (sprite.type === "Player"){
-            slayer = sprite;
-        }else if (sprite.type === "Missile"){
-            slayer = sprite.player;
+        if (this.get('alive')){
+            if (sprite && sprite.type === "Player" && !sprite.isAlive()){
+                this.update().incrementKills().refresh();
+            }
+            sendPlayerInfo.call(this);
         }
+        else if (player.connection){
+            var slayer = null;
+            if (sprite && sprite.type === "Player"){
+                slayer = sprite.toJSON();
+            }else if (sprite && sprite.type === "Missile"){
+                slayer = sprite.player.toJSON();
+            }
 
-        if (player.connection){
-            var buffer = micro.toBinary({slayer: slayer ? slayer.toJSON() : null}, "GameOver");
+            var buffer = micro.toBinary({slayer:slayer}, "GameOver");
             player.connection.out.write(buffer);
-        }
 
-        if (slayer){
-            slayer.update().incrementKills().refresh();
-            sendPlayerInfo.call(slayer);
+            setTimeout(function(){
+                if (player.connection){
+                    player.connection.close();
+                }
+            }, 5000);
         }
-
-        clearInterval(player.interval);
-        player.off();
 
     }
 
-    function onMissileCollision(){
-
+    function onMissileCollision(sprite){
         var missile = this;
 
         clearInterval(missile.interval);
         missile.off();
         removeSprite(missile.id);
 
-        delete missile.player;
-        delete missile.zone;
-        delete missile.interval;
+        if (missile.zone){
+            missile.zone.removeSprite(missile,true);
+        }
+
+        if (sprite && sprite.type === "Player" && !sprite.isAlive()){
+            this.player.update().incrementKills().refresh();
+            sendPlayerInfo.call(this.player);
+        }
+
     }
 
     function sendPlayerInfo(){
         var player = this;
 
-        if (!player.connection) return;
-
-        var buffer = micro.toBinary(this.toJSON(), "PlayerInfo");
-        player.connection.out.write(buffer);
+        if (player.connection){
+            var buffer = micro.toBinary(this.toJSON(), "PlayerInfo");
+            player.connection.out.write(buffer);
+        }
     }
 
     return PlayerManager;

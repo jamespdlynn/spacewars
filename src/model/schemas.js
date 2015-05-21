@@ -45,9 +45,9 @@ define(['model/constants'],function(Constants){
         },
 
        GameData : {
-           players : [{type:"object", schema:"Player"}],
-           missiles : [{type:"object", schema:"Missile"}],
-           planets : [{type:"object", schema:"Planet"}],
+           players : {type:"array", element:{type:"object", schema:"Player"}, large:true},
+           missiles :  {type:"array", element:{type:"object", schema:"Missile"}, large:false},
+           planets :  {type:"array", element:{type:"object", schema:"Planet"}, large:false},
            playerId : "uint16"
        },
 
@@ -69,27 +69,23 @@ define(['model/constants'],function(Constants){
        },
 
        RemoveSprite : {
-          type : {type:"enum", values:["Player","Missile","Planet"]},
-          id : "uint16"
+           id : "uint16",
+           type : {type:"enum", values:["Player","Missile","Planet"]}
        },
 
        Collision : {
-           sprite1 : {
-               type:"object", schema:{
-                   type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint16",
-                   survived : "boolean"
-               }
-
-           },
-           sprite2 : {
-               type:"object", schema:{
-                   type : {type:"enum", values:["Player","Missile","Planet"]},
-                   id : "uint16",
-                   survived : "boolean"
-               }
-           },
-           zone : "uint8"
+           sprites : {
+               type : "array",
+               element : {
+                   type : "object",
+                   schema : {
+                       id:"uint16",
+                       type:{type:"enum", values:["Player","Missile","Planet"]},
+                       alive : "boolean"
+                   }
+               },
+               maxLength : 2
+           }
        },
 
        GameOver : {

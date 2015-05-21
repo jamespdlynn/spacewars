@@ -5,24 +5,26 @@ var http = require("http"),
     passport = require("passport"),
     less = require("less-middleware");
 
-require('./config/database')();
+var mongoose = require('./config/database')();
 require('./config/passport')(passport);
 
+var MongoStore = require('connect-mongo')(express);
 var app = express();
 
 app.set('env', process.argv[2] || process.env.NODE_ENV || 'production');
 app.set('port', process.argv[3] || process.env.PORT || '80');
 
-
 app.configure(function(){
     app.use(express.favicon());
     app.use(express.cookieParser());
-    app.use(express.session({secret:'h@t3rsg0nnah@te'}));
+    app.use(express.session({
+        secret:'h@t3rsg0nnah@te',
+        store:new MongoStore({mongooseConnection:mongoose.connection}),
+        cookie: { maxAge: 2592000000 }
+    }));
     app.use(passport.initialize());
     app.use(passport.session());
 });
-
-console.log(app.get('env'));
 
 app.configure('development', function() {
 

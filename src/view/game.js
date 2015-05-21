@@ -59,9 +59,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             preloader.loadManifest(manifest);
 
-
             viewIcon = document.getElementById("view");
-
 
         },
 
@@ -115,9 +113,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             gameData.on(Constants.Events.COLLISION, onCollision);
             gameData.on(Constants.Events.ZONE_CHANGED, onZoneChange);
-            gameData.on(Constants.Events.GAME_ENDING, function(){
-                gameEnding = true;
-            });
 
             updateTimeout = setTimeout(triggerUpdate, Constants.CLIENT_UPDATE_INTERVAL);
 
@@ -144,6 +139,10 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             }, 1000); */
         },
 
+        end : function(){
+            gameEnding = true;
+        },
+
         reset : function(){
             if (!GameView.isRunning) return;
 
@@ -155,10 +154,8 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             createjs.Ticker.removeEventListener("tick", onTick);
             createjs.Sound.stop();
 
-            gameData.off(Constants.Events.ZONE_CHANGED);
-            gameData.off(Constants.Events.COLLISION);
-            gameData.off(Constants.Events.USER_CHANGED);
-            gameData.off(Constants.Events.GAME_ENDING);
+            gameData.off(Constants.Events.ZONE_CHANGED, onZoneChange);
+            gameData.off(Constants.Events.COLLISION, onCollision);
 
             document.removeEventListener('keydown', onKeyDown);
             document.removeEventListener('keyup', onKeyUp);
@@ -278,9 +275,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
            scroll(evt);
         }
 
-
-
-
         stage.update(evt);
 
     }
@@ -378,22 +372,27 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
     function onCollision(data){
 
-        var survived1 = data.sprite1 && data.sprite1.survived;
-        var survived2 = data.sprite2 && data.sprite2.survived;
+        var model1 = data[0] ? gameData.get(data[0]) : null;
+        var model2 = data[1] ? gameData.get(data[1]) : null;
 
-        var model1 = survived1 ? gameData.get(data.sprite1) : gameData.remove(data.sprite1);
-        var model2 = survived2 ? gameData.get(data.sprite2) : gameData.remove(data.sprite2);
+        if (!model1 && !model2) return;
 
-        if (!model1){
-            if (!model2) return;
-            model1 = model2;
+        if (model1 && !data[0].alive){
+            gameData.remove(model1.set('alive', false));
         }
 
-        if ((!survived1 && !survived2) || (!survived1 && model1.type==="Player") || (!survived2 && model2 && model2.type==="Player"))
-        {
+        if (model2 && !data[1].alive){
+            gameData.remove(model2.set('alive', false));
+        }
+
+        model1 = model1 || model2;
+        model2 = model2 || model1;
+
+        if ((!model1.isAlive() && !model2.isAlive()) || (!model1.isAlive() && model1.is("Player")) || (!model2.isAlive() && model2.is("Player"))){
+
             var model, explosion;
 
-            if (!model2 || model1.height > model2.height){
+            if (model1.height > model2.height){
                 model = model1;
             }
             else if (model2.height > model1.height){
@@ -412,11 +411,13 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             stage.addChild(explosion);
         }
-        else if ((model1.type !== "Player" || !model1.isShieldBroken()) && model2 && (model2.type !== "Player" || !model2.isShieldBroken())){
-            playRelativeSound("collideSound", model);
+        else if (model1.is("Player") && !model1.isShieldBroken()){
+            playRelativeSound("collideSound", model1);
+        }
+        else if (model2.is("Player") && !model2.isShieldBroken()){
+            playRelativeSound("collideSound", model1);
         }
     }
-
 
     //Canvas Event Listeners
     function onMouseDown(evt){
@@ -538,16 +539,13 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 break;
 
             case 16:
-                if (!userShip.model.canShield()) break;
                 userShip.isShielded = true;
                 triggerUpdate();
                 break;
 
             case 82:
-                if (!userShip.model.canReload()) break;
                 userShip.isReloading = true;
                 triggerUpdate();
-                userShip.isReloading = false;
                 break;
 
             case 37:
@@ -558,7 +556,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             case 38:
             case 87:
-                if (!userShip.model.canAccelerate()) break;
                 userShip.isAccelerating = true;
                 triggerUpdate();
                 break;
@@ -609,8 +606,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     function triggerUpdate(){
         if (userShip.model && !document.isHidden()){
 
-            if (userShip.isAccelerating && !userShip.model.canAccelerate()) userShip.isAccelerating = false;
-            if (userShip.isShielded && !userShip.model.canShield()) userShip.isShielded = false;
+
 
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,
@@ -619,6 +615,8 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 isFiring:userShip.isFiring,
                 isReloading:userShip.isReloading
             });
+
+            userShip.isReloading = false;
         }
 
         clearTimeout(updateTimeout);

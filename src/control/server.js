@@ -24,6 +24,9 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
     return {
 
 
+        connectionCount : function(){
+            return connectionCount;
+        },
 
         run : function(isDev){
             //Initialize zones
@@ -63,7 +66,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
             //When a new connection request is received from a client
             wsServer.on("connection", onConnection);
 
-            isDevelopment = !!isDev;
+            isDevelopment = true;
 
         }
     };
@@ -76,7 +79,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
             return;
         }
 
-        var remoteKey, pingTimeout, updated, initialized, pm;
+        var pingTimeout, updated, initialized, player;
 
         connection.on("stream", function(stream, userId) {
 
@@ -97,7 +100,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
                 connection.in.on('data', readData);
                 addressMap[userId] = 1;
 
-                pm = new PlayerManager(connection, user);
+                player = PlayerManager.create(connection, user);
 
                 ping(connection);
                 connectionCount++;
@@ -113,22 +116,19 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
         connection.on("close", function(){
 
             clearTimeout(pingTimeout);
-            delete addressMap[remoteKey||""];
+            delete addressMap[player.user.id];
 
             connection.removeAllListeners();
             connection = undefined;
             connectionCount--;
 
-            if (pm){
-                pm.destroy();
-                pm = undefined;
-            }
+            PlayerManager.destroy(player);
+            player = undefined;
         });
 
         //Get things going by creating an output stream and pinging the client
         connection.out = connection.createStream();
         connection.out.readable = false;
-
 
         function readData(buffer){
 
@@ -156,10 +156,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
 
                     case "PlayerUpdate":
                         if (!initialized) break;
-
-                        if(pm.updatePlayer(data)){
-                            updated = true;
-                        }
+                        updated = PlayerManager.update(player,data);
                         break;
 
                     default:
@@ -190,7 +187,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
                     zone = serverZones[zone.id < NUM_ZONES-1 ? zone.id+1 : 0]
                 }
 
-                zone.addPlayer(pm.player, true);
+                zone.addPlayer(player, true);
                 initialized = true;
             }catch (err){
                 console.error("Error initializing zone: "+err.stack);

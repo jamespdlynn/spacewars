@@ -4,7 +4,9 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
 
 
         //Register Schemas
-        micro.register(schemas);
+        if (!micro._schemaNames.length){
+            micro.register(schemas);
+        }
 
         var Client = function(gameData){
             this.gameData = gameData;

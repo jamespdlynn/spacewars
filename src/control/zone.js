@@ -71,11 +71,11 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 var data = {};
                 data.zone = this.id;
                 data.angle = (Math.random() * (Math.PI * 2)) - Math.PI;
-                do{
+                //do{
                     data.posX = (Math.random()*this.model.width*0.8)+(this.model.width*0.1);
                     data.posY = (Math.random()*this.model.height*0.8)+(this.model.height*0.1);
-                }
-                while (!this._isValidPlayerPlacement(data));
+                //}
+                //while (!this._isValidPlayerPlacement(data));
                 player.set(data);
             }else{
                 player.update({silent:true}).set("zone", this.id);
@@ -90,7 +90,9 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
             //Send all necessary zone data to the player
             this.sendZoneData(player);
 
-            if (!place) this.detectCollision(player); //Detect collisions between the newly added player and every other sprite in zone
+            if (!place){
+                this.detectCollision(player);
+            } //Detect collisions between the newly added player and every other sprite in zone
 
             this.toggleUpdateInterval();
 
@@ -130,25 +132,20 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 this.toggleUpdateInterval();
 
                 return sprite;
-            }else{
-                console.log("HERE");
             }
-
 
             return null;
         },
 
         explodeSprite : function(sprite){
              if (this.model.get(sprite)){
-                 if (!sprite.collide().isAlive()){
-                     this.removeSprite(sprite);
-                 }
+                 sprite.set('isAlive', false);
 
                  this._sendToAll("Collision", {
                      sprites: [{
                          id: sprite.id,
                          type: sprite.type,
-                         alive: sprite.isAlive()
+                         alive: false
                      }]
                  });
 
@@ -257,14 +254,10 @@ define(["microjs","model/zone","model/constants"], function(micro, Zone, Constan
                 //Send updates or remove sprites as necessary
                 if (sprite1.isAlive()){
                     this.sendSprite(sprite1);
-                }else{
-                    this.removeSprite(sprite1, true);
                 }
 
                 if (sprite2.isAlive()){
                     this.sendSprite(sprite2);
-                }else {
-                    this.removeSprite(sprite2, true);
                 }
 
                 sprite1.trigger(Constants.Events.COLLISION, sprite2);

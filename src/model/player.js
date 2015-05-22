@@ -206,8 +206,8 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             return {
                 posX : data.posX,
                 posY : data.posY,
-                velocityX : (data.velocityX/2) + (cos * velocity),
-                velocityY : (data.velocityY/2) + (sin * velocity),
+                velocityX : (data.velocityX/3) + (cos * velocity),
+                velocityY : (data.velocityY/3) + (sin * velocity),
                 angle : data.angle,
                 playerId : data.id,
                 zone : data.zone
@@ -236,10 +236,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
 
         refresh : function(){
             this.reFuel();
-
-            if (!this.isShieldBroken()){
-                this.reShield();
-            }
+            this.reShield();
 
             if (this.data.ammo > 0){
                 this.reload();
@@ -252,9 +249,9 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             var level = this.data.kills;
             if (level < this.maxLevel){
                 //this.maxVelocity = Constants.Player.maxVelocity + level;
-                this.maxFuel =  Constants.Player.maxFuel + (5*level);
-                this.maxShields = Constants.Player.maxShields + (5*level);
-                //this.maxAmmo = Constants.Player.maxAmmo + level;
+                this.maxFuel =  Constants.Player.maxFuel + (4*level);
+                this.maxShields = Constants.Player.maxShields + (4*level);
+                this.maxAmmo = Constants.Player.maxAmmo + Math.floor(level/2);
             }
 
             return this;

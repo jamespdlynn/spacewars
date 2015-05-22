@@ -1,41 +1,42 @@
 define(["control/client","model/game","model/constants"], function(Client, GameData, Constants){
 
-	var SHIELD_RANGE = Constants.Player.width*2;
+	var SHIELD_RANGE = Constants.Player.width*3;
 	var FIRING_RANGE = Constants.Missile.maxDistance/2;
 
 	var Bot = function(userId) {
 		this.gameData = new GameData();
 		this.gameData.user.id = userId;
 		this.client = new Client(this.gameData);
+
+		this.active = false;
+		this.interval = null;
     };
 
 	extend.call(Bot.prototype, {
 		run : function(hostname){
+			hostname = hostname || "localhost";
+
+			if (this.active) return;
 
 			var self = this;
-
 			this.gameData.on(Constants.Events.CONNECTED, function(){
-				self.gameData.off();
-				self.gameData.on(Constants.Events.GAME_ENDING, function(){
-					self.gameData.off();
-					self.client.stop();
-				});
-
-				var interval = setInterval(function(){
-					if (self.client.isRunning){
-						self._update();
-					}else{
-						clearInterval(interval);
-					}
-				}, Constants.Events.CLIENT_UPDATE_INTERVAL);
+				self.interval = setInterval(self._update.bind(self), Constants.Events.CLIENT_UPDATE_INTERVAL);
 			});
+			this.gameData.on(Constants.Events.DISCONNECTED, this.stop.bind(this));
+			this.gameData.on(Constants.Events.GAME_ENDING, this.stop.bind(this));
 
-			hostname = hostname || "localhost";
 			this.client.run(hostname);
+
+			this.active = true;
 		},
 
 		stop : function(){
+			if (!this.active) return;
+
+			clearInterval(this.interval);
 			this.client.stop();
+			this.gameData.off();
+			this.active = false;
 		},
 
 		_update : function(){
@@ -44,7 +45,6 @@ define(["control/client","model/game","model/constants"], function(Client, GameD
 
 			var closestPlayer = null;
 			var minDistance = Infinity;
-
 
 			gameData.players.forEach(function(player){
 				if (player.id != userPlayer.id){
@@ -57,13 +57,15 @@ define(["control/client","model/game","model/constants"], function(Client, GameD
 				}
 			});
 
-
 			if (!closestPlayer){
-				this.client.stop();
+				this.stop();
 				return;
 			}
 
+			var kills = closestPlayer.get('kills');
+
 			var deltaTime = minDistance < FIRING_RANGE ? minDistance/Constants.Missile.velocity*1000 : 0;
+			deltaTime /= Math.max(5-closestPlayer.get('kills'), 1); //Gets harder the more kill the player has
 
 			var userData = userPlayer.clone().update(deltaTime/2).data;
 			var playerData = closestPlayer.clone().update(deltaTime).zoneAdjustedPosition(gameData.zone);
@@ -71,16 +73,20 @@ define(["control/client","model/game","model/constants"], function(Client, GameD
 			var deltaX = playerData.posX  - userData.posX;
 			var deltaY = playerData.posY - userData.posY;
 
+			var isAccelerating = userPlayer.get('isAccelerating');
+			var fuel = userPlayer.get('fuel');
+
+
 			var data = {
 				angle : Math.atan2(deltaY, deltaX),
 				isFiring : minDistance < FIRING_RANGE,
-				isAccelerating : minDistance > FIRING_RANGE/2 && userPlayer.get('isAccelerating') || userPlayer.get('fuel') > 20,
+				isAccelerating : (isAccelerating && minDistance > FIRING_RANGE/2) || (!isAccelerating && fuel > 20 && minDistance > FIRING_RANGE),
 				isShielded : minDistance < SHIELD_RANGE
 			};
 
 			if (!data.isShielded && userPlayer.canShield()){
 				gameData.missiles.forEach(function(missile){
-					if (missile.get("playerId") != userPlayer.id){
+					if (missile.get("playerId") != userPlayer.id && missile.id % (2+kills) !== 0){
 						var distance = userPlayer.getDistance(missile);
 						if (distance < SHIELD_RANGE){
 							data.isShielded = true;

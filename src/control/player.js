@@ -4,6 +4,81 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
     var MAX_SPRITES = 65536;
     var currentId = 0, spriteMap = {};
 
+
+    var PlayerManager = {
+
+        create : function(connection,user){
+            var player = createSprite(Player);
+
+            player.connection = connection;
+            player.user = user;
+            player.zone = null;
+
+            player.set("icon", user.icon);
+            player.set("name", user.fullName);
+
+            player.on(Constants.Events.UPDATE, onPlayerUpdate);
+            player.on(Constants.Events.COLLISION, onPlayerCollision);
+
+            player.interval = setInterval(function(){
+                var zone = player.update().zone;
+                if (zone) zone.sendPlayer(player);
+
+                sendPlayerInfo.call(player);
+            }, Constants.SERVER_UPDATE_INTERVAL);
+
+            return player;
+        },
+
+        destroy : function(player){
+            if (player.zone){
+                player.zone.removeSprite(player,true);
+            }
+
+            clearInterval(player.interval);
+            player.off();
+            removeSprite(player.id);
+
+            delete player.connection;
+            delete player.user;
+            delete player.interval
+
+            return player;
+        },
+
+        update: function(player, dataObj){
+
+            if (!player || !player.zone) return null;
+
+            //Update player data and set new data object
+            player.update().set({
+                angle : dataObj.angle,
+                isAccelerating : dataObj.isAccelerating && player.canAccelerate(),
+                isShielded : dataObj.isShielded && player.canShield()
+            });
+
+            if (player.hasChanged()){
+                var zone = player.zone;
+                //If player is accelerating then send the whole player model to clients, otherwise we can get away with just sending a 4 byte player update
+                if ((player.get("isAccelerating") && player.hasChanged("angle")) || player.hasChanged("isAccelerating")){
+                    zone.sendPlayer(player);
+                }else{
+                    zone.sendPlayerUpdate(player);
+                }
+            }
+
+            if (dataObj.isFiring && player.canFire()){
+                fireMissile.call(player);
+            }
+            else if (dataObj.isReloading && player.canReload()){
+                player.set('ammo', 0);
+            }
+
+            return player;
+        }
+
+    };
+
     function createSprite(SpriteClass){
         do{
             currentId = (currentId+1)% MAX_SPRITES;  //Increment id
@@ -18,105 +93,33 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         delete spriteMap[id.toString()];
     }
 
-    var PlayerManager = function(connection,user){
-        var player = createSprite(Player);
+    function fireMissile(){
 
-        player.connection = connection;
-        player.user = user;
-        player.zone = null;
+        var player = this;
 
-        player.set("icon", user.icon);
-        player.set("name", user.fullName);
+        if (!player.zone) return null;
 
-        player.on(Constants.Events.UPDATE, onPlayerUpdate);
-        player.on(Constants.Events.COLLISION, onPlayerCollision);
+        var missile = createSprite(Missile);
+        missile.set(player.fireMissile());
+        missile.player = player;
 
-        player.interval = setInterval(function(){
-           var zone = player.update().zone;
-           if (zone) zone.sendPlayer(player);
+        missile.interval = setInterval(function(){
+            var zone = missile.update().zone;
 
-           sendPlayerInfo.call(player);
+            if (missile.hasExceededMaxDistance()){
+                zone.explodeSprite(missile);
+            }else{
+                zone.sendMissile(missile);
+            }
+
         }, Constants.SERVER_UPDATE_INTERVAL);
 
-        this.player = player;
-    };
+        missile.on(Constants.Events.COLLISION, onMissileCollision);
 
+        player.zone.addMissile(missile);
 
-    extend.call(PlayerManager.prototype, {
-
-        updatePlayer : function(dataObj){
-
-            if (!this.player || !this.player.zone) return null;
-
-            //data object validation
-            if (dataObj.isAccelerating && !this.player.canAccelerate()) dataObj.isAccelerating = false;
-            if (dataObj.isShielded && !this.player.canShield()) dataObj.isShielded = false;
-            if (dataObj.isReloading && this.player.canReload()) this.player.set('ammo', 0); //Setting ammo to 0 will trigger a reload on the player update
-
-            //Update player data and set new data object
-            this.player.update().set(dataObj);
-
-            if (this.player.hasChanged()){
-                var zone = this.player.zone;
-                //If player is accelerating then send the whole player model to clients, otherwise we can get away with just sending a 4 byte player update
-                if ((this.player.get("isAccelerating") && this.player.hasChanged("angle")) || this.player.hasChanged("isAccelerating")){
-                    zone.sendPlayer(this.player);
-                }else{
-                    zone.sendPlayerUpdate(this.player);
-                }
-            }
-
-            if (dataObj.isFiring && this.player.canFire()){
-                this._fireMissile();
-            }
-
-            return this.player;
-        },
-
-        destroy : function(){
-            if (!this.player) return;
-
-            if (this.player.zone){
-                this.player.zone.removeSprite(this.player,true);
-            }
-
-            clearInterval(this.player.interval);
-            this.player.off();
-            removeSprite(this.player.id);
-
-            delete this.player.connection;
-            delete this.player.user;
-            delete this.player.interval;
-
-            delete this.player;
-        },
-
-        _fireMissile : function(){
-            if (!this.player || !this.player.zone) return null;
-
-            var missile = createSprite(Missile);
-            missile.set(this.player.fireMissile());
-            missile.player = this.player;
-
-            missile.interval = setInterval(function(){
-                var zone = missile.update().zone;
-
-                if (missile.hasExceededMaxDistance()){
-                    zone.explodeSprite(missile);
-                }else{
-                    zone.sendMissile(missile);
-                }
-
-            }, Constants.SERVER_UPDATE_INTERVAL);
-
-            missile.on(Constants.Events.COLLISION, onMissileCollision);
-
-            this.player.zone.addMissile(missile);
-
-            return missile;
-        }
-
-    });
+        return missile;
+    }
 
 
     function onPlayerUpdate(){
@@ -147,6 +150,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         if (player.get("ammo") === 0 && !player.isReloading){
+            sendPlayerInfo.call(player);
             player.isReloading = true;
             setTimeout(function(){
                 if (!player.zone || !player.isReloading) return;
@@ -201,11 +205,12 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             missile.zone.removeSprite(missile,true);
         }
 
-        if (sprite && sprite.type === "Player" && !sprite.isAlive()){
-            this.player.update().incrementKills().refresh();
-            sendPlayerInfo.call(this.player);
+        if (sprite && sprite.type === "Player" && !sprite.isAlive() && missile.player){
+            missile.player.update().incrementKills().refresh();
+            sendPlayerInfo.call(missile.player);
         }
 
+        delete missile.interval;
     }
 
     function sendPlayerInfo(){

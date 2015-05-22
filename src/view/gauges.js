@@ -67,7 +67,7 @@ define(['createjs', 'model/constants'],function(createjs, Constants){
         _tick : function(evt){
             
             var player = gameData.userPlayer;
-            var maxStep = 0.4 * (evt[0].delta/1000);
+            var maxStep = evt[0].delta/1000;
             var diff;
 
             diff = (player.maxFuel/100) - this.fuelBackground.scaleX;

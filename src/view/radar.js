@@ -119,7 +119,7 @@ define(['createjs','model/constants'],function(createjs, Constants){
                     if (angle >= revealer.rotation && angle <= revealer.rotation+45){
                         mark.alpha = 1;
                     }else{
-                        mark.alpha -= 1/(270/rotationStep);
+                        mark.alpha -= 1/(360/rotationStep);
                     }
                 }
             }

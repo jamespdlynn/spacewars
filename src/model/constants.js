@@ -6,10 +6,11 @@ define(function(){
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
-       MAX_PLAYERS : 5000,
+       MIN_PLAYERS :  50,
+       MAX_PLAYERS : 256,
        MAX_BUFFER_LENGTH : 5000,
 
-       SERVER_UPDATE_INTERVAL : 1000, //milliseconds
+       SERVER_UPDATE_INTERVAL : 800, //milliseconds
        CLIENT_UPDATE_INTERVAL : 200,
        COLLISION_DETECT_INTERVAL : 50,
 
@@ -36,11 +37,11 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 350,
-           maxVelocity : 170,
+           acceleration : 360,
+           maxVelocity : 180,
            rotationRate : 5.8,
            maxAmmo : 6,
-           fireInterval : 600,
+           fireInterval : 520,
            reloadTime : 3500,
            maxFuel : 100,
            fuelUseRate : 30,
@@ -59,7 +60,7 @@ define(function(){
            width : 12,
            height : 18,
            mass : 50,
-           velocity : 320,
+           velocity : 340,
            maxDistance : 1000
        },
 

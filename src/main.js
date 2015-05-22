@@ -137,9 +137,11 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
         });
 
-        gameData.on(Constants.Events.GAME_ENDING, function(slayer){
-           GameView.end();
-           ModalsView.showDeathModal(slayer);
+        var slayer;
+        gameData.on(Constants.Events.GAME_ENDING, function(obj){
+            GameView.end();
+            slayer = obj;
+           //ModalsView.showDeathModal(slayer);
         });
 
 
@@ -147,6 +149,8 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
             client.stop();
             GameView.reset();
             gameData.reset();
+            ModalsView.showDeathModal(slayer);
+
         });
 
         ModalsView.initialize();

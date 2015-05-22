@@ -546,6 +546,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             case 82:
                 userShip.isReloading = true;
                 triggerUpdate();
+                userShip.isReloading = false;
                 break;
 
             case 37:
@@ -606,8 +607,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     function triggerUpdate(){
         if (userShip.model && !document.isHidden()){
 
-
-
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,
                 isAccelerating:userShip.isAccelerating,
@@ -616,7 +615,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 isReloading:userShip.isReloading
             });
 
-            userShip.isReloading = false;
         }
 
         clearTimeout(updateTimeout);

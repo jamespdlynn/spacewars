@@ -1,11 +1,20 @@
 var jade = require("jade"),
-		 pkg = require('../package.json');
+	 mongoose = require("mongoose");
 
 module.exports = function(app, passport) {
 
-	var gameView = jade.renderFile('views/game.jade', {version:pkg.version});
-	var loginView = jade.renderFile('views/login.jade', {version:pkg.version});
-	var unsupportedView = jade.renderFile('views/unsupported.jade', {version:pkg.version});
+	var version = require('../package.json').version;
+
+	var gameView = jade.renderFile('views/game.jade', {version:version});
+	var loginView = jade.renderFile('views/login.jade', {version:version});
+	var unsupportedView = jade.renderFile('views/unsupported.jade', {version:version});
+
+	var User = mongoose.model('User');
+
+	var login = function(req, res){
+		res.cookie("userId", req.user.id, {httpOnly:false});
+		res.redirect('/');
+	};
 
 	app.get('/', function(req, res){
 
@@ -33,11 +42,6 @@ module.exports = function(app, passport) {
 	app.get('/auth/facebook', passport.authenticate('facebook', { scope : 'email' }));
 	app.get('/auth/google', passport.authenticate('google', { scope : 'https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile'}));
 
-	var login = function(req, res){
-		res.cookie("userId", req.user.id, {httpOnly:false});
-		res.redirect('/');
-	};
-
 	app.get('/auth/facebook/callback', passport.authenticate('facebook', {failureRedirect : '/login'}), login);
 	app.get('/auth/google/callback', passport.authenticate('google', {failureRedirect : '/login'}), login);
 
@@ -45,5 +49,15 @@ module.exports = function(app, passport) {
 		req.logout();
 		res.redirect('/login');
 	});
+
+	app.get('/stats', function(req, res, next){
+		User.find({highScore:{$gt:0}}).sort('-highScore').limit(10).exec(function(err, users){
+			if (err) return next(err);
+			res.send({leaderboard : users, user : req.user});
+		});
+	});
+
+
+
 
 };

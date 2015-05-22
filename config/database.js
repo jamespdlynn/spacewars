@@ -5,7 +5,7 @@ module.exports = function() {
 
 	mongoose.connect(auth.mongodb);
 
-	var userSchema = mongoose.Schema({
+	var UserSchema = mongoose.Schema({
 
 		email : {type:String, required:true},
 
@@ -25,21 +25,25 @@ module.exports = function() {
 			token : String
 		},
 
-		stats : {
-			kills : {type:Number, default:0},
-			deaths : {type:Number, default:0},
-			highScore : {type:Number, default:0}
-		},
+		highScore : {type:Number, default:0, index:true},
 
 		isTest : {type:Boolean, default:false}
 
 	});
 
-	userSchema.virtual('fullName').get(function(){
+	UserSchema.virtual('fullName').get(function(){
 		return this.firstName + ' ' + this.lastName;
 	});
 
-	mongoose.model('User', userSchema);
+	UserSchema.methods.toJSON = function() {
+		return {
+			name : this.fullName,
+			icon : this.icon,
+			highScore : this.highScore
+		}
+	};
+
+	mongoose.model('User', UserSchema);
 
 	return mongoose;
 };

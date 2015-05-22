@@ -22,7 +22,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
             player.interval = setInterval(function(){
                 var zone = player.update().zone;
-                if (zone) zone.sendPlayer(player);
+                zone.sendPlayer(player);
 
                 sendPlayerInfo.call(player);
             }, Constants.SERVER_UPDATE_INTERVAL);
@@ -31,17 +31,28 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         },
 
         destroy : function(player){
-            if (player.zone){
-                player.zone.removeSprite(player,true);
+            var zone = player.zone;
+            var user = player.user;
+
+            if (zone){
+                zone.removeSprite(player,true);
             }
 
             clearInterval(player.interval);
             player.off();
             removeSprite(player.id);
 
+            if (player.get('kills') > user.highScore){
+                user.highScore = player.get('kills');
+                user.save(function(err){
+                    if (err) console.error("Error saving user high score: "+err);
+                });
+            }
+
             delete player.connection;
             delete player.user;
-            delete player.interval
+            delete player.interval;
+            delete player.zone;
 
             return player;
         },
@@ -143,7 +154,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             zone.sendPlayerUpdate(player);
 
             setTimeout(function(){
-                if (!player.zone || !player.get("isShieldBroken")) return;
+                if (!player.isAlive() || !player.get("isShieldBroken")) return;
                 player.reShield().update();
                 sendPlayerInfo.call(player);
             }, player.shieldDownTime);
@@ -153,13 +164,14 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             sendPlayerInfo.call(player);
             player.isReloading = true;
             setTimeout(function(){
-                if (!player.zone || !player.isReloading) return;
+                if (!player.isAlive()  || !player.isReloading) return;
                 player.reload().update();
                 sendPlayerInfo.call(player);
 
                 delete player.isReloading;
             }, player.reloadTime);
         }
+
     }
 
     function onPlayerCollision(sprite){
@@ -168,28 +180,22 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
 
         sprite = sprite || {};
 
-        if (this.get('alive')){
-            if (sprite && sprite.type === "Player" && !sprite.isAlive()){
+        if (this.isAlive()){
+            if (sprite && sprite.is("Player") && !sprite.isAlive()){
                 this.update().incrementKills().refresh();
             }
             sendPlayerInfo.call(this);
         }
         else if (player.connection){
             var slayer = null;
-            if (sprite && sprite.type === "Player"){
+            if (sprite && sprite.is("Player")){
                 slayer = sprite.toJSON();
-            }else if (sprite && sprite.type === "Missile"){
+            }else if (sprite && sprite.is("Missile")){
                 slayer = sprite.player.toJSON();
             }
 
             var buffer = micro.toBinary({slayer:slayer}, "GameOver");
             player.connection.out.write(buffer);
-
-            setTimeout(function(){
-                if (player.connection){
-                    player.connection.close();
-                }
-            }, 5000);
         }
 
     }
@@ -211,6 +217,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         }
 
         delete missile.interval;
+        delete missile.zone;
     }
 
     function sendPlayerInfo(){

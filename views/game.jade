@@ -10,10 +10,10 @@ html
     canvas#game
     #icons
       #latency
-      #view(title='Toggle Camera Mode (z)')
-      #about(title='About (a)')
-      #sound(title='Toggle Sound (s)')
-      #full-screen(title='Toggle Full Screen (f)')
+      #view(title='Camera Lock (z)')
+      #info(title='Info (i)')
+      #sound(title='Sound (s)')
+      #full-screen(title='Full Screen (f)')
     #connecting Connecting
     #version Alpha #{version}
     #modal.modal
@@ -24,6 +24,7 @@ html
                 .modal-body
                   #load-bar
                     #progress-bar
+                  #pro-tip
 
     script.
         var modalDialog = document.getElementsByClassName('modal-dialog')[0];

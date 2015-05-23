@@ -4,20 +4,20 @@
             <h3 class="modal-title">Top Scores</h3>
         </div>
         <div class="modal-body">
-            <div class="container-fluid">
-                {{#each leaderboard}}
-                <div class="row">
-                    <div class="user col-xs-9">
-                        <img class="icon" src="{{icon}}"/>
-                        <span class="name">{{name}}</span>
-                    </div>
-                    <div class="score col-xs-3">
-                        <span>{{highScore}}</span>
-                    </div>
+            {{#each leaderboard}}
+                <div class="user">
+                    <img class="icon" src="{{icon}}"/>
+                    <span class="name">{{name}}</span>
+                    <span class="score">{{highScore}}</span>
                 </div>
-                {{/each}}
-            </div>
-
+            {{/each}}
+            {{#showUser}}
+                <div class="user me">
+                    <img class="icon" src="{{icon}}"/>
+                    <span class="name">{{name}}</span>
+                    <span class="score">{{highScore}}</span>
+                </div>
+            {{/showUser}}
         </div>
         <div class="modal-footer">
             <button id="deploy-button" class="btn btn-lg">Redeploy</button>

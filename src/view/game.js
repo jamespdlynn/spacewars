@@ -14,7 +14,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         //Set up Game View
         initialize : function(){
 
-            //createjs.Sound.alternateExtensions = ["mp3"];
+            createjs.Sound.alternateExtensions = ["mp3"];
 
             window.getRelativeVolume = function(model){
 
@@ -61,6 +61,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             viewIcon = document.getElementById("view");
 
+            document.getElementById("pro-tip").innerText = "Pro Tip: "+gameData.getTip();
         },
 
         run : function(){

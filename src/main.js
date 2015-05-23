@@ -128,9 +128,10 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
             document.getElementById("version").hide();
+            document.getElementById("icons").show();
 
             if (!gameData.user.hasPlayed){
-                ModalsView.showAboutModal();
+                ModalsView.showInfoModal();
                 gameData.user.hasPlayed = true;
                 gameData.trigger(Constants.Events.USER_CHANGED);
             }
@@ -155,11 +156,6 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         });
 
         ModalsView.initialize();
-
-        ajax('stats', function(err, res){
-            if (err) console.error(err);
-            ModalsView.showLeaderboardModal(res);
-        });
 
         GameView.initialize();
     }

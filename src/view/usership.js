@@ -32,6 +32,12 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
         initialize : function(){
             StarShip.prototype.initialize.call(this);
 
+            this.isShieldBroken = false;
+            this.kills = 0;
+
+            this.alertSound = createjs.Sound.createInstance('alertSound');
+            this.powerUpSound = createjs.Sound.createInstance('powerUpSound');
+
             this.reloadBar = new createjs.Shape();
             this.reloadBar.alpha = 0.95;
             this.reloadBar.visible = false;
@@ -69,6 +75,21 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
 
             if (!this.model.canShield()){
                 this.isShielded = false;
+            }
+
+            if (!this.isShieldBroken && this.model.get('isShieldBroken')){
+                this.alertSound.play({delay:500,loop:true});
+                this.isShieldBroken = true;
+            }
+            else if (this.isShieldBroken && !this.model.get('isShieldBroken')){
+                this.alertSound.stop();
+                this.powerUpSound.play();
+                this.isShieldBroken = false;
+                this.kills = this.model.get('kills');
+            }
+            else if (this.model.get('kills') >  this.kills){
+                this.kills = this.model.get('kills');
+                this.powerUpSound.play();
             }
         }
 

@@ -15,9 +15,10 @@ define(function(){
         {id:"collideSound", src:"collide.ogg"},
         {id:"explosionSound", src:"explosion.ogg"},
         {id:"shieldBreakSound", src:"deflect.ogg"},
+        {id:"powerUpSound", src:"power-up.ogg"},
         {id:"alertSound", src:"alert.ogg"},
 
-        {id:"deathIcon", src:"skull.png"},
+        //{id:"deathIcon", src:"skull.png"},
         {id:"killIcon", src:"target.png"},
         {id:"fuelIcon", src:"flame.png"},
         {id:"shieldIcon", src:"shield.png"},

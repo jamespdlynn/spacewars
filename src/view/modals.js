@@ -1,15 +1,28 @@
 define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
-        'txt!tpl/death.html', 'txt!tpl/leaderboard.html', 'txt!tpl/about.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html'],
-    function (Constants, Handlebars, connectionFailedTpl, disconnectedTpl, deathTpl, leaderboardTpl, aboutTpl, unsupportedBrowserTpl){
+        'txt!tpl/death.html', 'txt!tpl/leaderboard.html', 'txt!tpl/info.html', 'txt!tpl/info.html', 'txt!tpl/unsupported-browser.html'],
+    function (Constants, Handlebars, connectionFailedTpl, disconnectedTpl, deathTpl, leaderboardTpl, infoTpl, unsupportedBrowserTpl){
         'use strict';
 
         deathTpl = Handlebars.compile(deathTpl);
         leaderboardTpl = Handlebars.compile(leaderboardTpl);
 
+        Handlebars.registerHelper('showUser', function(obj){
+            if (!this.user) return '';
+            if (!this.leaderboard) return obj.fn();
+
+            for (var i=0; i < this.leaderboard.length; i++){
+                var user = this.leaderboard[i];
+                if (user.name === this.user.name && user.icon === this.user.icon){
+                    return '';
+                }
+            }
+            return obj.fn(this.user);
+        });
+
         var modal = document.getElementById("modal");
         var connecting = document.getElementById("connecting");
 
-        var aboutIcon = document.getElementById("about");
+        var infoIcon = document.getElementById("info");
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
         var latencyIcon = document.getElementById("latency");
@@ -23,12 +36,14 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
                      soundIcon.className = "active";
                  }
 
-                 aboutIcon.addEventListener("click", toggleAboutWindow);
+                 infoIcon.addEventListener("click", toggleInfoWindow);
                  soundIcon.addEventListener("click", toggleSound);
                  fullScreenIcon.addEventListener("click", toggleFullScreen);
 
                  document.addEventListener("keydown", onKeyDown);
-                 gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
+                 //gameData.on(Constants.Events.LATENCY_CHANGED, onLatencyChanged);
+
+
              },
 
              setConnecting : function(value){
@@ -63,27 +78,28 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
              },
 
              showLeaderboardModal : function(data){
+
                 ModalsView.showModal(leaderboardTpl(data));
                 document.getElementById("deploy-button").addEventListener("click", onSubmit);
                 return ModalsView;
              },
 
-             showAboutModal : function(){
+             showInfoModal : function(){
 
                  existingDialog = document.getElementsByClassName('modal-dialog')[0];
-                 ModalsView.showModal(aboutTpl);
+                 ModalsView.showModal(infoTpl);
 
-                 aboutIcon.className = "active";
+                 infoIcon.className = "active";
 
-                 document.getElementById("close-button").addEventListener("click", ModalsView.closeAboutModal);
+                 document.getElementById("close-button").addEventListener("click", ModalsView.closeInfoModal);
 
                  return this;
              },
 
-             closeAboutModal : function(){
+             closeInfoModal : function(){
                  modal.innerHTML = "";
                  modal.hide();
-                 aboutIcon.className = null;
+                 infoIcon.className = null;
 
                  if (existingDialog){
                      showModalById(existingDialog.id);
@@ -108,10 +124,9 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
              },
 
              removeModal : function(){
-
                  modal.innerHTML = "";
                  modal.hide();
-                 aboutIcon.className = null;
+                 infoIcon.className = null;
 
                  document.removeEventListener('keydown', onSubmit);
 
@@ -120,9 +135,9 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
         };
 
         function onKeyDown(evt){
-            /*switch (evt.keyCode){
-                case 65:
-                    toggleAboutWindow();
+            switch (evt.keyCode){
+                case 73:
+                    toggleInfoWindow();
                     break;
                 case 83:
                     toggleSound();
@@ -130,7 +145,7 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
                 case 70:
                     toggleFullScreen();
                     break;
-            }*/
+            }
         }
 
         function onLatencyChanged(value){
@@ -146,15 +161,13 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
         }
 
 
-        function toggleAboutWindow(){
-            if (aboutIcon.className !== "active"){
-                ModalsView.showAboutModal();
+        function toggleInfoWindow(){
+            if (infoIcon.className !== "active"){
+                ModalsView.showInfoModal();
             }else{
-                ModalsView.closeAboutModal();
+                ModalsView.closeInfoModal();
             }
         }
-
-
 
         function toggleSound(){
             if (!gameData.user.muted){

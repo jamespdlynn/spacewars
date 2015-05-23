@@ -28,7 +28,7 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
             return connectionCount;
         },
 
-        run : function(isDev){
+        run : function(){
             //Initialize zones
             serverZones = [];
             for (var i=0; i < NUM_ZONES; i++){
@@ -59,15 +59,13 @@ define(["binaryjs","microjs", "mongoose", "model/schemas","model/constants","con
 
             //Create a new BinaryServer Instance
             wsServer = new BinaryServer({
-                port : Constants.WS_PORT,
-                chunkSize : 256
+                port : Constants.WS_PORT
             });
 
             //When a new connection request is received from a client
             wsServer.on("connection", onConnection);
 
-            isDevelopment = true;
-
+            isDevelopment = (process.env.NODE_ENV == 'development');
         }
     };
 

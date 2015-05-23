@@ -2,7 +2,6 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
     function (binary, micro, schemas, Zone, Player, Missile, Constants){
         'use strict';
 
-
         //Register Schemas
         if (!micro._schemaNames.length){
             micro.register(schemas);
@@ -23,14 +22,8 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                 var self = this;
                 var gameData = this.gameData;
                 var url = "ws://"+hostname+":"+Constants.WS_PORT;
-                var wsClient;
+                var wsClient  = binary ? new binary.BinaryClient(url) : new BinaryClient(url);
 
-                if (binary){
-                    wsClient = new binary.BinaryClient(url, {chunkSize:256});
-                }else{
-                    wsClient = new BinaryClient(url, {chunkSize:256});
-                }
-                
                 wsClient.on('stream', function(stream){
                     wsClient.in = stream;
                     wsClient.in.writeable = false;

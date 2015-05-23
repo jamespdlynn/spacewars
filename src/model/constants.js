@@ -6,7 +6,7 @@ define(function(){
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
-       MIN_PLAYERS :  50,
+       MIN_PLAYERS :  3,
        MAX_PLAYERS : 256,
        MAX_BUFFER_LENGTH : 5000,
 
@@ -19,7 +19,7 @@ define(function(){
        //ASSETS_URL : "/assets/",
 
        FPS : 60,
-       SCROLL_SPEED : 600,
+       SCROLL_SPEED : 700,
        GAUGE_WIDTH : 200,
 
        Zone : {
@@ -37,11 +37,11 @@ define(function(){
            width : 52,
            height : 52,
            mass : 100,
-           acceleration : 360,
-           maxVelocity : 180,
+           acceleration : 340,
+           maxVelocity : 170,
            rotationRate : 5.8,
            maxAmmo : 6,
-           fireInterval : 520,
+           fireInterval : 500,
            reloadTime : 3500,
            maxFuel : 100,
            fuelUseRate : 30,
@@ -50,7 +50,7 @@ define(function(){
            shieldUseRate : 12,
            shieldRestoreRate : 3,
            shieldPadding : 12,
-           shieldHitDiscount : 35,
+           shieldHitDiscount : 30,
            shieldDownTime : 8000,
            invulnerableTime : 2000,
            maxLevel : 6
@@ -60,7 +60,7 @@ define(function(){
            width : 12,
            height : 18,
            mass : 50,
-           velocity : 340,
+           velocity : 345,
            maxDistance : 1000
        },
 

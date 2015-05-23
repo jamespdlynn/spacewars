@@ -20,7 +20,7 @@ define(['createjs', 'model/constants'],function(createjs, Constants){
         this.fuelIcon = new createjs.Bitmap(preloader.getResult('fuelIcon'));
         this.shieldsIcon = new createjs.Bitmap(preloader.getResult('shieldIcon'));
 
-        this.alertSound = createjs.Sound.createInstance('alertSound');
+
 
         this.initialize();
     };
@@ -70,6 +70,10 @@ define(['createjs', 'model/constants'],function(createjs, Constants){
             var maxStep = evt[0].delta/1000;
             var diff;
 
+            if (!player.isAlive()){
+                return;
+            }
+
             diff = (player.maxFuel/100) - this.fuelBackground.scaleX;
             this.fuelBackground.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
@@ -83,17 +87,15 @@ define(['createjs', 'model/constants'],function(createjs, Constants){
             diff = (player.get("shields")/100) - this.shieldsFill.scaleX;
             this.shieldsFill.scaleX += Math.min(Math.max(diff, -maxStep), maxStep);
 
-            var isShieldBroken = gameData.userPlayer.get("isShieldBroken");
+            var isShieldBroken = player.get("isShieldBroken");
             if (isShieldBroken && !this.shieldsWarning.visible){
                 this.shieldsWarning.visible = true;
                 this.shieldsWarning.alpha = 0;
                 createjs.Tween.get(this.shieldsWarning, {loop:true}).to({alpha:0.5},250).to({alpha:0},250);
-                this.alertSound.play({loop:true, delay:500});
             }
             else if (!isShieldBroken && this.shieldsWarning.visible){
                 this.shieldsWarning.visible = false;
                 createjs.Tween.removeTweens(this.shieldsWarning);
-                this.alertSound.stop();
             }
 
         }

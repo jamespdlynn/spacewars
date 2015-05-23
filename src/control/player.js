@@ -137,7 +137,7 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
         var player = this;
         var zone = player.zone;
 
-        if (!zone) return;
+        if (!player.isAlive()) return;
 
         if (player.get("isInvulnerable") && player.lastUpdated-player.created >= player.invulnerableTime){
             player.set("isInvulnerable", false);
@@ -186,16 +186,21 @@ define(['microjs','model/constants','model/player','model/missile'],function (mi
             }
             sendPlayerInfo.call(this);
         }
-        else if (player.connection){
-            var slayer = null;
-            if (sprite && sprite.is("Player")){
-                slayer = sprite.toJSON();
-            }else if (sprite && sprite.is("Missile")){
-                slayer = sprite.player.toJSON();
-            }
+        else{
+            player.off();
+            clearInterval(player.interval);
 
-            var buffer = micro.toBinary({slayer:slayer}, "GameOver");
-            player.connection.out.write(buffer);
+            if (player.connection){
+                var slayer = null;
+                if (sprite && sprite.is("Player")){
+                    slayer = sprite.toJSON();
+                }else if (sprite && sprite.is("Missile")){
+                    slayer = sprite.player.toJSON();
+                }
+
+                var buffer = micro.toBinary({slayer:slayer}, "GameOver");
+                player.connection.out.write(buffer);
+            }
         }
 
     }

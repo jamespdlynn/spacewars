@@ -1,12 +1,11 @@
 define(['model/dispatcher','model/zone','model/constants'], function(EventDispatcher,Zone,Constants){
 
     var TIPS = [
-        "Click the ? icon at the top of your screen for game info and complete list of controls",
-        "Your shield ( RMB ) will protect you from enemy fire, but direct hits will quickly deplete it!",
         "Playing in full screen mode ( F ) gives you greater field of vision.",
+        "Your shield ( RMB ) will protect you from enemy fire, but direct hits will quickly deplete it!",
         "Press ( R ) at any time to manually reload your ship's missiles.",
         "Utilize the camera control keys ( Z ) and ( C ) to better position your ship.",
-        "Destroying enemies increases your own ship's fuel, shields, ammo and max speed.",
+        "Destroying enemies both repletes and increases your ship's fuel, shields and ammo.",
         "When in close vicinity of an enemy, you can use your shield as a weapon!",
         "If your shield is depleted, protect yourself by targeting incoming enemy missiles.",
         "Always wear sunscreen when playing outside to protect yourself from harmful UV rays."

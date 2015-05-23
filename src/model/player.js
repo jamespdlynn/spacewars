@@ -31,16 +31,6 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             alive : true
         },
 
-        set: function() {
-            Sprite.prototype.set.apply(this, arguments);
-
-            if (this.hasChanged("kills")){
-               this._powerUp();
-            }
-
-            return this;
-        },
-
         _updateData : function(deltaSeconds){
 
             var data = this.data;
@@ -184,7 +174,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         },
 
         reShield : function(){
-            this.data.shields = this.isShieldBroken() ? this.maxShields/5 : this.maxShields;
+            this.data.shields = this.isShieldBroken() ? this.maxShields/2 : this.maxShields;
             this.data.isShieldBroken = false;
             return this;
         },

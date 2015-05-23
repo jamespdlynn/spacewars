@@ -1,7 +1,10 @@
 define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!tpl/disconnected.html',
-        'txt!tpl/death.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html'],
-    function (Constants, Handlebars, connectionFailedTpl, disconnectedTpl, deathTpl, aboutTpl, unsupportedBrowserTpl){
+        'txt!tpl/death.html', 'txt!tpl/leaderboard.html', 'txt!tpl/about.html', 'txt!tpl/about.html', 'txt!tpl/unsupported-browser.html'],
+    function (Constants, Handlebars, connectionFailedTpl, disconnectedTpl, deathTpl, leaderboardTpl, aboutTpl, unsupportedBrowserTpl){
         'use strict';
+
+        deathTpl = Handlebars.compile(deathTpl);
+        leaderboardTpl = Handlebars.compile(leaderboardTpl);
 
         var modal = document.getElementById("modal");
         var connecting = document.getElementById("connecting");
@@ -10,8 +13,6 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
         var soundIcon = document.getElementById("sound");
         var fullScreenIcon = document.getElementById("full-screen");
         var latencyIcon = document.getElementById("latency");
-
-        var deathTpl = Handlebars.compile(deathTpl);
 
         var existingDialog;
 
@@ -55,11 +56,16 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
                  return ModalsView;
              },
 
-             showDeathModal : function(slayer){
-                 console.log("HERE: "+deathTpl({slayer:slayer}));
-                 ModalsView.showModal(deathTpl({slayer:slayer}));
-                 document.getElementById("deploy-button").addEventListener("click", onSubmit);
-                 return ModalsView;
+             showDeathModal : function(data){
+                ModalsView.showModal(deathTpl(data));
+                document.getElementById("deploy-button").addEventListener("click", onSubmit);
+                return ModalsView;
+             },
+
+             showLeaderboardModal : function(data){
+                ModalsView.showModal(leaderboardTpl(data));
+                document.getElementById("deploy-button").addEventListener("click", onSubmit);
+                return ModalsView;
              },
 
              showAboutModal : function(){

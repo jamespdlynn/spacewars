@@ -137,11 +137,9 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
         });
 
-        var slayer;
-        gameData.on(Constants.Events.GAME_ENDING, function(obj){
+        gameData.on(Constants.Events.GAME_ENDING, function(data){
             GameView.end();
-            slayer = obj;
-           //ModalsView.showDeathModal(slayer);
+            ModalsView.showDeathModal(data);
         });
 
 
@@ -149,11 +147,20 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
             client.stop();
             GameView.reset();
             gameData.reset();
-            ModalsView.showDeathModal(slayer);
 
+            ajax('stats', function(err, res){
+               if (err) console.error(err);
+               ModalsView.showLeaderboardModal(res);
+            });
         });
 
         ModalsView.initialize();
+
+        ajax('stats', function(err, res){
+            if (err) console.error(err);
+            ModalsView.showLeaderboardModal(res);
+        });
+
         GameView.initialize();
     }
 
@@ -170,4 +177,22 @@ function getCookie(c_name) {
             return decodeURI(y);
         }
     }
+}
+
+function ajax(path, callback) {
+    var xmlhttp = new XMLHttpRequest();
+
+    xmlhttp.onreadystatechange = function() {
+        if (xmlhttp.readyState == XMLHttpRequest.DONE ){
+            if(xmlhttp.status == 200){
+                callback(null, JSON.parse(xmlhttp.responseText));
+            }
+            else{
+                callback(xmlhttp.responseText);
+            }
+        }
+    };
+
+    xmlhttp.open("GET", path, true);
+    xmlhttp.send();
 }

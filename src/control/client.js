@@ -122,7 +122,7 @@ define(['binaryjs', 'microjs', 'model/schemas', 'model/zone', 'model/player', 'm
                                 break;
 
                             case "GameOver":
-                                gameData.trigger(Constants.Events.GAME_ENDING, dataObj.slayer);
+                                gameData.trigger(Constants.Events.GAME_ENDING, dataObj);
                                 break;
 
                             default:

@@ -14,7 +14,7 @@
   z-index: 1;
 }
 
-#load-modal {
+#load {
 
   #load-bar {
     position: relative;
@@ -32,7 +32,7 @@
   }
 }
 
-#about-modal {
+#about {
 
   width: 800px;
 
@@ -84,7 +84,7 @@
 
 }
 
-#death-modal {
+#death {
 
   .icon{
     display: inline-block;
@@ -99,6 +99,57 @@
     padding-top: 10px;
   }
 
+}
+
+
+#leaderboard {
+  
+  .modal-body{
+    padding: 20px 120px;
+    height: 400px;
+    overflow-y: auto;
+    .row{
+
+      .user{
+
+        padding:0;
+        text-align: left;
+        margin-top: 15px;
+
+        .icon {
+          display: inline-block;
+          vertical-align: middle;
+          width: 48px;
+          height: 48px;
+        }
+
+        .name{
+          font-family: Soldier;
+          display: inline-block;
+          vertical-align: middle;
+          margin-left: 15px;
+          font-size: 24px;
+        }
+
+      }
+
+      .score{
+        text-align: left;
+        padding: 0;
+        font-size: 24px;
+        font-weight: bold;
+        color: #00FF00;
+        line-height: 80px;
+        background: url('@{assets}/target.png') no-repeat left 31px;
+
+        span{
+          padding-left: 30px;
+        }
+      }
+    }
+
+  }
+  
 }
 
 #tip {
@@ -121,31 +172,6 @@
   display: none;
 }
 
-#user {
-  position: fixed;
-  top: 12px;
-  left: 15px;
-  opacity: 0.9;
-  z-index: 3;
-
-  > #userIcon {
-    display: inline-block;
-    vertical-align: middle;
-
-    width: 48px;
-    height: 48px;
-    border-radius: 12px;
-  }
-
-  > #username {
-    display: inline-block;
-    vertical-align: middle;
-    font-family: soldier;
-    font-szie: 22px;
-    margin-left: 10px;
-    line-height: 48px;
-  }
-}
 
 #icons {
 

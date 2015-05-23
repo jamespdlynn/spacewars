@@ -51,7 +51,7 @@ module.exports = function(app, passport) {
 	});
 
 	app.get('/stats', function(req, res, next){
-		User.find({highScore:{$gt:0}}).sort('-highScore').limit(10).exec(function(err, users){
+		User.find({highScore:{$gt:0}}).sort('-highScore').limit(5).exec(function(err, users){
 			if (err) return next(err);
 			res.send({leaderboard : users, user : req.user});
 		});

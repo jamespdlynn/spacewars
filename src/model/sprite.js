@@ -149,7 +149,11 @@ define(['model/dispatcher','model/constants'],function(EventDispatcher, Constant
 
         detectCollision : function(sprite){
 
-            if (!sprite ||  this.equals(sprite) || this.get("isInvulnerable") || sprite.get("isInvulnerable") || this.get("zone") !== sprite.get("zone")){
+            if (!sprite ||  this.equals(sprite) ||
+                !this.isAlive() || !sprite.isAlive() ||
+                this.get("isInvulnerable") || sprite.get("isInvulnerable") ||
+                this.get("zone") !== sprite.get("zone"))
+            {
                 return false;
             }
 

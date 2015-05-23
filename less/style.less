@@ -26,6 +26,13 @@ html {
   color: #ffffff;
   font-family: 'Helvetica';
   background: url('@{assets}/background.png') #000;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .btn{
@@ -71,7 +78,6 @@ p{
   }
 }
 
-
 .modal{
   z-index:2;
   overflow: hidden;
@@ -107,6 +113,8 @@ p{
           font-family: 'SpaceRanger';
           font-weight: normal;
           line-height: 42px;
+          cursor: pointer;
+          pointer-events: none;
         }
       }
 

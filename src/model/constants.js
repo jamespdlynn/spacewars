@@ -6,6 +6,7 @@ define(function(){
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
+
        MIN_PLAYERS :  4,
        MAX_PLAYERS : 256,
        MAX_BUFFER_LENGTH : 5000,
@@ -60,7 +61,7 @@ define(function(){
            width : 12,
            height : 18,
            mass : 50,
-           velocity : 345,
+           velocity : 360,
            maxDistance : 1000
        },
 

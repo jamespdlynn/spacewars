@@ -7,7 +7,7 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
         leaderboardTpl = Handlebars.compile(leaderboardTpl);
 
         Handlebars.registerHelper('showUser', function(obj){
-            if (!this.user) return '';
+            if (!this || !this.user) return '';
             if (!this.leaderboard) return obj.fn();
 
             for (var i=0; i < this.leaderboard.length; i++){
@@ -73,13 +73,14 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
 
              showDeathModal : function(data){
                 ModalsView.showModal(deathTpl(data));
-                document.getElementById("deploy-button").addEventListener("click", onSubmit);
                 return ModalsView;
              },
 
              showLeaderboardModal : function(data){
 
                 ModalsView.showModal(leaderboardTpl(data));
+
+                 document.addEventListener('keydown', onSubmit);
                 document.getElementById("deploy-button").addEventListener("click", onSubmit);
                 return ModalsView;
              },
@@ -96,7 +97,7 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
                  return this;
              },
 
-             closeInfoModal : function(){
+             closeInfoModal : function(evt){
                  modal.innerHTML = "";
                  modal.hide();
                  infoIcon.className = null;
@@ -189,17 +190,20 @@ define(['model/constants', 'handlebars', 'txt!tpl/connection-failed.html', 'txt!
 
         function showModalById(id){
             switch (id){
-                case "welcome-modal":
+                case "welcome":
                     ModalsView.showWelcomeModal();
                     break;
-                case "connection-failed-modal":
+                case "connection-failed":
                     ModalsView.showConnectionFailedModal();
                     break;
-                case "disconnected-modal":
+                case "disconnected":
                     ModalsView.showDisconnectedModal();
                     break;
-                case "death-modal":
+                case "death":
                     ModalsView.showDeathModal();
+                    break;
+                case "leaderboard":
+                    ModalsView.showLeaderboardModal();
                     break;
                 default:
                     console.warn("Unknown modal id: "+id);

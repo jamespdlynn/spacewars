@@ -31,13 +31,18 @@ app.configure('development', function() {
     app.use(express.logger('dev'));
     app.use(express.errorHandler());
 
-    app.use(less({
-        src: __dirname + '/less',
-        dest : __dirname + '/public/css',
-        prefix : '/css',
-        force : true,
+    app.use(less(__dirname+'/less',{
+        preprocess: {
+            path: function(pathname) {
+                return pathname.replace(/\/css\//, '/').replace(/\\css\\/, '\\');
+            },
+            less : function(src){
+                return '@assets: "/assets";'+src;
+            }
+        },
+        dest : __dirname + '/public',
         debug : true,
-        once : false
+        force : true
     }));
 
     app.use(express.static(__dirname+"/public"));
@@ -47,11 +52,18 @@ app.configure('development', function() {
 
 app.configure('production', function(){
 
-    app.use(less({
-        src: __dirname + '/less',
-        dest : __dirname + '/public/css',
-        prefix : '/css',
-        optimization: 2,
+    var assetsURL = "http://dazx2ug0v9sfb.cloudfront.net/";
+
+    app.use(less(__dirname+'/less',{
+        preprocess: {
+            path: function(pathname) {
+                return pathname.replace(/\/css\//, '/').replace(/\\css\\/, '\\');
+            },
+            less : function(src){
+                return '@assets: "'+assetsURL+'";'+src;
+            }
+        },
+        dest : __dirname + '/public',
         compress : true,
         once : true
     }));

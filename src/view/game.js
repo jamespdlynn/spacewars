@@ -3,7 +3,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     'use strict';
 
     var PADDING = 15;
-    var MAX_DISTANCE = Math.getDistance(Constants.Zone.width*2, Constants.Zone.height*2);
+    var MAX_DISTANCE = Math.getDistance(Constants.Zone.width*1.5, Constants.Zone.height*1.5);
 
     var stage, background, overlay, userShip, sprites,  updateTimeout, scrollDirection, viewIcon, gameEnding;
 
@@ -24,12 +24,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
                 var data = model.zoneAdjustedPosition(gameData.zone);
                 var distance = Math.getDistance(data.posX , data.posY, centerX, centerY);
 
-                if (distance > MAX_DISTANCE/2){
-                   return 0.2;
-                }else if (distance > MAX_DISTANCE/4){
-                   return  0.5;
-                }
-                return 1;
+                return Math.max(1-(distance/MAX_DISTANCE), 0);
             };
 
             window.setRelativeVolume = function(sound, model){

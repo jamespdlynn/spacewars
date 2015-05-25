@@ -31,6 +31,14 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
             alive : true
         },
 
+        set: function() {
+            Sprite.prototype.set.apply(this, arguments);
+            if (this.hasChanged('kills')){
+                this._powerUp();
+            }
+            return this;
+        },
+
         _updateData : function(deltaSeconds){
 
             var data = this.data;
@@ -238,7 +246,7 @@ define(['model/sprite','model/constants'],function(Sprite, Constants){
         _powerUp : function(){
             var level = this.data.kills;
             if (level < this.maxLevel){
-                //this.maxVelocity = Constants.Player.maxVelocity + level;
+                this.maxVelocity = Constants.Player.maxVelocity + (2*level);
                 this.maxFuel =  Constants.Player.maxFuel + (4*level);
                 this.maxShields = Constants.Player.maxShields + (4*level);
                 this.maxAmmo = Constants.Player.maxAmmo + Math.floor(level/2);

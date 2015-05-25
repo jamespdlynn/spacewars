@@ -1,6 +1,6 @@
 define(["control/client","model/game","model/constants"], function(Client, GameData, Constants){
 
-	var SHIELD_RANGE = Constants.Player.width*3;
+	var SHIELD_RANGE = Constants.Player.width*4;
 	var FIRING_RANGE = Constants.Missile.maxDistance/2;
 
 	var Bot = function(userId) {

@@ -109,7 +109,15 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
 
         gameData.on(Constants.Events.CONNECTED, function(){
            ModalsView.removeModal().setConnecting(false);
-           GameView.run();
+
+            if (!gameData.user.hasPlayed){
+                ModalsView.showInfoModal();
+                gameData.user.hasPlayed = true;
+                gameData.trigger(Constants.Events.USER_CHANGED);
+            }
+
+            document.getElementById("icons").show();
+            GameView.run();
         });
 
         gameData.on(Constants.Events.DISCONNECTED, function(){
@@ -128,14 +136,6 @@ require(['view/modals','view/game','control/client','model/constants','model/gam
         gameData.on(Constants.Events.GAME_START, function(){
             ModalsView.setConnecting(false);
             document.getElementById("version").hide();
-            document.getElementById("icons").show();
-
-            if (!gameData.user.hasPlayed){
-                ModalsView.showInfoModal();
-                gameData.user.hasPlayed = true;
-                gameData.trigger(Constants.Events.USER_CHANGED);
-            }
-
         });
 
         gameData.on(Constants.Events.GAME_ENDING, function(data){
@@ -182,8 +182,7 @@ function ajax(path, callback) {
         if (xmlhttp.readyState == XMLHttpRequest.DONE ){
             if(xmlhttp.status == 200){
                 callback(null, JSON.parse(xmlhttp.responseText));
-            }
-            else{
+            }else{
                 callback(xmlhttp.responseText);
             }
         }

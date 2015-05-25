@@ -6,7 +6,7 @@ define(function(){
        WS_PORT : "8080",
 
        WORLD_SIZE : 16,
-       MIN_PLAYERS :  3,
+       MIN_PLAYERS :  4,
        MAX_PLAYERS : 256,
        MAX_BUFFER_LENGTH : 5000,
 
@@ -42,7 +42,7 @@ define(function(){
            rotationRate : 5.8,
            maxAmmo : 6,
            fireInterval : 500,
-           reloadTime : 3500,
+           reloadTime : 3000,
            maxFuel : 100,
            fuelUseRate : 30,
            fuelRestoreRate : 25,

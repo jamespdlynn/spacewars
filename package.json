@@ -10,7 +10,7 @@
     "connect-mongo": "^0.8.1",
     "express": "3.4.6",
     "jade": "^1.9.2",
-    "less-middleware": "0.1.15",
+    "less-middleware": "^2.0.1",
     "memwatch": "^0.2.2",
     "microjs": "^1.0.0",
     "mongoose": "^4.0.3",

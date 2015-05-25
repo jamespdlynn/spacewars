@@ -33,7 +33,7 @@ define(['createjs','view/ship','graphics/darkship'],function(createjs,StarShip,e
         initialize : function(){
             StarShip.prototype.initialize.call(this);
 
-            this.nameLabel = new createjs.Text("", "8pt Arkitech", "#fff");
+            this.nameLabel = new createjs.Text("", "11pt Helvetica", "#fff");
             this.nameLabel.alpha = 0.95;
 
             this.flame1.y += 1;

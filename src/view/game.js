@@ -252,11 +252,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         }
 
 
-        if (!stage.mouseInBounds){
-            userShip.isAccelerating = false;
-            userShip.isShielded = false;
-            userShip.isFiring = false;
-        }
+
 
         if (userShip.x < PADDING || userShip.y < PADDING || userShip.x >= window.innerWidth-PADDING || userShip.y >= window.innerHeight-PADDING){
             scrollDirection = "center";
@@ -452,6 +448,13 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     function onMouseMove(evt){
         if (!userShip.model) return;
 
+        if (!stage.mouseInBounds){
+            userShip.isAccelerating = false;
+            userShip.isShielded = false;
+            userShip.isFiring = false;
+            return;
+         }
+
         var deltaX = (evt.stageX - userShip.x);
         var deltaY = (evt.stageY - userShip.y);
         var radius = userShip.model.getRadius();
@@ -584,6 +587,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             case 87:
             case 38:
                 userShip.isAccelerating = false;
+                console.log('false 1');
                 break;
 
             case 37:

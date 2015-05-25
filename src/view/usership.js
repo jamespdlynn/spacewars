@@ -55,9 +55,9 @@ define(['createjs','view/ship','graphics/lightship'],function(createjs,StarShip,
 
         _tick : function(evt){
 
-
-
             StarShip.prototype._tick.call(this, evt);
+
+            this.angle = this.angle || this.model.get('angle');
 
             if (this.rotateDirection == "left") {
                 this.angle -= this.model.rotationRate * (evt[0].delta / 1000);

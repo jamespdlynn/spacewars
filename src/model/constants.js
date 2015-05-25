@@ -40,7 +40,7 @@ define(function(){
            mass : 100,
            acceleration : 340,
            maxVelocity : 170,
-           rotationRate : 5.8,
+           rotationRate : 5,
            maxAmmo : 6,
            fireInterval : 500,
            reloadTime : 3000,

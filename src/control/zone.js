@@ -1,7 +1,7 @@
 define(["microjs","model/zone","model/constants"], function(micro, Zone, Constants){
     'use strict';
 
-    var MAX_PLANETS = 5;
+    var MAX_PLANETS = 6;
     var PARTIAL_PLAYER_SIZE = 14;
     var PARTIAL_MISSILE_SIZE = 6;
 

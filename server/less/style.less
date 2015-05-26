@@ -1,0 +1,157 @@
+@import "bootstrap/bootstrap";
+
+@font-face{
+  font-family: SpaceRanger;
+  src: url('../fonts/spaceranger.ttf');
+}
+
+@font-face {
+  font-family: Arkitech;
+  src: url('../fonts/Arkitech Bold.ttf');
+}
+
+@font-face{
+  font-family: Soldier;
+  src: url('../fonts/soldiercond.ttf');
+}
+
+
+html {
+  min-width: 768px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  text-align: center;
+  color: #ffffff;
+  font-family: 'Helvetica';
+  background: url('@{assets}/background.png') #000;
+
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.btn{
+  border-radius: 5px;
+  color: #ffffff;
+  #gradient > .vertical(#357DC9,#2365AF);
+  border: 1px solid #357DC9;
+  padding: 8px 24px;
+  font-size: 22px;
+  font-family: "SpaceRanger";
+  font-weight: normal;
+
+  &:active{
+    #gradient > .vertical(#2365AF,#357DC9);
+    border-color:  #2365AF;
+  }
+
+  &:hover{
+    color: #eaeaea;
+  }
+
+  &:focus{
+    color: inherit;
+    outline: none;
+  }
+}
+
+
+a{
+  color: red;
+  text-decoration: none;
+}
+
+a:hover{
+  color: #E20000;
+}
+
+p{
+  margin-top: 0;
+
+  &:last-child{
+    margin-bottom: 0;
+  }
+}
+
+.modal{
+  z-index:2;
+  overflow: hidden;
+  border: none;
+  display: block;
+  margin: 0;
+  background-color: rgba(0,0,0,0.2);
+
+  .modal-dialog{
+    min-width: 720px;
+    margin-top: 120px;
+    font-size: 17px;
+    line-height: 28px;
+
+    .modal-content{
+      background: none;
+      border: none;
+      pointer-events:all;
+      margin-top: -20px;
+      min-height: 185px;
+      box-shadow: none;
+
+
+      .modal-header{
+        padding: 0;
+        margin:0;
+        border: none;
+        min-height: 0;
+        pointer-events: none;
+
+        .modal-title{
+          font-size: 42px;
+          text-shadow: 1px 1px 1px #000;
+          font-family: 'SpaceRanger';
+          font-weight: normal;
+          line-height: 42px;
+          cursor: pointer;
+
+        }
+      }
+
+      .modal-body{
+        padding: 20px;
+      }
+
+      .modal-footer{
+        border: none;
+        text-align: center;
+        padding: 0;
+        min-height: 48px;
+      }
+
+    }
+  }
+
+
+
+}
+
+#version {
+  font-size: 8px;
+  position: fixed;
+  bottom: 15px;
+  right: 15px;
+  z-index: 0;
+  font-family: 'Arkitech';
+}
+
+
+
+
+
+
+
+
+
+
+

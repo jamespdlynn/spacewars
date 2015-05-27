@@ -10,13 +10,13 @@ switch (process.env.NODE_ENV)
 			'facebook' : {
 				'clientID' 		: '892356054140847', // your App ID
 				'clientSecret' 	: '7a72ba73e90801156661586c84240841', // your App Secret
-				'callbackURL' 	: 'http://hypergalactic.com/auth/facebook/callback'
+				'callbackURL' 	: 'http://hypergalactic.net/auth/facebook/callback'
 			},
 
 			'google' : {
 				'clientID' 		: '66960280098-17j7p6kc4ml1lsijp37bieup5i9ftlpd.apps.googleusercontent.com',
 				'clientSecret' 	: 'QfqPS7ax8OcqliTCzDCgK-K5',
-				'callbackURL' 	: 'http://hypergalactic.com/auth/google/callback'
+				'callbackURL' 	: 'http://hypergalactic.net/auth/google/callback'
 			}
 
 		};

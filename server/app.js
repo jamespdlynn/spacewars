@@ -53,7 +53,7 @@ app.configure('development', function() {
 
 app.configure('production', function(){
 
-    var assetsURL = "http://dazx2ug0v9sfb.cloudfront.net/";
+    var assetsURL = "http://dazx2ug0v9sfb.cloudfront.net";
 
     app.use(less(path.join(__dirname, 'less'),{
         preprocess: {

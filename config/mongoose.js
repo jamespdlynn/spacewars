@@ -25,7 +25,7 @@ var UserSchema = mongoose.Schema({
 
 	highScore : {type:Number, default:0, index:true},
 
-	isTest : {type:Boolean, default:false}
+	isBot : {type:Boolean, default:false}
 
 });
 

@@ -28,7 +28,7 @@ requirejs.config({
 requirejs(["controls/bot"], function(Bot){
 
 
-    User.remove({isTest:true}, function(err){
+    User.remove({isBot:true}, function(err){
         if (err){
             console.error(err);
         }
@@ -41,7 +41,7 @@ requirejs(["controls/bot"], function(Bot){
             user.lastName = "Bot";
             user.email = user.firstName+"@test.com";
             user.icon = "http://graph.facebook.com/"+Math.floor(Math.random()*1000)+10+"/picture";
-            user.isTest = true;
+            user.isBot = true;
 
             user.save(function(err, res){
                 if (err){

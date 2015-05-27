@@ -34,7 +34,7 @@ requirejs.config({
 
 requirejs(["controls/server", "models/constants", "controls/bot"], function(Server, Constants, Bot){
 
-    User.find('_id').where({isTest:true}).limit(Constants.MIN_PLAYERS-1).exec(function(err, users){
+    User.find('_id').where({isBot:true}).limit(Constants.MIN_PLAYERS-1).exec(function(err, users){
         if (err){
             console.error(err);
             process.exit(-1);

@@ -5,7 +5,7 @@ mongoose.connect(auth.mongodb);
 
 var UserSchema = mongoose.Schema({
 
-	email : {type:String, required:true},
+	email : {type:String},
 
 	firstName : {type:String, required:true},
 

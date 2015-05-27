@@ -139,6 +139,7 @@ require(['views/modals','views/game','controls/client','models/constants','model
 
         gameData.on(Constants.Events.GAME_ENDING, function(data){
             GameView.end();
+            data.tip = gameData.getTip();
             ModalsView.showDeathModal(data);
         });
 

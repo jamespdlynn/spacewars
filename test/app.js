@@ -17,12 +17,12 @@ global.extend = function(add){
     return this;
 };
 
-var User = require('./mongoose')().model("User");
+var User = require('../config/mongoose').model("User");
 
 
 requirejs.config({
     nodeRequire : require,
-    baseUrl : '../src'
+    baseUrl : '../socket'
 });
 
 requirejs(["controls/bot"], function(Bot){

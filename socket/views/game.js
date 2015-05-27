@@ -56,7 +56,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
             viewIcon = document.getElementById("view");
 
-            document.getElementById("pro-tip").innerText = "Pro Tip: "+gameData.getTip();
         },
 
         run : function(){
@@ -237,7 +236,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     function onTick(evt){
 
         if (gameEnding){
-            var change = 0.3 * (evt.delta/1000);
+            var change = 0.25 * (evt.delta/1000);
 
             stage.alpha -= change;
             background.alpha -= change;

@@ -368,12 +368,12 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
 
         if (!model1 && !model2) return;
 
-        if (model1 && !data[0].alive){
-            gameData.remove(model1.set('alive', false));
+        if (model1 && !data[0].isAlive){
+            gameData.remove(model1.set('isAlive', false));
         }
 
-        if (model2 && !data[1].alive){
-            gameData.remove(model2.set('alive', false));
+        if (model2 && !data[1].isAlive){
+            gameData.remove(model2.set('isAlive', false));
         }
 
         model1 = model1 || model2;

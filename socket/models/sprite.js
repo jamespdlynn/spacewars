@@ -22,7 +22,7 @@ define(['models/dispatcher','models/constants'],function(EventDispatcher, Consta
             velocityX :0,
             velocityY: 0,
             isInvulnerable : false,
-            alive : true
+            isAlive : true
         },
 
         initialize : function(data){
@@ -104,7 +104,7 @@ define(['models/dispatcher','models/constants'],function(EventDispatcher, Consta
         /**@param {number | object} [deltaTime], @param {object} [options] */
         update : function(deltaTime, options){
 
-            if (this.data.alive === false){
+            if (!this.data.isAlive){
                 return this;
             }
 
@@ -171,7 +171,7 @@ define(['models/dispatcher','models/constants'],function(EventDispatcher, Consta
         },
 
         collide : function(){
-            this.set('alive', false);
+            this.set('isAlive', false);
             return this;
         },
 
@@ -289,7 +289,7 @@ define(['models/dispatcher','models/constants'],function(EventDispatcher, Consta
         },
 
         isAlive : function(){
-            return !!this.get('alive');
+            return !!this.get('isAlive');
         },
 
         isInvulnerable : function(){

@@ -112,16 +112,16 @@ define(["binaryjs","microjs", "mongoose", "models/schemas","models/constants","c
 
         //When the client terminated the websocket connections
         connection.on("close", function(){
-
-            clearTimeout(pingTimeout);
-            delete addressMap[player.user.id];
+            if (player){
+                delete addressMap[player.user.id];
+                clearTimeout(pingTimeout);
+                connectionCount--;
+                PlayerManager.destroy(player);
+                player = undefined;
+            }
 
             connection.removeAllListeners();
             connection = undefined;
-            connectionCount--;
-
-            PlayerManager.destroy(player);
-            player = undefined;
         });
 
         //Get things going by creating an output stream and pinging the client

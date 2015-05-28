@@ -28,7 +28,7 @@ define(['models/sprite','models/constants'],function(Sprite, Constants){
             isAccelerating : false,
             isShielded : false,
             isShieldBroken : false,
-            alive : true
+            isAlive : true
         },
 
         set: function() {

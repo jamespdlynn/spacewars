@@ -27,36 +27,16 @@ requirejs.config({
 
 requirejs(["controls/bot"], function(Bot){
 
-
-    User.remove({isBot:true}, function(err){
+    User.findOne({isBot:true}, function(err, user){
         if (err){
             console.error(err);
         }
 
-        var botCount = 0;
-
         for (var i=0; i < NUM_BOTS; i++){
-            var user = new User();
-            user.firstName = NAMES[i].trim();
-            user.lastName = "Bot";
-            user.email = user.firstName+"@test.com";
-            user.icon = "http://graph.facebook.com/"+Math.floor(Math.random()*1000)+10+"/picture";
-            user.isBot = true;
-
-            user.save(function(err, res){
-                if (err){
-                    console.error(err);
-                    return;
-                }
-
-                var bot = new Bot(res.id);
-                bot.run(HOST_NAME);
-
-                if (++botCount >= NUM_BOTS){
-                    console.log(botCount +" bots created");
-                }
-            });
+            new Bot(user.id).run(HOST_NAME);
         }
+
+         console.log(NUM_BOTS +" bots created");
     });
 
 });

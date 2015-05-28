@@ -18,7 +18,7 @@ define(['models/sprite','models/constants'],function(Sprite,Constants){
             velocityX : 0,
             velocityY : 0,
             angle : 0,
-            alive : true
+            isAlive : true
         },
 
         _updateData : function(deltaSeconds){

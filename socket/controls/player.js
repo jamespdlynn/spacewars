@@ -216,7 +216,7 @@ define(['microjs','models/constants','models/player','models/missile'],function 
             missile.zone.removeSprite(missile,true);
         }
 
-        if (sprite && sprite.type === "Player" && !sprite.isAlive() && missile.player){
+        if (sprite && sprite.is("Player") && !sprite.isAlive() && missile.player){
             missile.player.update().incrementKills().refresh();
             sendPlayerInfo.call(missile.player);
         }

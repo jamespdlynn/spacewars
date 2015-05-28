@@ -62,7 +62,6 @@ define(["controls/client","models/game","models/constants"], function(Client, Ga
 				return;
 			}
 
-			var kills = closestPlayer.get('kills');
 
 			var deltaTime = minDistance < FIRING_RANGE ? minDistance/Constants.Missile.velocity*1000 : 0;
 			deltaTime /= Math.max(5-closestPlayer.get('kills'), 1); //Gets harder the more kill the player has
@@ -76,7 +75,6 @@ define(["controls/client","models/game","models/constants"], function(Client, Ga
 			var isAccelerating = userPlayer.get('isAccelerating');
 			var fuel = userPlayer.get('fuel');
 
-
 			var data = {
 				angle : Math.atan2(deltaY, deltaX),
 				isFiring : minDistance < FIRING_RANGE,
@@ -85,10 +83,17 @@ define(["controls/client","models/game","models/constants"], function(Client, Ga
 			};
 
 			if (!data.isShielded && userPlayer.canShield()){
+
 				gameData.missiles.forEach(function(missile){
-					if (missile.get("playerId") != userPlayer.id && missile.id % (2+kills) !== 0){
+
+					var playerId = missile.get("playerId");
+
+					if (playerId != userPlayer.id){
+						var player = gameData.players.get(playerId);
+						var kills = player ? player.get('kills') : 5;
 						var distance = userPlayer.getDistance(missile);
-						if (distance < SHIELD_RANGE){
+
+						if (distance < SHIELD_RANGE && missile.id % (2+kills) === 0){
 							data.isShielded = true;
 						}
 					}

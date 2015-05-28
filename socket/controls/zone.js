@@ -111,7 +111,7 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
             this.sendMissile(missile,true);
 
             this.model.update();
-            this.detectCollision(missile);
+            this.detectAllCollisions();
 
             this.toggleUpdateInterval();
 
@@ -139,10 +139,10 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
 
         explodeSprite : function(sprite){
              if (sprite = this.model.get(sprite)){
-                 sprite.set('isAlive', false);
+                 sprite.collide();
 
                  this._sendToAll("Collision", {
-                     sprites: [{id: sprite.id, type: sprite.type, alive: false}]
+                     sprites: [{id: sprite.id, type: sprite.type, isAlive: false}]
                  });
 
                  sprite.trigger(Constants.Events.COLLISION);
@@ -235,8 +235,8 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
                 //send the collision data objects to the clients
                 this._sendToAll("Collision", {
                     sprites : [
-                        {id:sprite1.id, type:sprite1.type, alive:sprite1.isAlive()},
-                        {id:sprite2.id, type:sprite2.type, alive:sprite2.isAlive()},
+                        {id:sprite1.id, type:sprite1.type, isAlive:sprite1.isAlive()},
+                        {id:sprite2.id, type:sprite2.type, isAlive:sprite2.isAlive()},
                     ]
                 });
 

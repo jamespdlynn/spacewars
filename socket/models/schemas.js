@@ -81,7 +81,7 @@ define(['models/constants'],function(Constants){
                    schema : {
                        id:"uint16",
                        type:{type:"enum", values:["Player","Missile","Planet"]},
-                       alive : "boolean"
+                       isAlive : "boolean"
                    }
                },
                maxLength : 2

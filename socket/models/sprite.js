@@ -104,7 +104,9 @@ define(['models/dispatcher','models/constants'],function(EventDispatcher, Consta
         /**@param {number | object} [deltaTime], @param {object} [options] */
         update : function(deltaTime, options){
 
-            if (!this.data.isAlive) return;
+            if (this.data.alive === false){
+                return this;
+            }
 
             var currentTime = Date.now();
 

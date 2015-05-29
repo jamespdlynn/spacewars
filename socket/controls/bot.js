@@ -93,7 +93,7 @@ define(["controls/client","models/game","models/constants"], function(Client, Ga
 						var kills = player ? player.get('kills') : 5;
 						var distance = userPlayer.getDistance(missile);
 
-						if (distance < SHIELD_RANGE && missile.id % (2+kills) === 0){
+						if (distance < SHIELD_RANGE && missile.id % (2+kills) != 0){
 							data.isShielded = true;
 						}
 					}

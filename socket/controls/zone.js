@@ -287,7 +287,6 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
                     break;
             }
 
-            this.removeSprite(sprite);  //Remove sprite from this zone
 
             //Send sprite removal to clients of all adjacent zones that aren't shared with the new zone
             var i = this.adjacentZones.length;
@@ -299,6 +298,7 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
                 }
             }
 
+            this.removeSprite(sprite);  //Remove sprite from this zone
             newZone.addSprite(sprite);  //Add sprite to new zone
 
             return true;

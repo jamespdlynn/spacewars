@@ -37,7 +37,7 @@ requirejs(["controls/server", "models/constants", "controls/bot"], function(Serv
     User.find('_id').where({isBot:true}).limit(Constants.MIN_PLAYERS-1).exec(function(err, users){
         if (err){
             console.error(err);
-            process.exit(-1);
+            return;
         }
 
         var bots = users.map(function(user){
@@ -72,15 +72,16 @@ requirejs(["controls/server", "models/constants", "controls/bot"], function(Serv
                 }
             }
         }, 5000);
-
-        Server.run();
-
-        process.on('uncaughtException', function(error) {
-            console.error("Uncaught Exception: "+error.stack);
-        });
     });
 
+    Server.run();
+});
 
+process.on('uncaughtException', function(error) {
+    console.error("Uncaught Exception: "+error.stack);
+    setTimeout(function(){
+        process.exit(-1);
+    },500);
 });
 
 

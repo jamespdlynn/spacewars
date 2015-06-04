@@ -6,6 +6,13 @@ var gameView = jade.renderFile('server/views/game.jade', {version:version});
 var loginView = jade.renderFile('server/views/login.jade', {version:version});
 var unsupportedView = jade.renderFile('server/views/unsupported.jade', {version:version});
 
+var nocache = function(req, res, next) {
+	res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');
+	res.header('Expires', '-1');
+	res.header('Pragma', 'no-cache');
+	next();
+}
+
 module.exports = function(app, passport) {
 
 	app.get('/', function(req, res){
@@ -48,7 +55,7 @@ module.exports = function(app, passport) {
 		res.redirect('/login');
 	});
 
-	app.get('/stats', function(req, res, next){
+	app.get('/stats', nocache, function(req, res, next){
 		User.find({highScore:{$gt:0}}).sort('-highScore').limit(5).exec(function(err, users){
 			if (err) return next(err);
 			res.send({leaderboard : users, user : req.user});

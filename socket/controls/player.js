@@ -34,7 +34,6 @@ define(['microjs','models/constants','models/player','models/missile'],function 
 
         destroy : function(player){
             var zone = player.zone;
-            var user = player.user;
 
             if (zone){
                 zone.removeSprite(player,true);
@@ -44,12 +43,6 @@ define(['microjs','models/constants','models/player','models/missile'],function 
             player.off();
             removeSprite(player.id);
 
-            if (player.get('kills') > user.highScore){
-                user.highScore = player.get('kills');
-                user.save(function(err){
-                    if (err) console.error("Error saving user high score: "+err);
-                });
-            }
 
             delete player.connection;
             delete player.user;
@@ -182,9 +175,10 @@ define(['microjs','models/constants','models/player','models/missile'],function 
 
         if (this.isAlive()){
             if (sprite && sprite.is("Player") && !sprite.isAlive()){
-                this.update().incrementKills().refresh();
+                onPlayerKill.call(player);
+            }else{
+                sendPlayerInfo.call(player);
             }
-            sendPlayerInfo.call(this);
         }
         else{
             player.off();
@@ -217,12 +211,28 @@ define(['microjs','models/constants','models/player','models/missile'],function 
         }
 
         if (sprite && sprite.is("Player") && !sprite.isAlive() && missile.player){
-            missile.player.update().incrementKills().refresh();
-            sendPlayerInfo.call(missile.player);
+            onPlayerKill.call(missile.player);
         }
 
         delete missile.interval;
         delete missile.zone;
+    }
+
+    function onPlayerKill(){
+        var player = this;
+        var user = player.user;
+
+        if (player.isAlive()){
+            player.update().incrementKills().refresh();
+            sendPlayerInfo.call(player);
+
+            if (user && player.get('kills') > user.highScore){
+                user.highScore = player.get('kills');
+                user.save(function(err){
+                    if (err) console.error(err);
+                });
+            }
+        }
     }
 
     function sendPlayerInfo(){

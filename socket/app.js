@@ -14,18 +14,6 @@ global.extend = function(add){
     return this;
 };
 
-if (process.env.NODE_ENV === "development"){
-    var memwatch = require('memwatch');
-    memwatch.on('leak', function(info){
-        console.error("Memory Leak Detected: "+info.reason);
-    });
-    memwatch.on('stats', function(stats){
-        console.log(JSON.stringify(stats));
-    });
-
-    mongoose = require('mongoose');
-}
-
 
 requirejs.config({
     nodeRequire : require,

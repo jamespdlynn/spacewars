@@ -135,6 +135,16 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
         },
 
         end : function(){
+            clearTimeout(updateTimeout);
+
+            stage.off('stagemousedown', onMouseDown);
+            stage.off('stagemouseup', onMouseUp);
+            stage.off('stagemousemove', onMouseMove);
+
+            document.removeEventListener('keydown', onKeyDown);
+            document.removeEventListener('keyup', onKeyUp);
+            scrollDirection = "";
+
             gameEnding = true;
         },
 
@@ -518,10 +528,6 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
             }
         }
 
-
-
-
-
     }
 
     function onKeyDown(evt){
@@ -604,7 +610,7 @@ function(createjs, Background, Overlay, Planet, UserShip, EnemyShip, Missile, Ex
     }
 
     function triggerUpdate(){
-        if (userShip.model && !document.isHidden()){
+        if (userShip.model && !document.isHidden() ){
 
             gameData.trigger(Constants.Events.PLAYER_UPDATE, {
                 angle:userShip.angle,

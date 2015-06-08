@@ -71,7 +71,7 @@ define(['createjs'],function(createjs){
         },
 
         _tick : function(){
-            if (this.player.hasChanged('kills')){
+            if (this.killLabel.text != this.player.get('kills')){
                 this.killLabel.text = this.player.get('kills');
                 this.cache(0, 0, WIDTH, HEIGHT);
             }

@@ -2,7 +2,6 @@ define(['createjs','graphics/lightmissile','models/constants'],
     function(createjs,missileGraphic,Constants){
         'use strict';
 
-
         var GRAPHIC_WIDTH = Constants.Missile.width*2;
         var SCALE = 0.9;
 

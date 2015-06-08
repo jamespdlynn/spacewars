@@ -75,6 +75,7 @@ requirejs(["controls/server", "models/constants", "controls/bot"], function(Serv
     });
 
     Server.run();
+    console.log("Socket Server Started");
 });
 
 process.on('uncaughtException', function(error) {

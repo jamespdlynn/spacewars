@@ -42,7 +42,7 @@ define(function(){
            maxVelocity : 170,
            rotationRate : 5,
            maxAmmo : 6,
-           fireInterval : 500,
+           fireInterval : 475,
            reloadTime : 3000,
            maxFuel : 100,
            fuelUseRate : 30,

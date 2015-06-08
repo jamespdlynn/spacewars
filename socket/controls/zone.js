@@ -264,7 +264,7 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
             var direction, newZone;
 
             //If sprite not in this zone or not out of zone bounds return false
-            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.outOfBounds())){
+            if (!(sprite = this.model.get(sprite)) || !(direction = sprite.outOfBounds()) || !sprite.isAlive()){
                 return false;
             }
 
@@ -316,7 +316,6 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
             return this.getNumPlayers() + this.getNumMissiles();
         },
 
-
         _sendToAll : function(type, json, byteLength){
             //Send to all connections attached this zone
             var buffer = micro.toBinary(json, type, byteLength);
@@ -365,7 +364,7 @@ define(["microjs","models/zone","models/constants"], function(micro, Zone, Const
          * @param {object} player
          */
         sendPlayerUpdate : function(player){
-            //if (this.checkZoneChange(player)) return;
+            if (!this.model.get(player)) return;
             this._sendToAll("PlayerUpdate", player.toJSON());
         },
 

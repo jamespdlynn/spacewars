@@ -21,6 +21,10 @@ define(['microjs','models/constants','models/player','models/missile'],function 
             player.on(Constants.Events.COLLISION, onPlayerCollision);
 
             player.interval = setInterval(function(){
+                if (!player.zone || !player.isAlive()){
+                    return;
+                }
+
                 var zone = player.update().zone;
                 if (!zone.checkZoneChange(player)){
                     zone.sendPlayer(player);
@@ -43,7 +47,6 @@ define(['microjs','models/constants','models/player','models/missile'],function 
             player.off();
             removeSprite(player.id);
 
-
             delete player.connection;
             delete player.user;
             delete player.interval;
@@ -54,7 +57,7 @@ define(['microjs','models/constants','models/player','models/missile'],function 
 
         update: function(player, dataObj){
 
-            if (!player || !player.zone) return null;
+            if (!player.zone ||!player.isAlive()) return null;
 
             //Update player data and set new data object
             player.update().set({

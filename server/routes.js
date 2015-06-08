@@ -2,9 +2,9 @@ var jade = require("jade");
 var version = require('../package.json').version;
 var User = require("mongoose").model('User');
 
-var gameView = jade.renderFile('server/views/game.jade', {version:version});
-var loginView = jade.renderFile('server/views/login.jade', {version:version});
-var unsupportedView = jade.renderFile('server/views/unsupported.jade', {version:version});
+var gameView = jade.renderFile(__dirname+'/views/game.jade', {version:version});
+var loginView = jade.renderFile(__dirname+'/views/login.jade', {version:version});
+var unsupportedView = jade.renderFile(__dirname+'/views/unsupported.jade', {version:version});
 
 var nocache = function(req, res, next) {
 	res.header('Cache-Control', 'private, no-cache, no-store, must-revalidate');

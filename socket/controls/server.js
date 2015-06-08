@@ -65,7 +65,7 @@ define(["binaryjs","microjs", "mongoose", "models/schemas","models/constants","c
             //When a new connection request is received from a client
             wsServer.on("connection", onConnection);
 
-            isDevelopment = (process.env.NODE_ENV == 'development');
+            isDevelopment = (process.env.NODE_ENV != 'production');
         }
     };
 

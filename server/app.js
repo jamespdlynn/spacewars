@@ -16,7 +16,9 @@ var passport = require('../config/passport');
 var MongoStore = require('connect-mongo')(session);
 var app = express();
 
+app.set('env', process.env.NODE_ENV);
 app.set('port', process.env.PORT || '80');
+
 
 app.use(cookieParser());
 app.use(session({
@@ -30,9 +32,10 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-switch (process.env.NODE_ENV)
+switch (app.get('env'))
 {
     case 'development':
+    case 'integration':
     default :
         app.use(errorHandler());
 
